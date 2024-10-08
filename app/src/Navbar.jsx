@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import menuImage from "./assets/avatar.png";
 	
 	
-export default function Navbar() {
+function Navbar() {
 	let Links = [
 		{ name: 'Home', link: '/', active: false },
 		{ name: 'About', link: '/about', active: false },
@@ -23,10 +23,10 @@ export default function Navbar() {
 				<div onClick={() => setIsOpen(!isOpen)} className='navbar-graphic'>
 					{isOpen ? <XMarkIcon/> : <Bars3Icon/>}
 				</div>
-				<ul className={`flex transition-opacity ease-in-out delay-150 duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`}>
+				<ul className={`flex transition-opacity ease-in-out delay-100 duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`}>
 					{
 						Links.map(link => (
-							<li key={link.name} className="navbar-element">
+							<li key={link.name} className={`navbar-element ${isOpen ? '' : 'hidden'}`}>
 								<Link to={link.link}>{link.name}</Link>
 							</li>
 						))
@@ -36,3 +36,5 @@ export default function Navbar() {
 		</div>
 	);
 }
+
+export default Navbar

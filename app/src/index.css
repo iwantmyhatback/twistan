@@ -4,69 +4,69 @@
 
 
 @layer base {
-  .navbar-base {
-      @apply text-slate-200;
-      @apply bg-zinc-900;
-      @apply sticky; 
-      @apply py-2;
-      @apply shadow-md;
-      @apply drop-shadow-lg;
-  }
+	.navbar-base {
+		@apply text-slate-200;
+		@apply bg-zinc-900;
+		@apply sticky; 
+		@apply py-2;
+		@apply shadow-md;
+		@apply drop-shadow-lg;
+	}
 }
 
 @layer base {
-  .navbar-graphic {
-      @apply h-10;        /* Default Height */
-      @apply w-10;        /* Default Width */
-      @apply sm:h-10;
-      @apply sm:w-10;
-      @apply md:h-12;
-      @apply md:w-12;
-      @apply lg:h-14;
-      @apply lg:w-14;
-      @apply cursor-pointer;
-      @apply mx-2;
-      @apply hover:brightness-125;
-  }
+	.navbar-graphic {
+		@apply h-10;        /* Default Height */
+		@apply w-10;        /* Default Width */
+		@apply sm:h-10;
+		@apply sm:w-10;
+		@apply md:h-12;
+		@apply md:w-12;
+		@apply lg:h-14;
+		@apply lg:w-14;
+		@apply cursor-pointer;
+		@apply mx-2;
+		@apply hover:brightness-125;
+	}
 }
 
 @layer base {
-  .navbar-element {
-    @apply text-base;   /* Default Text Size */
-    @apply sm:text-sm;
-    @apply md:text-base;
-    @apply lg:text-lg;
-    @apply my-auto;     /* Default Y-axis Margin */
-    @apply mx-2;        /* Default X-axis Margin */
-    @apply sm:mx-2;
-    @apply md:mx-3;
-    @apply lg:mx-4;
-    @apply font-semibold;
-    @apply hover:brightness-125;
-  }
+	.navbar-element {
+		@apply text-base;   /* Default Text Size */
+		@apply sm:text-sm;
+		@apply md:text-base;
+		@apply lg:text-xl;
+		@apply my-auto;     /* Default Y-axis Margin */
+		@apply mx-2;        /* Default X-axis Margin */
+		@apply sm:mx-2;
+		@apply md:mx-3;
+		@apply lg:mx-4;
+		@apply font-semibold;
+		@apply hover:brightness-125;
+	}
 }
 
 @layer base {
-  .application-base {
-      @apply text-slate-300;
-      @apply bg-zinc-800;
-      @apply flex;
-      @apply items-center;
-      @apply place-content-center;
-      @apply min-h-screen;
-      @apply font-sans;
-  }
+	.application-base {
+		@apply text-slate-300;
+		@apply bg-zinc-800;
+		@apply flex;
+		@apply items-center;
+		@apply place-content-center;
+		@apply min-h-screen;
+		@apply font-sans;
+	}
 }
 
 @layer base {
-  .header-base {
-      @apply text-3xl;
-      @apply md:text-4xl;
-      @apply lg:text-5xl;
-      @apply font-extrabold;
-      @apply tracking-wide;
-      @apply m-10;
-  }
+	.header-base {
+		@apply text-3xl;
+		@apply md:text-4xl;
+		@apply lg:text-5xl;
+		@apply font-extrabold;
+		@apply tracking-wide;
+		@apply m-10;
+	}
 }
 
 
