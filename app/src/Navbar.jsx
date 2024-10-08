@@ -13,20 +13,20 @@ export default function Navbar() {
 	let [isOpen, setIsOpen] = useState(false);
 	
 	return (
-		<div className="font-display sticky w-full py-2 text-slate-300 bg-zinc-900 shadow-md drop-shadow-lg">
-			<div className="px-4 md:flex">
+		<div className="navbar-base">
+			<div className="px-4 flex">
 				{/* logo */}
-				<div className="flex cursor-pointer items-center pr-4 h-10 w-10">
-					<img className="hover:brightness-90" src={menuImage}/>
+				<div className="navbar-graphic">
+					<img className="" src={menuImage}/>
 				</div>
 				{/* menu icon */}
-				<div onClick={() => setIsOpen(!isOpen)} className='h-10 w-10 cursor-pointer'>
+				<div onClick={() => setIsOpen(!isOpen)} className='navbar-graphic'>
 					{isOpen ? <XMarkIcon/> : <Bars3Icon/>}
 				</div>
-				<ul className={`flex md:items-center ${isOpen ? '' : 'hidden'}`}>
+				<ul className={`flex transition-opacity ease-in-out delay-150 duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`}>
 					{
 						Links.map(link => (
-							<li key={link.name} className="text-s p-2 font-semibold md:ml-8">
+							<li key={link.name} className="navbar-element">
 								<Link to={link.link}>{link.name}</Link>
 							</li>
 						))

@@ -6,9 +6,9 @@ function Home() {
   const imageUrl = "https://c.tenor.com/Qy5sUxL5phgAAAAC/tenor.gif";
   return (
     <>
-      <div>
-        <div className="flex flex-col translate-y-[-10vh]">
-          <div className="text-5xl font-extrabold tracking-wide m-10 flex items-center justify-center text-slate-300">
+      <div className="">
+        <div className="flex-col translate-y-[-10vh]">
+          <div className="header-base flex items-center justify-center">
             [ Tristan says hello ]
           </div>
           <div className="m-10 flex items-center justify-center">
