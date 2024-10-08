@@ -3,7 +3,28 @@ import { useState } from 'react';
 
 function Home() {
 	const [visits, setVisits] = useState('');
-	const imageUrl = "https://c.tenor.com/Qy5sUxL5phgAAAAC/tenor.gif";
+	const images = [
+		"https://c.tenor.com/Qy5sUxL5phgAAAAC/tenor.gif",
+		"https://i.giphy.com/3bc9YL28QWi3pYzi1p.webp",
+		"https://i.giphy.com/WpIPS0DWNpMm4kfMVr.webp",
+		"https://i.giphy.com/Xev2JdopBxGj1LuGvt.webp",
+		"https://i.giphy.com/IThjAlJnD9WNO.webp",
+		"https://i.giphy.com/ASd0Ukj0y3qMM.webp",
+		"https://i.giphy.com/PK1YQhAoBOpP2.webp",
+		"https://i.giphy.com/8vc2rMUDjhy6Y.webp",
+		"https://i.giphy.com/W3keANaGsQLC5Ri8DM.webp",
+		"https://i.giphy.com/13TXV4kfn7r2iA.webp",
+		"https://i.giphy.com/8LDHJbotKQyp99YZCQ.webp",
+		"https://i.giphy.com/8JQOSCa7aJSbtVke4X.webp",
+		"https://i.giphy.com/JRgtgsZQSNYA5wEA6d.webp",
+		"https://c.tenor.com/59_-QOhxOcIAAAAC/tenor.gif",
+		"https://media.tenor.com/Feqwt9mkzq0AAAAM/2pac-waves.gif",
+		"https://media.tenor.com/neqnFd4CHWAAAAAM/up-wave.gif"
+
+
+	]
+
+	const imageUrl = "https://i.giphy.com/3bc9YL28QWi3pYzi1p.webp";
 	return (
 		<>
 			<div className="">
@@ -12,7 +33,7 @@ function Home() {
 						[ Twistan says hello ]
 					</div>
 					<div className=" flex justify-center">
-						<img src={imageUrl} alt="Wave"></img>
+						<img src={getRandomElementSecure(shuffleArray(images))} alt="Wave"></img>
 					</div>
 				</div>
 			</div>
@@ -20,5 +41,19 @@ function Home() {
 	);
 }
 
+function getRandomElementSecure(arr) {
+	const randomArray = new Uint32Array(1);
+	window.crypto.getRandomValues(randomArray);
+	const randomIndex = randomArray[0] % arr.length;
+	return arr[randomIndex];
+}
+
+function shuffleArray(array) {
+	for (let i = array.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[array[i], array[j]] = [array[j], array[i]];
+	}
+	return array;
+}
 export default Home;
 
