@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Globe from "../components/Globe"
 
 function Home() {
 	const [visits, setVisits] = useState('');
@@ -7,11 +8,11 @@ function Home() {
 		<>
 			<div className="">
 				<div className="flex-col translate-y-[-10vh]">
-					<div className="header-base flex items-center justify-center">
-						[ Tristan says hello ]
+					<div className="header-base flex justify-center">
+						[ Twistan says hello ]
 					</div>
-					<div className="m-10 flex items-center justify-center">
-						<img src={imageUrl} alt="Image"></img>
+					<div className=" flex justify-center">
+						<img src={imageUrl} alt="Wave"></img>
 					</div>
 				</div>
 			</div>

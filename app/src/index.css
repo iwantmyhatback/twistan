@@ -5,21 +5,17 @@
 
 @layer base {
 	.navbar-base {
-		@apply text-slate-200;
+		@apply text-slate-300;
 		@apply bg-zinc-900;
 		@apply sticky; 
 		@apply py-2;
 		@apply shadow-md;
 		@apply drop-shadow-lg;
 	}
-}
 
-@layer base {
 	.navbar-graphic {
 		@apply h-10;        /* Default Height */
 		@apply w-10;        /* Default Width */
-		@apply sm:h-10;
-		@apply sm:w-10;
 		@apply md:h-12;
 		@apply md:w-12;
 		@apply lg:h-14;
@@ -28,45 +24,75 @@
 		@apply mx-2;
 		@apply hover:brightness-125;
 	}
-}
 
-@layer base {
 	.navbar-element {
 		@apply text-base;   /* Default Text Size */
-		@apply sm:text-sm;
-		@apply md:text-base;
-		@apply lg:text-xl;
+		@apply md:text-lg;
+		@apply lg:text-2xl;
 		@apply my-auto;     /* Default Y-axis Margin */
 		@apply mx-2;        /* Default X-axis Margin */
-		@apply sm:mx-2;
 		@apply md:mx-3;
 		@apply lg:mx-4;
 		@apply font-semibold;
+		@apply font-roboto;
 		@apply hover:brightness-125;
 	}
-}
 
-@layer base {
 	.application-base {
-		@apply text-slate-300;
+		@apply text-slate-400;
 		@apply bg-zinc-800;
 		@apply flex;
 		@apply items-center;
 		@apply place-content-center;
 		@apply min-h-screen;
-		@apply font-sans;
+		@apply min-w-full;
+		@apply font-roboto;
 	}
-}
 
-@layer base {
-	.header-base {
+	.header-txt-size {
 		@apply text-3xl;
 		@apply md:text-4xl;
 		@apply lg:text-5xl;
 		@apply font-extrabold;
 		@apply tracking-wide;
+	}
+
+	.header-base {
+		@apply header-txt-size;
 		@apply m-10;
+	}
+
+	.paragraph-txt-size {
+		@apply text-sm;   /* Default Text Size */
+		@apply md:text-base;
+		@apply lg:text-lg;
 	}
 }
 
+@layer component {
+	.about-grid-element {
+		@apply paragraph-txt-size;
+		@apply bg-zinc-700;
+		@apply flex;
+		@apply justify-center;
+		@apply items-center;
+		@apply aspect-square; /* Ensures square shape */
+		@apply rounded-lg;
+		@apply p-3;
+		@apply hover:bg-zinc-600;
+	}
 
+	.about-grid-container {
+		@apply text-slate-300;
+		@apply grid;
+		@apply gap-6;
+		@apply grid-cols-3;
+		@apply justify-center;
+		@apply text-center;
+		@apply items-center;
+		@apply w-full;
+		@apply max-w-lg;
+		@apply mx-auto;
+		@apply p-6;
+	}
+}

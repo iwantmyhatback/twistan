@@ -255,6 +255,11 @@ export default {
 			'2xl': '0 25px 25px rgb(0 0 0 / 0.15)',
 			none: '0 0 #0000',
 		},
+		extend: {
+			fontFamily: {
+				roboto: ['Roboto', 'sans-serif'], // Define roboto as a custom font
+			},
+		},
 		fill: ({ theme }) => ({
 			none: 'none',
 			...theme('colors'),
