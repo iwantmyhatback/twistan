@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .application-view {
+      @apply bg-zinc-800;
+      @apply flex;
+      @apply items-center;
+      @apply place-content-center;
+      @apply min-h-screen;
+      @apply font-sans;
+  }
+}
