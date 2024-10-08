@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Globe from "../components/Globe"
+
 
 function Home() {
 	const [visits, setVisits] = useState('');
