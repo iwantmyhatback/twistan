@@ -1,36 +1,18 @@
 import { useState } from 'react';
+import ImageUrls from '../assets/ImageUrls';
 
 function Home() {
-  const images = [
-	"https://c.tenor.com/Qy5sUxL5phgAAAAC/tenor.gif",
-	"https://i.giphy.com/3bc9YL28QWi3pYzi1p.webp",
-	"https://i.giphy.com/WpIPS0DWNpMm4kfMVr.webp",
-	"https://i.giphy.com/Xev2JdopBxGj1LuGvt.webp",
-	"https://i.giphy.com/IThjAlJnD9WNO.webp",
-	"https://i.giphy.com/ASd0Ukj0y3qMM.webp",
-	"https://i.giphy.com/PK1YQhAoBOpP2.webp",
-	"https://i.giphy.com/8vc2rMUDjhy6Y.webp",
-	"https://i.giphy.com/W3keANaGsQLC5Ri8DM.webp",
-	"https://i.giphy.com/13TXV4kfn7r2iA.webp",
-	"https://i.giphy.com/8LDHJbotKQyp99YZCQ.webp",
-	"https://i.giphy.com/8JQOSCa7aJSbtVke4X.webp",
-	"https://i.giphy.com/JRgtgsZQSNYA5wEA6d.webp",
-	"https://c.tenor.com/59_-QOhxOcIAAAAC/tenor.gif",
-	"https://media.tenor.com/Feqwt9mkzq0AAAAM/2pac-waves.gif",
-	"https://media.tenor.com/neqnFd4CHWAAAAAM/up-wave.gif"
-  ];
-
-  const [imgUrl, setImgUrl] = useState(images[0]);
+  const [imgUrl, setImgUrl] = useState(ImageUrls[0]);
   const [fade, setFade] = useState(false);
 
   
   const handleNewImage = () => {
 	setFade(true);
 	setTimeout(() => {
-	let newImg = getRandomElementSecure(images);
+	let newImg = getRandomElementSecure(ImageUrls);
 		
 	while (imgUrl === newImg) {
-		newImg = getRandomElementSecure(images);
+		newImg = getRandomElementSecure(ImageUrls);
 	}
 	setImgUrl(newImg);
 	setFade(false); 
