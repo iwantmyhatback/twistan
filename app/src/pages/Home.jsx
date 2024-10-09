@@ -38,20 +38,22 @@ function Home() {
   };
 
   return (
-	<div className="flex flex-col items-center justify-center h-screen">
-		<div className="text-center mb-4">
-			<div className="header-base">
-			[] Twistan says hello ]
+	<div className="flex flex-col items-center h-screen">
+		<div className="w-[600px] h-[600px]">
+			<div className="text-center">
+				<div className="header-base">
+				[ Twistan says hello ]
+				</div>
 			</div>
-		</div>
-		
-		{/* Image Container */}
-		<div className="w-[300px] h-[300px] flex items-center justify-center mb-4">
-			<img
-			src={imgUrl}
-			alt="Wave"
-			className={`transition-opacity duration-300 object-contain max-h-full max-w-full ${fade ? 'opacity-0' : 'opacity-100'}`} 
-			/>
+			
+			{/* Image Container */}
+			<div className="flex items-center justify-center mb-4">
+				<img
+				src={imgUrl}
+				alt="Wave"
+				className={`transition-opacity duration-300 object-contain max-h-full max-w-full ${fade ? 'opacity-0' : 'opacity-100'}`} 
+				/>
+			</div>
 		</div>
 
 		{/* Button */}
