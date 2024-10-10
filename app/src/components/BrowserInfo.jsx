@@ -75,7 +75,7 @@ const BrowserInfo = () => {
     };
 
     const getBatteryInfo = async () => {
-      if ('getBattery' in navigator) {
+      if (typeof navigator.getBattery !== "undefined") {
         const battery = await navigator.getBattery();
         return {
           charging: battery.charging,
