@@ -67,6 +67,19 @@
 		@apply md:text-base;
 		@apply lg:text-lg;
 	}
+
+	.pre-base {
+		@apply bg-zinc-300;
+		@apply text-zinc-800;
+		@apply p-4;
+		@apply rounded-lg;
+		@apply max-w-2xl;
+		@apply md:max-w-3xl;
+		@apply lg:max-w-4xl;
+		@apply mx-auto;
+		@apply overflow-auto;
+		@apply break-words;
+	}
 }
 
 @layer component {

@@ -7,7 +7,8 @@ import menuImage from "./assets/avatar.png";
 function Navbar() {
 	let Links = [
 		{ name: 'Home', link: '/', active: false },
-		{ name: 'About', link: '/about', active: false },
+		{ name: 'About You', link: '/about-you', active: false },
+		{ name: 'About Me', link: '/about', active: false },
 	]
 
 	let [isOpen, setIsOpen] = useState(false);
