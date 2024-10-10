@@ -214,7 +214,7 @@ const BrowserInfo = () => {
   return (
     <div className="">
       <h1 className="header-base text-center">[ System Information ]</h1>
-      <pre className="pre-base">
+      <pre className="pre-base paragraph-txt-size">
         {JSON.stringify(info, null, 2)}
       </pre>
     </div>
