@@ -2,110 +2,99 @@
 @tailwind components;
 @tailwind utilities;
 
-
 @layer base {
-	.navbar-base {
-		@apply text-slate-300;
-		@apply bg-zinc-900;
-		@apply sticky; 
-		@apply py-2;
-		@apply shadow-md;
-		@apply drop-shadow-lg;
+	html {
+		scroll-behavior: smooth;
 	}
 
-	.navbar-graphic {
-		@apply h-10;        /* Default Height */
-		@apply w-10;        /* Default Width */
-		@apply md:h-12;
-		@apply md:w-12;
-		@apply lg:h-14;
-		@apply lg:w-14;
-		@apply cursor-pointer;
-		@apply mx-2;
-		@apply hover:brightness-125;
+	body {
+		@apply bg-surface text-neutral-300 font-sans antialiased;
 	}
 
-	.navbar-element {
-		@apply text-base;   /* Default Text Size */
-		@apply md:text-lg;
-		@apply lg:text-2xl;
-		@apply my-auto;     /* Default Y-axis Margin */
-		@apply mx-2;        /* Default X-axis Margin */
-		@apply md:mx-3;
-		@apply lg:mx-4;
-		@apply font-semibold;
-		@apply font-roboto;
-		@apply hover:brightness-125;
-	}
-
-	.application-base {
-		@apply text-slate-400;
-		@apply bg-zinc-800;
-		@apply flex;
-		@apply items-center;
-		@apply place-content-center;
-		@apply min-h-screen;
-		@apply min-w-full;
-		@apply font-roboto;
-	}
-
-	.header-txt-size {
-		@apply text-3xl;
-		@apply md:text-4xl;
-		@apply lg:text-5xl;
-		@apply font-extrabold;
-		@apply tracking-wide;
-	}
-
-	.header-base {
-		@apply header-txt-size;
-		@apply m-10;
-	}
-
-	.paragraph-txt-size {
-		@apply text-sm;   /* Default Text Size */
-		@apply md:text-base;
-		@apply lg:text-lg;
-	}
-
-	.pre-base {
-		@apply bg-zinc-300;
-		@apply text-zinc-800;
-		@apply p-4;
-		@apply rounded-lg;
-		@apply max-w-2xl;
-		@apply md:max-w-3xl;
-		@apply lg:max-w-4xl;
-		@apply mx-auto;
-		@apply overflow-auto;
-		@apply break-words;
+	::selection {
+		@apply bg-accent/30 text-white;
 	}
 }
 
-@layer component {
-	.about-grid-element {
-		@apply paragraph-txt-size;
-		@apply bg-zinc-700;
-		@apply flex;
-		@apply justify-center;
-		@apply items-center;
-		@apply aspect-square; /* Ensures square shape */
-		@apply rounded-lg;
-		@apply p-3;
-		@apply hover:bg-zinc-600;
+@layer components {
+	.section-container {
+		@apply max-w-5xl mx-auto px-6 sm:px-8 lg:px-12;
 	}
 
-	.about-grid-container {
-		@apply text-slate-300;
-		@apply grid;
-		@apply gap-6;
-		@apply grid-cols-3;
-		@apply justify-center;
-		@apply text-center;
-		@apply items-center;
+	.heading-xl {
+		@apply text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white;
+	}
+
+	.heading-lg {
+		@apply text-2xl md:text-3xl font-semibold tracking-tight text-white;
+	}
+
+	.text-body {
+		@apply text-base md:text-lg text-neutral-400 leading-relaxed;
+	}
+
+	.card {
+		@apply bg-surface-100 border border-surface-300 rounded-xl p-6
+		       transition-all duration-300 hover:border-surface-400;
+	}
+
+	.link-hover {
+		@apply relative inline-block text-neutral-300 transition-colors duration-200 hover:text-white;
+	}
+
+	.link-hover::after {
+		content: '';
+		@apply absolute bottom-0 left-0 w-0 h-px bg-accent/70 transition-all duration-300;
+	}
+
+	.link-hover:hover::after {
 		@apply w-full;
-		@apply max-w-lg;
-		@apply mx-auto;
-		@apply p-6;
+	}
+
+	/* Terminal green text shadow for active nav items */
+	.nav-active-glow {
+		text-shadow: 0 0 6px #33ff33, 0 0 12px rgba(51, 255, 51, 0.4);
+	}
+
+	/* Blue accent glow for "Twistan" navbar brand */
+	.brand-glow {
+		text-shadow: 0 0 8px #3b82f6, 0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.2);
+	}
+
+	/* Terminal green border glow for card hover */
+	.card-terminal-hover {
+		position: relative;
+		overflow: hidden;
+		transition: box-shadow 0.3s, border-color 0.3s;
+	}
+	.card-terminal-hover:hover {
+		border-color: #33ff33;
+		box-shadow: 0 0 8px rgba(51, 255, 51, 0.3), 0 0 16px rgba(51, 255, 51, 0.15);
+	}
+
+	/* GitHub icon green glow on hover */
+	.github-glow:hover {
+		color: #33ff33;
+		filter: drop-shadow(0 0 6px rgba(51, 255, 51, 0.5));
+	}
+
+	/* Green ripple effect on click */
+	.ripple-container {
+		position: relative;
+		overflow: hidden;
+	}
+	.ripple-container .ripple {
+		position: absolute;
+		border-radius: 50%;
+		background: rgba(51, 255, 51, 0.25);
+		transform: scale(0);
+		animation: ripple-expand 0.6s ease-out forwards;
+		pointer-events: none;
+	}
+	@keyframes ripple-expand {
+		to {
+			transform: scale(4);
+			opacity: 0;
+		}
 	}
 }

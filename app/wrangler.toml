@@ -1,0 +1,6 @@
+name = "twistan"
+compatibility_date = "2024-10-01"
+
+[[kv_namespaces]]
+binding = "CONTACT_SUBMISSIONS"
+id = "99b1efa188d544c78cff0a633c22d6df"
