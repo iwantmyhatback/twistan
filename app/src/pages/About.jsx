@@ -1,37 +1,102 @@
+import { motion } from 'framer-motion';
+import {
+	CodeBracketIcon,
+	ArrowPathIcon,
+	CommandLineIcon,
+	RocketLaunchIcon,
+	WrenchScrewdriverIcon,
+	CpuChipIcon,
+	BeakerIcon,
+	ServerStackIcon,
+	BoltIcon,
+	DevicePhoneMobileIcon,
+	ComputerDesktopIcon,
+	GlobeAltIcon,
+} from '@heroicons/react/24/outline';
+import { Link } from 'react-router-dom';
+import AnimatedSection from '../components/AnimatedSection';
 
+/**
+ * Spawns a green ripple at click position inside a target element.
+ * @param {React.MouseEvent} e
+ */
+function spawnRipple(e) {
+	const el = e.currentTarget;
+	const rect = el.getBoundingClientRect();
+	const size = Math.max(rect.width, rect.height);
+	const ripple = document.createElement('span');
+	ripple.className = 'ripple';
+	ripple.style.width = ripple.style.height = `${size}px`;
+	ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
+	ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
+	el.appendChild(ripple);
+	ripple.addEventListener('animationend', () => ripple.remove());
+}
+
+const skills = [
+	{ label: 'Development', icon: CodeBracketIcon },
+	{ label: 'CI/CD', icon: ArrowPathIcon },
+	{ label: 'Automation', icon: BoltIcon },
+	{ label: 'Dev Productivity', icon: RocketLaunchIcon },
+	{ label: 'DevOps', icon: WrenchScrewdriverIcon },
+	{ label: 'Scripting', icon: CommandLineIcon },
+	{ label: 'Deployment', icon: ServerStackIcon },
+	{ label: 'Testing', icon: BeakerIcon },
+	{ label: 'SysOps', icon: CpuChipIcon },
+	{ label: 'Device Management', icon: DevicePhoneMobileIcon },
+	{ label: 'macOS', icon: ComputerDesktopIcon },
+	{ label: 'Cross-Platform Mobile', icon: GlobeAltIcon },
+];
 
 function About() {
 	return (
-		<div>
-			<AboutText/>
-			<AboutGrid/>
-		</div>
-	);
-}
+		<div className="section-container py-24">
+			{/* Intro */}
+			<AnimatedSection>
+				<h1 className="heading-xl mb-6">About Me</h1>
+			</AnimatedSection>
+			<AnimatedSection delay={0.1}>
+				<p className="text-body max-w-2xl mb-3">
+					Engineer with a focus on developer tooling, automation, and making
+					systems work reliably at scale. I enjoy building infrastructure
+					that gets out of the way and lets people ship... when its supposed to
+				</p>
+				<p className="font-mono text-sm text-accent mb-16">
+					&quot;I&rsquo;m just another man in love with his computer&quot;
+				</p>
+			</AnimatedSection>
 
+			{/* Skill grid */}
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+				{skills.map((skill, i) => (
+					<AnimatedSection key={skill.label} delay={i * 0.06}>
+						<motion.div
+							whileHover={{ scale: 1.02, y: -2 }}
+							transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+							className="card card-terminal-hover ripple-container flex items-center gap-4 cursor-pointer"
+							onClick={spawnRipple}
+						>
+							<skill.icon className="w-6 h-6 text-accent flex-shrink-0" />
+							<span className="text-sm font-medium text-neutral-200">
+								{skill.label}
+							</span>
+						</motion.div>
+					</AnimatedSection>
+				))}
+			</div>
 
-const AboutText = () => {
-	return (
-		<div className="flex flex-col text-center">
-			<div className="header-base">[ About Me ]</div>
-			<div className="paragraph-txt-size">I&lsquo;m just another man in love with his computer</div>
-			<br/>
-		</div>
-	);
-};
-
-function AboutGrid() {
-	return (
-		<div className="about-grid-container">
-			<div className="about-grid-element">Development</div>
-			<div className="about-grid-element">Continuous Integration</div>
-			<div className="about-grid-element">Automation</div>
-			<div className="about-grid-element">Developer Productivity</div>
-			<div className="about-grid-element">DevOps</div>
-			<div className="about-grid-element">Scripting</div>
-			<div className="about-grid-element">Deployment</div>
-			<div className="about-grid-element">Testing</div>
-			<div className="about-grid-element">SysOps</div>
+			{/* Easter egg link */}
+			<AnimatedSection delay={0.8} className="mt-16">
+				<p className="text-sm text-neutral-600">
+					Curious what I know about you?{' '}
+					<Link
+						to="/about-you"
+						className="text-neutral-500 hover:text-accent transition-colors duration-200 underline underline-offset-4"
+					>
+						Find out
+					</Link>
+				</p>
+			</AnimatedSection>
 		</div>
 	);
 }
