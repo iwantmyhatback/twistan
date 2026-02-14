@@ -1,5 +1,6 @@
-name = "twistan"
-compatibility_date = "2024-10-01"
+name = "twistan-web"
+compatibility_date = "2026-02-14"
+pages_build_output_dir = "./dist"
 
 [[kv_namespaces]]
 binding = "CONTACT_SUBMISSIONS"
