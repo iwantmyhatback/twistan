@@ -50,6 +50,8 @@ npm run dev       # Vite dev server (fast, no KV)
 npm run preview   # Wrangler preview (with KV and Functions)
 npm run build     # Production build → dist/
 npm run lint      # ESLint check
+npm test          # Run test suite (watch mode)
+npm run test:run  # Run tests once (CI mode)
 npm run deploy    # Build and deploy to Cloudflare Pages
 ```
 
@@ -127,6 +129,27 @@ Applied to all routes via `public/_headers`:
 - **Transparent**: Clear explanation of external API usage
 
 **See [Security Enhancements Guide](docs/SECURITY_ENHANCEMENTS.md) for implementation details.**
+
+## Testing
+
+Comprehensive test suite with 30 tests covering components, API endpoints, routing, and utilities.
+
+**Framework:** Vitest + React Testing Library
+
+**Coverage:**
+- ✅ Contact form validation and submission
+- ✅ API rate limiting, CAPTCHA verification, KV storage
+- ✅ Route navigation and 404 handling
+- ✅ Email validation and utility functions
+
+**Run tests:**
+```bash
+npm test           # Watch mode
+npm run test:run   # CI mode
+npm run test:ui    # Interactive UI
+```
+
+**See [Testing Guide](docs/TESTING.md) for detailed documentation.**
 
 ## Troubleshooting
 

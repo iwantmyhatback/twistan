@@ -21,6 +21,7 @@ React SPA portfolio site built with Vite, deployed to Cloudflare Pages with serv
 - **[README.md](README.md)** - Quick start, essential commands, tech stack overview
 - **[docs/CLOUDFLARE_SETUP.md](docs/CLOUDFLARE_SETUP.md)** - Complete Cloudflare Pages + DNS + KV deployment guide
 - **[docs/LOCAL_DEVELOPMENT.md](docs/LOCAL_DEVELOPMENT.md)** - Local environment setup and development workflow
+- **[docs/TESTING.md](docs/TESTING.md)** - Test suite documentation, coverage, and testing patterns
 - **[docs/EMAIL_NOTIFICATIONS_PLAN.md](docs/EMAIL_NOTIFICATIONS_PLAN.md)** - 🚧 Email notification implementation plan (in progress)
 
 **For setup/deployment questions:** Refer to documentation files above rather than duplicating content here.
@@ -148,3 +149,32 @@ Contact form implements comprehensive validation and security:
 - CORS headers on all responses
 - Structured error responses with `{ success, error }` format
 - Rate limit headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`)
+
+## Testing
+
+### Test Framework
+- **Vitest** v4.0.18 with jsdom environment
+- **@testing-library/react** for component testing
+- **@testing-library/jest-dom** for DOM assertions
+
+### Test Suite (30 tests)
+See [docs/TESTING.md](docs/TESTING.md) for detailed documentation.
+
+- **tests/Contact.test.jsx** - Form validation, submission, error handling
+- **tests/api/contact.test.js** - API endpoint, rate limiting, CAPTCHA, KV storage
+- **tests/App.test.jsx** - Routing and navigation
+- **tests/utils/validation.test.js** - Email validation, rate limiting logic
+
+### Running Tests
+```bash
+npm test           # Watch mode
+npm run test:run   # CI mode (single run)
+npm run test:ui    # Interactive UI
+npm run test:coverage  # Coverage report
+```
+
+### Key Testing Patterns
+- Component tests wrap in `BrowserRouter` for routing context
+- API tests mock Cloudflare context with KV and environment bindings
+- Global mocks in `tests/setup.js` for browser APIs
+- Route tests use `createMemoryRouter` to avoid router nesting issues
