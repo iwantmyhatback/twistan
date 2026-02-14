@@ -66,6 +66,22 @@ function About() {
 				</p>
 			</AnimatedSection>
 
+			{/* Easter egg link */}
+			<AnimatedSection delay={0.8} className="mt-16">
+				<p className="text-sm text-neutral-600">
+					Curious what I know about you?{' '}
+					<Link
+						to="/about-you"
+						className="text-neutral-500 hover:text-accent transition-colors duration-200 underline underline-offset-4"
+					>
+						Find out
+					</Link>
+				</p>
+				<br/>
+				<br/>
+				<br/>
+			</AnimatedSection>
+
 			{/* Skill grid */}
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 				{skills.map((skill, i) => (
@@ -85,18 +101,6 @@ function About() {
 				))}
 			</div>
 
-			{/* Easter egg link */}
-			<AnimatedSection delay={0.8} className="mt-16">
-				<p className="text-sm text-neutral-600">
-					Curious what I know about you?{' '}
-					<Link
-						to="/about-you"
-						className="text-neutral-500 hover:text-accent transition-colors duration-200 underline underline-offset-4"
-					>
-						Find out
-					</Link>
-				</p>
-			</AnimatedSection>
 		</div>
 	);
 }

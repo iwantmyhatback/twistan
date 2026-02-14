@@ -3,8 +3,18 @@ import FingerprintJS from '@fingerprintjs/fingerprintjs';
 import AnimatedSection from '../components/AnimatedSection';
 
 /**
- * Categorized card layout for comprehensive browser/device fingerprint data.
- * Uses FingerprintJS + browser-native APIs + free IP geolocation API.
+ * AboutYou page - Browser fingerprinting demonstration.
+ *
+ * Collects comprehensive device/browser data for educational purposes:
+ * - Visitor ID (FingerprintJS)
+ * - IP geolocation (ipapi.co, ipify.org)
+ * - Browser capabilities and installed fonts
+ * - Hardware specs (CPU, GPU, memory, screen)
+ * - Network info (connection type, local IPs via WebRTC)
+ * - Audio/canvas/WebGL fingerprints
+ *
+ * Privacy: All data is client-side only, not stored or transmitted except
+ * to external IP geolocation APIs. Includes prominent privacy disclosure.
  */
 
 const categories = [
@@ -79,7 +89,9 @@ const categories = [
 ];
 
 /**
- * Recursively render a value as formatted text.
+ * Format fingerprint data values for display.
+ * Handles objects, arrays, booleans, and primitives recursively.
+ *
  * @param {any} value
  * @returns {string}
  */
@@ -116,9 +128,37 @@ function AboutYou() {
 				<h1 className="heading-xl mb-3">About You</h1>
 			</AnimatedSection>
 			<AnimatedSection delay={0.1}>
-				<p className="text-body mb-12">
+				<p className="text-body mb-4">
 					Here&rsquo;s what your browser told me about you
 				</p>
+			</AnimatedSection>
+
+			<AnimatedSection delay={0.15}>
+				<div className="bg-amber-900/20 border border-amber-700/50 rounded-lg p-4 mb-12">
+					<h2 className="text-sm font-semibold text-amber-400 mb-2 flex items-center gap-2">
+						<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+						</svg>
+						Privacy Notice
+					</h2>
+					<div className="text-xs text-neutral-300 space-y-2">
+						<p>
+							This page demonstrates browser fingerprinting for <strong>educational purposes only</strong>.
+							The following data is collected entirely <strong>client-side</strong> (in your browser):
+						</p>
+						<ul className="list-disc list-inside space-y-1 text-neutral-400">
+							<li>Device information (CPU, memory, screen, GPU)</li>
+							<li>Browser capabilities and installed fonts</li>
+							<li>Network details (connection type, local IPs via WebRTC)</li>
+							<li>IP geolocation via external APIs (ipapi.co, ipify.org)</li>
+							<li>Audio/canvas fingerprints and system preferences</li>
+						</ul>
+						<p className="pt-2 text-neutral-400">
+							<strong>No data is stored or transmitted</strong> to any server except the external
+							IP geolocation services mentioned above. All information remains in your browser.
+						</p>
+					</div>
+				</div>
 			</AnimatedSection>
 
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -153,7 +193,6 @@ function AboutYou() {
 				})}
 			</div>
 
-			{/* Media devices — full-width card */}
 			{info.mediaDevices && info.mediaDevices.length > 0 && (
 				<AnimatedSection delay={0.7} className="mt-4">
 					<div className="card">
@@ -172,7 +211,6 @@ function AboutYou() {
 				</AnimatedSection>
 			)}
 
-			{/* Canvas fingerprint */}
 			{info.canvasFP && (
 				<AnimatedSection delay={0.75} className="mt-4">
 					<div className="card">
@@ -186,7 +224,6 @@ function AboutYou() {
 				</AnimatedSection>
 			)}
 
-			{/* WebGL fingerprint */}
 			{info.webglFP && (
 				<AnimatedSection delay={0.8} className="mt-4">
 					<div className="card">
@@ -204,8 +241,10 @@ function AboutYou() {
 }
 
 /**
- * Detect available fonts by measuring text rendering differences.
- * @returns {string[]}
+ * Detect installed fonts by measuring canvas text rendering differences.
+ * Compares font rendering against baseline fonts to identify available fonts.
+ *
+ * @returns {string[]} Array of detected font names
  */
 function detectFonts() {
 	const testFonts = [
@@ -243,8 +282,10 @@ function detectFonts() {
 }
 
 /**
- * Get audio fingerprint via AudioContext oscillator.
- * @returns {Promise<string>}
+ * Generate audio fingerprint using AudioContext with oscillator and compressor.
+ * Creates unique hash from frequency data for device identification.
+ *
+ * @returns {Promise<string>} Hex hash of audio fingerprint
  */
 async function getAudioFingerprint() {
 	try {
@@ -293,8 +334,10 @@ async function getAudioFingerprint() {
 }
 
 /**
- * Discover local network IPs via WebRTC.
- * @returns {Promise<string[]>}
+ * Discover local network IP addresses using WebRTC ICE candidates.
+ * Creates peer connection and extracts IPs from connection candidates.
+ *
+ * @returns {Promise<string[]>} Array of local IP addresses
  */
 async function getLocalIPs() {
 	try {
@@ -330,8 +373,10 @@ async function getLocalIPs() {
 }
 
 /**
- * Get IP info from free geolocation API.
- * @returns {Promise<object>}
+ * Fetch IP geolocation data from external APIs.
+ * Tries ipapi.co first (full geolocation), falls back to ipify.org (IP only).
+ *
+ * @returns {Promise<object>} IP and geolocation data
  */
 async function getIPGeolocation() {
 	try {
@@ -363,8 +408,10 @@ async function getIPGeolocation() {
 }
 
 /**
- * Generate WebGL rendering fingerprint.
- * @returns {string|null}
+ * Generate WebGL fingerprint from GPU parameters and supported extensions.
+ * Queries WebGL context for hardware capabilities and extension support.
+ *
+ * @returns {string|null} Fingerprint string or null if WebGL unavailable
  */
 function getWebGLFingerprint() {
 	try {
@@ -404,11 +451,12 @@ function getWebGLFingerprint() {
 }
 
 /**
- * Gathers all browser/device/network info.
- * @returns {Promise<object>}
+ * Gather all browser, device, and network fingerprinting data.
+ * Runs async operations in parallel for performance, then assembles results.
+ *
+ * @returns {Promise<object>} Complete fingerprinting data object
  */
 async function gatherAllInfo() {
-	// Start all async operations in parallel
 	const [
 		fpResult,
 		batteryInfo,
@@ -429,7 +477,6 @@ async function gatherAllInfo() {
 		getIPGeolocation(),
 	]);
 
-	// Synchronous data gathering
 	const detectedFonts = detectFonts();
 	const webglFP = getWebGLFingerprint();
 
@@ -454,11 +501,8 @@ async function gatherAllInfo() {
 	})();
 
 	const connection = navigator.connection || {};
-
-	// CSS media query checks
 	const mqMatch = (q) => window.matchMedia(q).matches;
 
-	// Page performance timing
 	const getPageTiming = () => {
 		const perf = performance.getEntriesByType('navigation')[0];
 		if (!perf) return null;
@@ -471,7 +515,6 @@ async function gatherAllInfo() {
 		};
 	};
 
-	// Performance memory (Chrome only)
 	const getPerfMemory = () => {
 		const mem = performance.memory;
 		if (!mem) return null;
@@ -483,7 +526,6 @@ async function gatherAllInfo() {
 		};
 	};
 
-	// Installed plugins
 	const getPlugins = () => {
 		const plugins = [];
 		for (let i = 0; i < navigator.plugins.length; i++) {
@@ -492,9 +534,7 @@ async function gatherAllInfo() {
 		return plugins.length > 0 ? plugins : null;
 	};
 
-	// Assemble everything
 	const result = {
-		// FingerprintJS
 		visitorId: fpResult?.visitorId || 'Unavailable',
 		confidence: fpResult?.confidence?.score
 			? `${(fpResult.confidence.score * 100).toFixed(1)}%`
