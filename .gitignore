@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Non-Public Documentation files
+*.local.md
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -26,3 +29,4 @@ dist-ssr
 # wrangler files
 .wrangler
 .dev.vars
+
