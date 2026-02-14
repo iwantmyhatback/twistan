@@ -2,6 +2,7 @@ import { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ImageUrls from '../assets/ImageUrls';
 import AnimatedSection from '../components/AnimatedSection';
+import { spawnRipple } from '../utils/ripple';
 
 /**
  * Fisher-Yates shuffle using crypto.getRandomValues.
@@ -16,23 +17,6 @@ function cryptoShuffle(arr) {
 		[arr[i], arr[j]] = [arr[j], arr[i]];
 	}
 	return arr;
-}
-
-/**
- * Spawns a green ripple at click position inside a target element.
- * @param {React.MouseEvent} e
- */
-function spawnRipple(e) {
-	const el = e.currentTarget;
-	const rect = el.getBoundingClientRect();
-	const size = Math.max(rect.width, rect.height);
-	const ripple = document.createElement('span');
-	ripple.className = 'ripple';
-	ripple.style.width = ripple.style.height = `${size}px`;
-	ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
-	ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
-	el.appendChild(ripple);
-	ripple.addEventListener('animationend', () => ripple.remove());
 }
 
 /** Padding inside the gel tile (p-6 = 24px per side). */
@@ -58,6 +42,17 @@ function Home() {
 			if (deck.current[0] === last) {
 				[deck.current[0], deck.current[1]] = [deck.current[1], deck.current[0]];
 			}
+			cursor.current = 0;
+		}
+		setImgUrl(deck.current[cursor.current]);
+		setImageKey((k) => k + 1);
+	}, []);
+
+	/** Skip to next image on load failure. */
+	const handleImageError = useCallback(() => {
+		cursor.current += 1;
+		if (cursor.current >= deck.current.length) {
+			deck.current = cryptoShuffle([...ImageUrls]);
 			cursor.current = 0;
 		}
 		setImgUrl(deck.current[cursor.current]);
@@ -99,6 +94,7 @@ function Home() {
 							src={imgUrl}
 							alt="Wave"
 							onLoad={handleImageLoad}
+							onError={handleImageError}
 							initial={{ opacity: 0 }}
 							animate={{ opacity: 1 }}
 							exit={{ opacity: 0 }}

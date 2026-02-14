@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import AnimatedSection from '../components/AnimatedSection';
 
 const INITIAL_FORM = { name: '', email: '', message: '' };
-const TURNSTILE_SITE_KEY = '0x4AAAAAACciy0Z_rZz_YPMG';
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '0x4AAAAAACciy0Z_rZz_YPMG';
+const MAX_LENGTHS = { name: 100, email: 254, message: 5000 };
 
 /**
  * Validates email format using RFC-compliant regex.
@@ -161,6 +162,7 @@ function Contact() {
 							value={form.name}
 							onChange={handleChange}
 							placeholder="Your name"
+							maxLength={MAX_LENGTHS.name}
 							className={inputBase}
 							required
 						/>
@@ -177,6 +179,7 @@ function Contact() {
 							value={form.email}
 							onChange={handleChange}
 							placeholder="you@example.com"
+							maxLength={MAX_LENGTHS.email}
 							className={inputBase}
 							required
 						/>
@@ -193,6 +196,7 @@ function Contact() {
 							value={form.message}
 							onChange={handleChange}
 							placeholder="What's on your mind?"
+							maxLength={MAX_LENGTHS.message}
 							className={`${inputBase} resize-none`}
 							required
 						/>
@@ -210,12 +214,12 @@ function Contact() {
 					</button>
 
 					{status === 'success' && (
-						<p className="text-sm text-green-400">
+						<p className="text-sm text-green-400" role="status">
 							Message sent. I&rsquo;ll get back to you soon.
 						</p>
 					)}
 					{status === 'error' && errorMsg && (
-						<p className="text-sm text-red-400">{errorMsg}</p>
+						<p className="text-sm text-red-400" role="alert">{errorMsg}</p>
 					)}
 				</form>
 			</AnimatedSection>

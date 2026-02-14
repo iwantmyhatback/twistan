@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react';
 /**
  * Subtle animated film grain/noise overlay on desktop.
  * Uses a canvas to render a faint noise texture that updates slowly.
+ * Guarded by media query — animation loop only runs on lg+ screens.
  */
 function CursorGlow() {
 	const canvasRef = useRef(null);
@@ -10,6 +11,9 @@ function CursorGlow() {
 	useEffect(() => {
 		const canvas = canvasRef.current;
 		if (!canvas) return;
+
+		const mq = window.matchMedia('(min-width: 1024px)');
+		if (!mq.matches) return;
 
 		const ctx = canvas.getContext('2d');
 		let animId;
@@ -46,9 +50,18 @@ function CursorGlow() {
 
 		animId = requestAnimationFrame(renderNoise);
 
+		const handleChange = (e) => {
+			if (!e.matches) {
+				cancelAnimationFrame(animId);
+				window.removeEventListener('resize', resize);
+			}
+		};
+		mq.addEventListener('change', handleChange);
+
 		return () => {
 			cancelAnimationFrame(animId);
 			window.removeEventListener('resize', resize);
+			mq.removeEventListener('change', handleChange);
 		};
 	}, []);
 

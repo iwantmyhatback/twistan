@@ -26,6 +26,7 @@ function Navbar() {
 						onClick={() => setIsOpen(!isOpen)}
 						className="md:hidden flex flex-col justify-center items-center w-8 h-8 gap-1.5"
 						aria-label="Toggle menu"
+						aria-expanded={isOpen}
 					>
 						<span
 							className={`block w-5 h-px bg-neutral-300 transition-all duration-300 ${

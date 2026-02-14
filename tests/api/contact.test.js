@@ -1,11 +1,15 @@
 /**
  * Contact API endpoint tests.
- * Tests rate limiting, CAPTCHA verification, validation, and KV storage.
+ * Tests rate limiting, CAPTCHA verification, validation, CORS, and KV storage.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock Cloudflare environment
+/**
+ * Create a mock Cloudflare Pages Function context.
+ * Defaults: valid form body, CAPTCHA token, Turnstile secret, KV binding.
+ * Override any part via the overrides parameter.
+ */
 const createMockContext = (overrides = {}) => ({
 	request: {
 		json: vi.fn().mockResolvedValue({
@@ -17,6 +21,7 @@ const createMockContext = (overrides = {}) => ({
 		headers: {
 			get: vi.fn((header) => {
 				if (header === 'CF-Connecting-IP') return '127.0.0.1';
+				if (header === 'Origin') return 'https://twistan.com';
 				return null;
 			}),
 		},
@@ -108,7 +113,6 @@ describe('Contact API - CAPTCHA Verification', () => {
 			message: 'Test message',
 			// No CAPTCHA token
 		});
-		context.env.CONTACT_SUBMISSIONS.get.mockResolvedValue('0');
 
 		const response = await onRequestPost(context);
 		const data = await response.json();
@@ -136,7 +140,6 @@ describe('Contact API - CAPTCHA Verification', () => {
 	it('rejects invalid CAPTCHA tokens', async () => {
 		const { onRequestPost } = await import('../../functions/api/contact.js');
 		const context = createMockContext();
-		context.env.CONTACT_SUBMISSIONS.get.mockResolvedValue('0');
 
 		// Mock Turnstile API returning failure
 		global.fetch.mockResolvedValue({
@@ -148,6 +151,35 @@ describe('Contact API - CAPTCHA Verification', () => {
 
 		expect(response.status).toBe(400);
 		expect(data.error).toContain('CAPTCHA verification failed');
+	});
+
+	it('fails closed when TURNSTILE_SECRET_KEY is missing', async () => {
+		const { onRequestPost } = await import('../../functions/api/contact.js');
+		const context = createMockContext({
+			env: { TURNSTILE_SECRET_KEY: undefined },
+		});
+
+		const response = await onRequestPost(context);
+		const data = await response.json();
+
+		expect(response.status).toBe(503);
+		expect(data.error).toContain('Server configuration error');
+	});
+
+	it('skips CAPTCHA when SKIP_CAPTCHA is explicitly true', async () => {
+		const { onRequestPost } = await import('../../functions/api/contact.js');
+		const context = createMockContext({
+			env: { TURNSTILE_SECRET_KEY: undefined, SKIP_CAPTCHA: 'true' },
+		});
+		context.env.CONTACT_SUBMISSIONS.get.mockResolvedValue('0');
+
+		const response = await onRequestPost(context);
+		const data = await response.json();
+
+		expect(response.status).toBe(200);
+		expect(data.success).toBe(true);
+		// Turnstile API should NOT have been called
+		expect(global.fetch).not.toHaveBeenCalled();
 	});
 });
 
@@ -162,7 +194,6 @@ describe('Contact API - Input Validation', () => {
 	it('validates required fields', async () => {
 		const { onRequestPost } = await import('../../functions/api/contact.js');
 		const context = createMockContext();
-		context.env.CONTACT_SUBMISSIONS.get.mockResolvedValue('0');
 		context.request.json.mockResolvedValue({
 			name: '',
 			email: 'test@example.com',
@@ -180,7 +211,6 @@ describe('Contact API - Input Validation', () => {
 	it('validates email format', async () => {
 		const { onRequestPost } = await import('../../functions/api/contact.js');
 		const context = createMockContext();
-		context.env.CONTACT_SUBMISSIONS.get.mockResolvedValue('0');
 		context.request.json.mockResolvedValue({
 			name: 'Test',
 			email: 'invalid-email',
@@ -198,9 +228,23 @@ describe('Contact API - Input Validation', () => {
 	it('validates field types', async () => {
 		const { onRequestPost } = await import('../../functions/api/contact.js');
 		const context = createMockContext();
-		context.env.CONTACT_SUBMISSIONS.get.mockResolvedValue('0');
 		context.request.json.mockResolvedValue({
 			name: 123, // Should be string
+			email: 'test@example.com',
+			message: 'Test',
+			'cf-turnstile-response': 'token',
+		});
+
+		const response = await onRequestPost(context);
+
+		expect(response.status).toBe(400);
+	});
+
+	it('rejects fields exceeding max length', async () => {
+		const { onRequestPost } = await import('../../functions/api/contact.js');
+		const context = createMockContext();
+		context.request.json.mockResolvedValue({
+			name: 'A'.repeat(101), // MAX_LENGTHS.name = 100
 			email: 'test@example.com',
 			message: 'Test',
 			'cf-turnstile-response': 'token',
@@ -210,7 +254,24 @@ describe('Contact API - Input Validation', () => {
 		const data = await response.json();
 
 		expect(response.status).toBe(400);
-		expect(data.error).toContain('Invalid field types');
+		expect(data.error).toContain('exceeds');
+	});
+
+	it('rejects messages exceeding max length', async () => {
+		const { onRequestPost } = await import('../../functions/api/contact.js');
+		const context = createMockContext();
+		context.request.json.mockResolvedValue({
+			name: 'Test',
+			email: 'test@example.com',
+			message: 'A'.repeat(5001), // MAX_LENGTHS.message = 5000
+			'cf-turnstile-response': 'token',
+		});
+
+		const response = await onRequestPost(context);
+		const data = await response.json();
+
+		expect(response.status).toBe(400);
+		expect(data.error).toContain('exceeds');
 	});
 });
 
@@ -284,15 +345,24 @@ describe('Contact API - CORS', () => {
 	it('handles OPTIONS preflight requests', async () => {
 		const { onRequestOptions } = await import('../../functions/api/contact.js');
 
-		const response = await onRequestOptions();
+		const context = {
+			request: {
+				headers: {
+					get: vi.fn((h) => h === 'Origin' ? 'https://twistan.com' : null),
+				},
+			},
+		};
+
+		const response = await onRequestOptions(context);
 
 		expect(response.status).toBe(204);
 		const headers = Object.fromEntries(response.headers.entries());
-		expect(headers['access-control-allow-origin']).toBe('*');
+		expect(headers['access-control-allow-origin']).toBe('https://twistan.com');
 		expect(headers['access-control-allow-methods']).toContain('POST');
+		expect(headers['vary']).toBe('Origin');
 	});
 
-	it('includes CORS headers in all responses', async () => {
+	it('reflects allowed origins in CORS headers', async () => {
 		const { onRequestPost } = await import('../../functions/api/contact.js');
 		const context = createMockContext();
 		context.env.CONTACT_SUBMISSIONS.get.mockResolvedValue('0');
@@ -303,7 +373,62 @@ describe('Contact API - CORS', () => {
 		const response = await onRequestPost(context);
 		const headers = Object.fromEntries(response.headers.entries());
 
-		expect(headers['access-control-allow-origin']).toBe('*');
+		expect(headers['access-control-allow-origin']).toBe('https://twistan.com');
 		expect(headers['content-type']).toBe('application/json');
+		expect(headers['vary']).toBe('Origin');
+	});
+
+	it('defaults to production origin for unknown origins', async () => {
+		const { onRequestPost } = await import('../../functions/api/contact.js');
+		const context = createMockContext();
+		// Override Origin header to an unknown domain
+		context.request.headers.get = vi.fn((h) => {
+			if (h === 'CF-Connecting-IP') return '127.0.0.1';
+			if (h === 'Origin') return 'https://evil.com';
+			return null;
+		});
+		context.env.CONTACT_SUBMISSIONS.get.mockResolvedValue('0');
+		global.fetch.mockResolvedValue({
+			json: async () => ({ success: true }),
+		});
+
+		const response = await onRequestPost(context);
+		const headers = Object.fromEntries(response.headers.entries());
+
+		expect(headers['access-control-allow-origin']).toBe('https://twistan.com');
+	});
+
+	it('allows localhost origins', async () => {
+		const { onRequestOptions } = await import('../../functions/api/contact.js');
+
+		const context = {
+			request: {
+				headers: {
+					get: vi.fn((h) => h === 'Origin' ? 'http://localhost:5173' : null),
+				},
+			},
+		};
+
+		const response = await onRequestOptions(context);
+		const headers = Object.fromEntries(response.headers.entries());
+
+		expect(headers['access-control-allow-origin']).toBe('http://localhost:5173');
+	});
+
+	it('allows *.pages.dev origins', async () => {
+		const { onRequestOptions } = await import('../../functions/api/contact.js');
+
+		const context = {
+			request: {
+				headers: {
+					get: vi.fn((h) => h === 'Origin' ? 'https://abc123.pages.dev' : null),
+				},
+			},
+		};
+
+		const response = await onRequestOptions(context);
+		const headers = Object.fromEntries(response.headers.entries());
+
+		expect(headers['access-control-allow-origin']).toBe('https://abc123.pages.dev');
 	});
 });

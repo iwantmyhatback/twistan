@@ -1,13 +1,19 @@
 /**
  * Contact form handler — Cloudflare Pages Function.
  *
- * Security layers:
- * - Rate limiting: 5 submissions per IP per hour (KV-based)
- * - CAPTCHA: Cloudflare Turnstile verification
- * - Input validation: Client and server-side
- * - CORS: Proper cross-origin headers
+ * Security layers (in execution order):
+ * 1. CORS: Origin-restricted cross-origin headers
+ * 2. Body parsing: Reject malformed requests without side effects
+ * 3. CAPTCHA: Cloudflare Turnstile verification (fail-closed)
+ * 4. Input validation: Required fields, types, lengths, email format
+ * 5. Rate limiting: 5 submissions per IP per hour (KV-based)
+ *    Placed last so invalid/bot requests don't consume rate limit slots.
  *
  * Storage: Submissions stored in KV with timestamped UUID keys
+ *
+ * Known limitation: KV rate limiting is not atomic (TOCTOU race).
+ * Mitigated by placing rate limit after CAPTCHA — concurrent abuse
+ * requires solving multiple CAPTCHAs simultaneously.
  */
 
 const RATE_LIMIT = {
@@ -15,17 +21,70 @@ const RATE_LIMIT = {
 	WINDOW_HOURS: 1
 };
 
+const MAX_LENGTHS = {
+	name: 100,
+	email: 254,
+	message: 5000
+};
+
+const DEFAULT_ORIGIN = 'https://twistan.com';
+
+/**
+ * Check whether an Origin header value is allowed.
+ * Permits:
+ *   - http://localhost (any port)
+ *   - https://twistan.com
+ *   - https://*.pages.dev  (Cloudflare Pages previews + production)
+ *
+ * @param {string|null} origin
+ * @returns {boolean}
+ */
+function isAllowedOrigin(origin) {
+	if (!origin) return false;
+	try {
+		const url = new URL(origin);
+		if (url.hostname === 'localhost') return true;
+		if (url.protocol === 'https:' && url.hostname === 'twistan.com') return true;
+		if (url.protocol === 'https:' && url.hostname.endsWith('.pages.dev')) return true;
+		return false;
+	} catch {
+		return false;
+	}
+}
+
+/**
+ * Build CORS headers based on the request Origin.
+ * Reflects the origin if it passes the allow-list, otherwise returns
+ * the default production origin. Always includes Vary: Origin so
+ * CDN caches don't mix up responses for different origins.
+ *
+ * @param {Request} request
+ * @returns {object} CORS + content-type headers
+ */
+function getCorsHeaders(request) {
+	const origin = request.headers.get('Origin');
+	return {
+		'Access-Control-Allow-Origin': isAllowedOrigin(origin) ? origin : DEFAULT_ORIGIN,
+		'Content-Type': 'application/json',
+		'Vary': 'Origin',
+	};
+}
+
 /**
  * CORS preflight handler for contact form endpoint.
  */
-export async function onRequestOptions() {
+export async function onRequestOptions(context) {
+	const origin = context.request.headers.get('Origin');
+	const allowedOrigin = isAllowedOrigin(origin) ? origin : DEFAULT_ORIGIN;
+
 	return new Response(null, {
 		status: 204,
 		headers: {
-			'Access-Control-Allow-Origin': '*',
+			'Access-Control-Allow-Origin': allowedOrigin,
 			'Access-Control-Allow-Methods': 'POST, OPTIONS',
 			'Access-Control-Allow-Headers': 'Content-Type',
 			'Access-Control-Max-Age': '86400',
+			'Vary': 'Origin',
 		},
 	});
 }
@@ -68,58 +127,35 @@ async function checkRateLimit(kv, ip) {
  * POST handler for contact form submissions.
  *
  * Flow:
- * 1. Extract client IP from Cloudflare headers
- * 2. Check rate limit (KV-based, per-IP hourly buckets)
- * 3. Verify Turnstile CAPTCHA token with Cloudflare API
- * 4. Validate form fields (required, types, email format)
+ * 1. Parse request body (reject malformed JSON early, no side effects)
+ * 2. Verify Turnstile CAPTCHA (fail-closed if secret key missing)
+ * 3. Validate form fields (required, types, lengths, email format)
+ * 4. Check rate limit (only for validated, human-verified requests)
  * 5. Store submission in KV with timestamped UUID key
  * 6. Return success with rate limit headers
  *
  * Error responses:
  * - 429: Rate limit exceeded
  * - 400: CAPTCHA failed or validation error
- * - 503: CAPTCHA verification service unavailable
+ * - 503: CAPTCHA verification service unavailable or misconfigured
  * - 500: Internal server error
  */
 export async function onRequestPost(context) {
-	const corsHeaders = {
-		'Access-Control-Allow-Origin': '*',
-		'Content-Type': 'application/json',
-	};
+	const corsHeaders = getCorsHeaders(context.request);
 
 	try {
-		const clientIP = context.request.headers.get('CF-Connecting-IP') ||
-		                 context.request.headers.get('X-Forwarded-For')?.split(',')[0] ||
-		                 'unknown';
+		const clientIP =
+			context.request.headers.get('CF-Connecting-IP') ||
+			context.request.headers.get('X-Forwarded-For')?.split(',')[0] ||
+			'unknown';
 
-		/* Rate Limiting */
-		const rateLimitCheck = await checkRateLimit(context.env?.CONTACT_SUBMISSIONS, clientIP);
-		if (!rateLimitCheck.allowed) {
-			return new Response(
-				JSON.stringify({
-					success: false,
-					error: 'Rate limit exceeded. Please try again later.',
-					retryAfter: RATE_LIMIT.WINDOW_HOURS * 3600 // seconds
-				}),
-				{
-					status: 429,
-					headers: {
-						...corsHeaders,
-						'Retry-After': String(RATE_LIMIT.WINDOW_HOURS * 3600),
-						'X-RateLimit-Limit': String(RATE_LIMIT.MAX_REQUESTS),
-						'X-RateLimit-Remaining': '0'
-					}
-				}
-			);
-		}
-
+		/* 1. Parse Body — before any side effects (rate limit writes) */
 		const body = await context.request.json();
-		// Trim whitespace from all string fields before validation
 		const name = typeof body.name === 'string' ? body.name.trim() : body.name;
 		const email = typeof body.email === 'string' ? body.email.trim() : body.email;
 		const message = typeof body.message === 'string' ? body.message.trim() : body.message;
 
-		/* Turnstile CAPTCHA Verification */
+		/* 2. Turnstile CAPTCHA Verification — fail closed */
 		const turnstileToken = body['cf-turnstile-response'];
 		if (!turnstileToken) {
 			return new Response(
@@ -154,17 +190,23 @@ export async function onRequestPost(context) {
 				}
 			} catch (turnstileError) {
 				console.error('Turnstile verification error:', turnstileError);
-				// Fail closed - reject if verification service is down
 				return new Response(
 					JSON.stringify({ success: false, error: 'Unable to verify CAPTCHA. Please try again later.' }),
 					{ status: 503, headers: corsHeaders }
 				);
 			}
+		} else if (context.env?.SKIP_CAPTCHA === 'true') {
+			console.warn('[DEV] Turnstile verification skipped — SKIP_CAPTCHA=true');
 		} else {
-			console.warn('[DEV] Turnstile verification skipped - no secret key configured');
+			// Fail closed: no secret key and no explicit skip flag = reject
+			console.error('TURNSTILE_SECRET_KEY not configured — rejecting request');
+			return new Response(
+				JSON.stringify({ success: false, error: 'Server configuration error.' }),
+				{ status: 503, headers: corsHeaders }
+			);
 		}
 
-		/* Form Field Validation */
+		/* 3. Form Field Validation */
 		if (!name || !email || !message) {
 			return new Response(
 				JSON.stringify({ success: false, error: 'All fields are required (name, email, message).' }),
@@ -179,6 +221,17 @@ export async function onRequestPost(context) {
 			);
 		}
 
+		// Length validation
+		for (const [field, max] of Object.entries(MAX_LENGTHS)) {
+			const val = { name, email, message }[field];
+			if (val.length > max) {
+				return new Response(
+					JSON.stringify({ success: false, error: `${field} exceeds ${max} characters.` }),
+					{ status: 400, headers: corsHeaders }
+				);
+			}
+		}
+
 		if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
 			return new Response(
 				JSON.stringify({ success: false, error: 'Invalid email format.' }),
@@ -186,7 +239,28 @@ export async function onRequestPost(context) {
 			);
 		}
 
-		/* Store Submission in KV */
+		/* 4. Rate Limiting — only for validated, CAPTCHA-verified requests */
+		const rateLimitCheck = await checkRateLimit(context.env?.CONTACT_SUBMISSIONS, clientIP);
+		if (!rateLimitCheck.allowed) {
+			return new Response(
+				JSON.stringify({
+					success: false,
+					error: 'Rate limit exceeded. Please try again later.',
+					retryAfter: RATE_LIMIT.WINDOW_HOURS * 3600
+				}),
+				{
+					status: 429,
+					headers: {
+						...corsHeaders,
+						'Retry-After': String(RATE_LIMIT.WINDOW_HOURS * 3600),
+						'X-RateLimit-Limit': String(RATE_LIMIT.MAX_REQUESTS),
+						'X-RateLimit-Remaining': '0'
+					}
+				}
+			);
+		}
+
+		/* 5. Store Submission in KV */
 		const timestamp = new Date().toISOString();
 		const key = `contact_${timestamp}_${crypto.randomUUID()}`;
 		const value = JSON.stringify({

@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import { useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from './Navbar';
@@ -26,10 +25,14 @@ function Layout({ children }) {
 
 	return (
 		<div className="min-h-screen flex flex-col">
+			<a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[60] focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-accent focus:text-white focus:rounded">
+				Skip to content
+			</a>
 			<Navbar />
 			<CursorGlow />
 			<AnimatePresence mode="wait">
 				<motion.main
+					id="main-content"
 					key={location.pathname}
 					variants={pageVariants}
 					initial="initial"
@@ -45,9 +48,5 @@ function Layout({ children }) {
 		</div>
 	);
 }
-
-Layout.propTypes = {
-	children: PropTypes.node.isRequired,
-};
 
 export default Layout;

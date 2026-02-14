@@ -20,19 +20,6 @@ function NotFound() {
 					Back to home
 				</Link>
 			</AnimatedSection>
-
-			<style>{`
-				.glitch-text {
-					animation: glitch 3s infinite;
-				}
-				@keyframes glitch {
-					0%, 90%, 100% { text-shadow: none; }
-					92% { text-shadow: -2px 0 #3b82f6, 2px 0 #ef4444; }
-					94% { text-shadow: 2px 0 #3b82f6, -2px 0 #ef4444; }
-					96% { text-shadow: -1px 0 #3b82f6, 1px 0 #ef4444; }
-					98% { text-shadow: 1px 0 #3b82f6, -1px 0 #ef4444; }
-				}
-			`}</style>
 		</div>
 	);
 }

@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import PropTypes from 'prop-types';
 
 /**
  * Scroll-triggered fade-in-up animation wrapper.
@@ -21,11 +20,5 @@ function AnimatedSection({ children, className = '', delay = 0 }) {
 		</motion.div>
 	);
 }
-
-AnimatedSection.propTypes = {
-	children: PropTypes.node.isRequired,
-	className: PropTypes.string,
-	delay: PropTypes.number,
-};
 
 export default AnimatedSection;

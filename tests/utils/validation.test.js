@@ -42,12 +42,12 @@ describe('Email Validation', () => {
 describe('Rate Limiting Logic', () => {
 	it('creates correct hourly bucket timestamps', () => {
 		const now = new Date('2026-02-14T15:30:45.123Z');
-		const hourTimestamp = new Date(
-			now.getFullYear(),
-			now.getMonth(),
-			now.getDate(),
-			now.getHours()
-		).getTime();
+		const hourTimestamp = Date.UTC(
+			now.getUTCFullYear(),
+			now.getUTCMonth(),
+			now.getUTCDate(),
+			now.getUTCHours()
+		);
 
 		// Should round down to start of hour
 		const expected = new Date('2026-02-14T15:00:00.000Z').getTime();
