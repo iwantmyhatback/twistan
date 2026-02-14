@@ -44,7 +44,7 @@ function isAllowedOrigin(origin) {
 	try {
 		const url = new URL(origin);
 		if (url.hostname === 'localhost') return true;
-		if (url.protocol === 'https:' && url.hostname === 'twistan.com') return true;
+		if (url.protocol === 'https:' && url.hostname.endsWith('twistan.com')) return true;
 		if (url.protocol === 'https:' && url.hostname.endsWith('.pages.dev')) return true;
 		return false;
 	} catch {
