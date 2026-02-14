@@ -18,9 +18,8 @@
   # Legacy XSS protection (for older browsers)
   X-XSS-Protection: 1; mode=block
 
-  # Content Security Policy (OPTIONAL - commented out by default)
-  # Uncomment and customize after thorough testing
-  # Content-Security-Policy: default-src 'self'; script-src 'self' https://challenges.cloudflare.com 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https: data:; connect-src 'self' https://ipapi.co https://api.ipify.org; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
+  # Content Security Policy
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://i.giphy.com https://c.tenor.com https://media.tenor.com data:; connect-src 'self' https://ipapi.co https://api.ipify.org https://challenges.cloudflare.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
 
 # API endpoints - additional headers
 /api/*
