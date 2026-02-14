@@ -71,7 +71,12 @@ Contact form submissions are stored in Cloudflare KV.
 ./scripts/get-submissions.sh
 ```
 
-**See [Cloudflare Setup Guide](docs/CLOUDFLARE_SETUP.md#part-5-ongoing-operations) for detailed KV operations.**
+**Clear submissions:**
+```bash
+./scripts/clear-submissions.sh
+```
+
+**See [Scripts README](scripts/README.md) for complete script documentation and [Cloudflare Setup Guide](docs/CLOUDFLARE_SETUP.md#part-5-ongoing-operations) for detailed KV operations.**
 
 ## Configuration Files
 
