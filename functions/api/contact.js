@@ -114,7 +114,10 @@ export async function onRequestPost(context) {
 		}
 
 		const body = await context.request.json();
-		const { name, email, message } = body;
+		// Trim whitespace from all string fields before validation
+		const name = typeof body.name === 'string' ? body.name.trim() : body.name;
+		const email = typeof body.email === 'string' ? body.email.trim() : body.email;
+		const message = typeof body.message === 'string' ? body.message.trim() : body.message;
 
 		/* Turnstile CAPTCHA Verification */
 		const turnstileToken = body['cf-turnstile-response'];
@@ -187,9 +190,9 @@ export async function onRequestPost(context) {
 		const timestamp = new Date().toISOString();
 		const key = `contact_${timestamp}_${crypto.randomUUID()}`;
 		const value = JSON.stringify({
-			name: name.trim(),
-			email: email.trim(),
-			message: message.trim(),
+			name,
+			email,
+			message,
 			submittedAt: timestamp,
 		});
 
