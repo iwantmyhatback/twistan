@@ -26,6 +26,12 @@ dist-ssr
 *.sln
 *.sw?
 
+# Testing
+coverage
+.vitest
+test-results
+*.lcov
+
 # wrangler files
 .wrangler
 .dev.vars
