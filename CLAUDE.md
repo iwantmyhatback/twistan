@@ -157,13 +157,24 @@ Contact form implements comprehensive validation and security:
 - **@testing-library/react** for component testing
 - **@testing-library/jest-dom** for DOM assertions
 
-### Test Suite (30 tests)
+### Test Suite (89 tests across 15 files)
 See [docs/TESTING.md](docs/TESTING.md) for detailed documentation.
 
-- **tests/Contact.test.jsx** - Form validation, submission, error handling
-- **tests/api/contact.test.js** - API endpoint, rate limiting, CAPTCHA, KV storage
-- **tests/App.test.jsx** - Routing and navigation
-- **tests/utils/validation.test.js** - Email validation, rate limiting logic
+- **tests/api/contact.test.js** (21) - API endpoint, rate limiting, CAPTCHA, CORS, validation
+- **tests/api/health.test.js** (3) - Health check endpoint
+- **tests/Contact.test.jsx** (7) - Form validation, submission, error handling
+- **tests/Home.test.jsx** (7) - Image carousel, wave button, error handling
+- **tests/Navbar.test.jsx** (6) - Navigation, mobile menu, accessibility
+- **tests/Projects.test.jsx** (6) - Project cards, links, tags
+- **tests/Layout.test.jsx** (5) - Composition, skip-to-content
+- **tests/CursorGlow.test.jsx** (5) - Canvas rendering, media query gating
+- **tests/utils/validation.test.js** (5) - Email validation, rate limiting logic
+- **tests/utils/ripple.test.js** (5) - DOM ripple effect utility
+- **tests/AnimatedSection.test.jsx** (4) - Animation wrapper props
+- **tests/About.test.jsx** (4) - Skills grid, easter egg link
+- **tests/NotFound.test.jsx** (4) - 404 page, home link
+- **tests/App.test.jsx** (4) - Routing and navigation
+- **tests/Footer.test.jsx** (3) - Copyright, GitHub link
 
 ### Running Tests
 ```bash
@@ -174,7 +185,7 @@ npm run test:coverage  # Coverage report
 ```
 
 ### Key Testing Patterns
-- Component tests wrap in `BrowserRouter` for routing context
+- Component tests use `createMemoryRouter` + `RouterProvider` for routing context
 - API tests mock Cloudflare context with KV and environment bindings
-- Global mocks in `tests/setup.js` for browser APIs
-- Route tests use `createMemoryRouter` to avoid router nesting issues
+- Global mocks in `tests/setup.js` for browser APIs (matchMedia, IntersectionObserver, Turnstile)
+- DOM utility tests create real elements for verifying manipulation
