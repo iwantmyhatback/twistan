@@ -76,7 +76,7 @@ function Projects() {
 										href={project.url}
 										target="_blank"
 										rel="noopener noreferrer"
-										className="text-neutral-500 hover:text-accent transition-colors duration-200 flex-shrink-0"
+										className="text-neutral-500 hover:text-accent transition-colors duration-200 shrink-0"
 										aria-label={`Open ${project.title}`}
 									>
 										<ArrowTopRightOnSquareIcon className="w-4 h-4" />

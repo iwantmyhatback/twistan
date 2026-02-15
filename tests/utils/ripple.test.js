@@ -1,6 +1,7 @@
 /**
  * Ripple utility tests.
- * Tests DOM element creation, positioning, and cleanup.
+ * Tests canvas element creation, positioning, and cleanup.
+ * Canvas getContext is mocked since jsdom doesn't implement it.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -9,6 +10,7 @@ import { spawnRipple } from '../../src/utils/ripple';
 describe('spawnRipple', () => {
 	let container;
 	let mockEvent;
+	let mockCtx;
 
 	beforeEach(() => {
 		container = document.createElement('div');
@@ -26,40 +28,50 @@ describe('spawnRipple', () => {
 			clientX: 150,
 			clientY: 80,
 		};
+
+		/* Mock canvas getContext — jsdom doesn't implement it */
+		mockCtx = {
+			scale: vi.fn(),
+			clearRect: vi.fn(),
+			beginPath: vi.fn(),
+			arc: vi.fn(),
+			stroke: vi.fn(),
+			fill: vi.fn(),
+			createRadialGradient: vi.fn(() => ({
+				addColorStop: vi.fn(),
+			})),
+			strokeStyle: '',
+			fillStyle: '',
+			lineWidth: 0,
+		};
+		HTMLCanvasElement.prototype.getContext = vi.fn(() => mockCtx);
 	});
 
-	it('creates a ripple span element', () => {
+	it('creates a ripple canvas element', () => {
 		spawnRipple(mockEvent);
 		const ripple = container.querySelector('.ripple');
 		expect(ripple).not.toBeNull();
-		expect(ripple.tagName).toBe('SPAN');
+		expect(ripple.tagName).toBe('CANVAS');
 	});
 
-	it('sizes ripple to max dimension of container', () => {
+	it('sizes canvas to container dimensions', () => {
 		spawnRipple(mockEvent);
 		const ripple = container.querySelector('.ripple');
-		// max(200, 100) = 200
 		expect(ripple.style.width).toBe('200px');
-		expect(ripple.style.height).toBe('200px');
+		expect(ripple.style.height).toBe('100px');
 	});
 
-	it('positions ripple at click coordinates relative to container', () => {
+	it('positions canvas to fill container', () => {
 		spawnRipple(mockEvent);
 		const ripple = container.querySelector('.ripple');
-		// left: clientX(150) - rect.left(50) - size/2(100) = 0
-		// top: clientY(80) - rect.top(30) - size/2(100) = -50
+		expect(ripple.style.top).toBe('0px');
 		expect(ripple.style.left).toBe('0px');
-		expect(ripple.style.top).toBe('-50px');
 	});
 
-	it('removes ripple after animationend event', () => {
+	it('canvas has pointer-events none', () => {
 		spawnRipple(mockEvent);
 		const ripple = container.querySelector('.ripple');
-		expect(ripple).not.toBeNull();
-
-		// Fire the animationend event
-		ripple.dispatchEvent(new Event('animationend'));
-		expect(container.querySelector('.ripple')).toBeNull();
+		expect(ripple.style.pointerEvents).toBe('none');
 	});
 
 	it('appends ripple to the currentTarget element', () => {

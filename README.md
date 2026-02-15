@@ -11,8 +11,8 @@ React SPA portfolio site deployed to Cloudflare Pages with serverless contact fo
 
 ## Tech Stack
 
-- **Frontend**: React 18, React Router, Vite
-- **Styling**: Tailwind CSS (dark terminal theme)
+- **Frontend**: React 19, React Router 7, Vite 7
+- **Styling**: Tailwind CSS 4 (dark terminal theme, CSS-first config)
 - **Animations**: Framer Motion
 - **Deployment**: Cloudflare Pages
 - **API**: Cloudflare Pages Functions
@@ -103,7 +103,7 @@ Dark terminal aesthetic with custom Tailwind theme:
 - **Fonts:** Inter (sans), JetBrains Mono (mono), Ubuntu (display)
 - **Custom utilities:** Defined in `src/index.css` (@layer components)
 
-**See `tailwind.config.js` and `src/index.css` for complete theme configuration.**
+**See `src/index.css` for complete theme configuration (Tailwind v4 CSS-first config with `@theme` block).**
 
 ## Security Features
 
@@ -132,9 +132,9 @@ Applied to all routes via `public/_headers`:
 
 ## Testing
 
-Comprehensive test suite with 30 tests covering components, API endpoints, routing, and utilities.
+Comprehensive test suite with 89 tests across 15 files covering components, API endpoints, routing, and utilities.
 
-**Framework:** Vitest + React Testing Library
+**Framework:** Vitest 4 + React Testing Library
 
 **Coverage:**
 - ✅ Contact form validation and submission

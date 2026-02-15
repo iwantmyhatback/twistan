@@ -38,7 +38,7 @@ twistan/
 │   ├── assets/         # Images and static assets
 │   ├── main.jsx        # React app entry point
 │   ├── App.jsx         # Router configuration with lazy loading
-│   └── index.css       # Tailwind base + custom utilities
+│   └── index.css       # Tailwind v4 @import + @theme + custom utilities
 ├── functions/
 │   └── api/
 │       ├── contact.js  # POST /api/contact - Contact form handler
@@ -48,13 +48,13 @@ twistan/
 ├── dist/               # Build output (generated)
 ├── wrangler.toml       # Cloudflare configuration
 ├── vite.config.js      # Vite build configuration
-├── tailwind.config.js  # Tailwind theme customization
+├── eslint.config.js    # ESLint 9 flat config
 └── package.json
 ```
 
 ### Frontend Structure
 - **Entry**: `src/main.jsx` → `src/App.jsx`
-- **Routing**: React Router with lazy-loaded pages in `src/pages/`
+- **Routing**: React Router 7 (`react-router` package) with lazy-loaded pages in `src/pages/`
 - **Layout**: `src/components/Layout.jsx` provides shared navbar, footer, page transitions
 - **Pages**: Home, About, Projects, Contact, AboutYou, NotFound
 - **Components**: Reusable UI in `src/components/`
@@ -77,10 +77,11 @@ Binding: `CONTACT_SUBMISSIONS` (configured in wrangler.toml)
 ## Styling System
 
 ### Tailwind Configuration
-Custom theme extends defaults in `tailwind.config.js`:
+Tailwind v4 CSS-first config in `src/index.css` using `@import "tailwindcss"` and `@theme` block:
 - **Colors**: `surface` (dark grays), `accent` (blue), `terminal` (green)
 - **Fonts**: Inter (sans), JetBrains Mono (mono), Ubuntu (display)
 - **Animations**: fade-in, slide-up, subtle-pulse
+- **No `tailwind.config.js`** — all theme config lives in CSS via `@theme` block
 
 ### Custom CSS Utilities
 Defined in `src/index.css` @layer components:

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link } from 'react-router';
 import { AnimatePresence, motion } from 'framer-motion';
 import menuImage from '../assets/avatar.png';
 
@@ -67,7 +67,7 @@ function Navbar() {
 				</Link>
 
 				{/* Right: avatar */}
-				<Link to="/" className="flex-shrink-0 justify-self-end">
+				<Link to="/" className="shrink-0 justify-self-end">
 					<img
 						src={menuImage}
 						alt="Twistan avatar"

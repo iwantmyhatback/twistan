@@ -3,9 +3,9 @@
  * Tests route configuration, lazy loading, and navigation.
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import { createMemoryRouter, RouterProvider } from 'react-router-dom';
+import { createMemoryRouter, RouterProvider } from 'react-router';
 
 // Import pages directly for testing
 import Contact from '../src/pages/Contact';

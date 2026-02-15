@@ -13,7 +13,7 @@ import {
 	ComputerDesktopIcon,
 	GlobeAltIcon,
 } from '@heroicons/react/24/outline';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import AnimatedSection from '../components/AnimatedSection';
 import { spawnRipple } from '../utils/ripple';
 
@@ -76,7 +76,7 @@ function About() {
 							className="card card-terminal-hover ripple-container flex items-center gap-4 cursor-pointer"
 							onClick={spawnRipple}
 						>
-							<skill.icon className="w-6 h-6 text-accent flex-shrink-0" />
+							<skill.icon className="w-6 h-6 text-accent shrink-0" />
 							<span className="text-sm font-medium text-neutral-200">
 								{skill.label}
 							</span>

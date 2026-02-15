@@ -1,6 +1,49 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+	/* Surface colors (dark grays) */
+	--color-surface: #0a0a0a;
+	--color-surface-50: #111111;
+	--color-surface-100: #1a1a1a;
+	--color-surface-200: #222222;
+	--color-surface-300: #2a2a2a;
+	--color-surface-400: #333333;
+
+	/* Accent colors (blue) */
+	--color-accent: #3b82f6;
+	--color-accent-light: #60a5fa;
+	--color-accent-dark: #2563eb;
+
+	/* Terminal colors (green) */
+	--color-terminal: #33ff33;
+	--color-terminal-light: #66ff66;
+	--color-terminal-dark: #22cc22;
+
+	/* Font families */
+	--font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+	--font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+	--font-display: 'Ubuntu', 'Inter', system-ui, sans-serif;
+
+	/* Animations */
+	--animate-fade-in: fade-in 0.6s ease-out;
+	--animate-slide-up: slide-up 0.6s ease-out;
+	--animate-subtle-pulse: subtle-pulse 3s ease-in-out infinite;
+}
+
+@keyframes fade-in {
+	0% { opacity: 0; }
+	100% { opacity: 1; }
+}
+
+@keyframes slide-up {
+	0% { opacity: 0; transform: translateY(20px); }
+	100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes subtle-pulse {
+	0%, 100% { opacity: 0.4; }
+	50% { opacity: 1; }
+}
 
 @layer base {
 	html {
@@ -78,24 +121,10 @@
 		filter: drop-shadow(0 0 6px rgba(51, 255, 51, 0.5));
 	}
 
-	/* Green ripple effect on click */
+	/* Water ripple container — canvas-based effect rendered by ripple.js */
 	.ripple-container {
 		position: relative;
 		overflow: hidden;
-	}
-	.ripple-container .ripple {
-		position: absolute;
-		border-radius: 50%;
-		background: rgba(51, 255, 51, 0.25);
-		transform: scale(0);
-		animation: ripple-expand 0.6s ease-out forwards;
-		pointer-events: none;
-	}
-	@keyframes ripple-expand {
-		to {
-			transform: scale(4);
-			opacity: 0;
-		}
 	}
 
 	/* 404 glitch text effect */

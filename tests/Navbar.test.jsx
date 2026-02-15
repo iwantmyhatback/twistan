@@ -5,7 +5,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { createMemoryRouter, RouterProvider } from 'react-router-dom';
+import { createMemoryRouter, RouterProvider } from 'react-router';
 import Navbar from '../src/components/Navbar';
 
 /** Render Navbar within a router at the given path. */

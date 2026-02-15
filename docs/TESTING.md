@@ -183,7 +183,7 @@ npm run test:coverage
 
 **Component tests** wrap in router context:
 ```javascript
-import { createMemoryRouter, RouterProvider } from 'react-router-dom';
+import { createMemoryRouter, RouterProvider } from 'react-router';
 
 const router = createMemoryRouter(
   [{ path: '*', element: <Component /> }],

@@ -33,12 +33,12 @@ npm install
 ```
 
 This installs:
-- React 18 + React Router
-- Vite (build tool)
-- Tailwind CSS
+- React 19 + React Router 7
+- Vite 7 (build tool)
+- Tailwind CSS 4
 - Framer Motion (animations)
-- Wrangler (Cloudflare CLI)
-- ESLint and plugins
+- Wrangler 4 (Cloudflare CLI)
+- ESLint 9 and plugins (flat config)
 
 ## Development Modes
 
@@ -57,7 +57,7 @@ npm run dev
 
 **Expected output:**
 ```
-VITE v5.4.8  ready in 234 ms
+VITE v7.3.1  ready in 234 ms
 
 ➜  Local:   http://localhost:5173/
 ➜  Network: use --host to expose
@@ -276,7 +276,7 @@ twistan/
 
 **Tailwind utility classes:**
 - Edit component JSX directly with Tailwind classes
-- See `tailwind.config.js` for custom theme values
+- See `src/index.css` `@theme` block for custom theme values
 
 **Custom CSS:**
 - Global styles: `src/index.css`
@@ -348,14 +348,16 @@ MyComponent.propTypes = {
 
 ### ESLint Configuration
 
-Located in `.eslintrc.cjs`:
-- Extends React recommended rules
+Located in `eslint.config.js` (ESM flat config, ESLint 9):
+- Extends ESLint and React recommended rules
 - React Hooks rules enabled
 - React Refresh plugin for HMR
+- `react/prop-types` disabled (not used in this project)
+- Test files have vitest and node globals configured
 
 **Disable specific rule:**
 ```jsx
-// eslint-disable-next-line react/prop-types
+// eslint-disable-next-line no-unused-vars
 ```
 
 ## Building for Production
@@ -510,7 +512,7 @@ Cannot find module './NonExistent.jsx'
 - Styles not applied
 
 **Fix:**
-1. Verify file is in Tailwind content paths (see `tailwind.config.js`)
+1. Verify file is being scanned by Tailwind (v4 uses automatic content detection)
 2. Check class name spelling
 3. Restart dev server (`Ctrl+C` then `npm run dev`)
 
@@ -606,7 +608,7 @@ npx wrangler pages deployment list --project-name=app  # List deployments
 - **Components:** `src/components/*.jsx`
 - **Styles:** `src/index.css`
 - **API:** `functions/api/*.js`
-- **Config:** `vite.config.js`, `tailwind.config.js`, `wrangler.toml`
+- **Config:** `vite.config.js`, `eslint.config.js`, `wrangler.toml`
 
 ### Ports
 
@@ -618,5 +620,5 @@ npx wrangler pages deployment list --project-name=app  # List deployments
 - **Add page:** `src/pages/YourPage.jsx` + `src/App.jsx`
 - **Modify layout:** `src/components/Layout.jsx`
 - **Edit navigation:** `src/components/Navbar.jsx`
-- **Change theme:** `tailwind.config.js`
+- **Change theme:** `src/index.css` (`@theme` block)
 - **Add API endpoint:** `functions/api/yourfile.js`
