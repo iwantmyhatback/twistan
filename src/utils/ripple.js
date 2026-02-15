@@ -32,6 +32,47 @@ export function spawnRipple(e) {
 	}
 	ctx.scale(dpr, dpr);
 
+	// Read CSS variable --color-ripple (falls back to --color-terminal and then hardcoded)
+	function parseColorToRgb(s) {
+		if (!s) return { r: 51, g: 255, b: 51 };
+		s = s.trim();
+		if (s.startsWith('rgb')) {
+			const m = s.match(/rgba?\s*\(([^)]+)\)/i);
+			if (m) {
+				const parts = m[1].split(',').map(p => parseInt(p, 10));
+				return { r: parts[0] || 0, g: parts[1] || 0, b: parts[2] || 0 };
+			}
+		}
+		if (s.startsWith('#')) {
+			let h = s.slice(1);
+			if (h.length === 3) h = h.split('').map(c => c + c).join('');
+			if (h.length === 6) {
+				return {
+					r: parseInt(h.slice(0, 2), 16),
+					g: parseInt(h.slice(2, 4), 16),
+					b: parseInt(h.slice(4, 6), 16),
+				};
+			}
+		}
+		// fallback
+		return { r: 51, g: 255, b: 51 };
+	}
+
+	const cssColor = (
+		getComputedStyle(document.documentElement).getPropertyValue('--color-ripple') ||
+		getComputedStyle(document.documentElement).getPropertyValue('--color-terminal') ||
+		'#33ff33'
+	).trim();
+
+	const baseRgb = parseColorToRgb(cssColor);
+	const base = `${baseRgb.r}, ${baseRgb.g}, ${baseRgb.b}`;
+	const highlightRgb = {
+		r: Math.min(255, baseRgb.r + 70),
+		g: Math.min(255, baseRgb.g + 70),
+		b: Math.min(255, baseRgb.b + 70),
+	};
+	const highlight = `${highlightRgb.r}, ${highlightRgb.g}, ${highlightRgb.b}`;
+
 	const cx = x;
 	const cy = y;
 	const DURATION = 2000;
@@ -62,17 +103,17 @@ export function spawnRipple(e) {
 			/* Ring thickness: thick at birth, thins as it expands */
 			const thickness = Math.max(1, (1 - eased) * 6 + 1.5);
 
-			/* Outer ring — terminal green */
+			/* Outer ring — use configured ripple color */
 			ctx.beginPath();
 			ctx.arc(cx, cy, Math.max(0, radius), 0, Math.PI * 2);
-			ctx.strokeStyle = `rgba(51, 255, 51, ${alpha * 0.35})`;
+			ctx.strokeStyle = `rgba(${base}, ${alpha * 0.35})`;
 			ctx.lineWidth = thickness;
 			ctx.stroke();
 
 			/* Inner highlight — brighter, thinner, slightly smaller */
 			ctx.beginPath();
 			ctx.arc(cx, cy, Math.max(0, radius - thickness * 0.6), 0, Math.PI * 2);
-			ctx.strokeStyle = `rgba(120, 255, 120, ${alpha * 0.5})`;
+			ctx.strokeStyle = `rgba(${highlight}, ${alpha * 0.5})`;
 			ctx.lineWidth = Math.max(0.5, thickness * 0.4);
 			ctx.stroke();
 
@@ -82,9 +123,9 @@ export function spawnRipple(e) {
 					cx, cy, Math.max(0, radius - thickness * 2),
 					cx, cy, radius + thickness * 2,
 				);
-				grad.addColorStop(0, `rgba(51, 255, 51, 0)`);
-				grad.addColorStop(0.5, `rgba(51, 255, 51, ${alpha * 0.08})`);
-				grad.addColorStop(1, `rgba(51, 255, 51, 0)`);
+				grad.addColorStop(0, `rgba(${base}, 0)`);
+				grad.addColorStop(0.5, `rgba(${base}, ${alpha * 0.08})`);
+				grad.addColorStop(1, `rgba(${base}, 0)`);
 				ctx.beginPath();
 				ctx.arc(cx, cy, radius + thickness * 2, 0, Math.PI * 2);
 				ctx.fillStyle = grad;

@@ -19,6 +19,9 @@
 	--color-terminal-light: #66ff66;
 	--color-terminal-dark: #22cc22;
 
+	/* Ripple color (uses terminal green by default) */
+	--color-ripple: var(--color-accent);
+
 	/* Font families */
 	--font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
 	--font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
@@ -129,13 +132,13 @@
 
 	/* 404 glitch text effect */
 	.glitch-text {
-		animation: glitch 3s infinite;
+		animation: glitch 2s infinite;
 	}
 	@keyframes glitch {
 		0%, 90%, 100% { text-shadow: none; }
-		92% { text-shadow: -2px 0 #3b82f6, 2px 0 #ef4444; }
-		94% { text-shadow: 2px 0 #3b82f6, -2px 0 #ef4444; }
-		96% { text-shadow: -1px 0 #3b82f6, 1px 0 #ef4444; }
-		98% { text-shadow: 1px 0 #3b82f6, -1px 0 #ef4444; }
+		92% { text-shadow: -8px 0 #3b82f6, 2px 0 #ef4444; }
+		94% { text-shadow: 8px 0 #3b82f6, -2px 0 #ef4444; }
+		96% { text-shadow: -4px 0 #3b82f6, 1px 0 #ef4444; }
+		98% { text-shadow: 4px 0 #3b82f6, -1px 0 #ef4444; }
 	}
 }
