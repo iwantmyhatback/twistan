@@ -104,7 +104,7 @@ Defined in `src/index.css` @layer components:
 - `.card`: bordered card with hover state
 - `.nav-active-glow`: terminal-green text shadow for active nav
 - `.brand-glow`: blue accent glow for navbar brand
-- `.card-terminal-hover`: green border glow on card hover
+- `.card-inner-highlight`: accent blue glow on card hover with child element effects (buttons, links, icons, text)
 - `.github-glow`: green drop-shadow on GitHub icon hover
 
 ### Design Theme

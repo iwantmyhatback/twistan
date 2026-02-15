@@ -68,13 +68,13 @@ function Navbar() {
 				</Link>
 
 				{/* Right: avatar */}
-				<Link to="/" viewTransition className="shrink-0 justify-self-end">
+				<a href="https://github.com/iwantmyhatback" target="_blank" rel="noopener noreferrer" className="shrink-0 justify-self-end">
 					<img
 						src={menuImage}
 						alt="Twistan avatar"
 						className="h-9 w-9 rounded-full hover:brightness-125 transition-all duration-200"
 					/>
-				</Link>
+				</a>
 			</div>
 
 			{/* Mobile menu */}

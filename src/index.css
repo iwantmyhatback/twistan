@@ -120,15 +120,15 @@
 		text-shadow: 0 0 8px #3b82f6, 0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.2);
 	}
 
-	/* Terminal green border glow for card hover */
-	.card-terminal-hover {
+	/* Accent blue glow for card hover — used across all pages */
+	.card-inner-highlight {
 		position: relative;
 		overflow: hidden;
-		transition: box-shadow 0.3s, border-color 0.3s;
+		transition: box-shadow 0.3s;
 	}
-	.card-terminal-hover:hover {
-		border-color: #33ff33;
-		box-shadow: 0 0 8px rgba(51, 255, 51, 0.3), 0 0 16px rgba(51, 255, 51, 0.15);
+	.card-inner-highlight:hover {
+		box-shadow: 0 0 8px color-mix(in srgb, var(--color-accent) 30%, transparent),
+		            0 0 16px color-mix(in srgb, var(--color-accent) 15%, transparent);
 	}
 
 	/* GitHub icon green glow on hover — drop-shadow on SVG directly for Safari compat */
@@ -247,4 +247,80 @@
 		96% { text-shadow: -4px 0 #3b82f6, 1px 0 #ef4444; }
 		98% { text-shadow: 4px 0 #3b82f6, -1px 0 #ef4444; }
 	}
+}
+
+/*
+ * card-inner-highlight child hover effects
+ * Outside @layer to beat Tailwind utility specificity (e.g. border-surface-300).
+ * Used on: Projects (buttons, links, title), About (icons, labels),
+ * Home (wave button), AboutYou (icons, titles, values).
+ */
+
+/* Child buttons — white border + accent blue shadow */
+.card-inner-highlight button {
+	transition: border-color 0.3s, border-width 0.3s, box-shadow 0.3s;
+}
+.card-inner-highlight:hover button {
+	border-color: #ffffff;
+	border-width: 1.2px;
+	box-shadow: 0 0 8px color-mix(in srgb, var(--color-accent) 60%, transparent),
+	            0 0 16px color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+
+/* Home wave button — border on hover when the button IS the card */
+button.card-inner-highlight {
+	transition: border-color 0.3s, border-width 0.3s, box-shadow 0.3s;
+}
+button.card-inner-highlight:hover {
+	border-color: #ffffff;
+	border-width: 1.2px;
+}
+
+/* Links (excl. project title) — white + accent blue drop-shadow.
+   No filter in transition to avoid Safari compositing flicker. */
+.card-inner-highlight a:not(.project-title) {
+	transition: color 0.3s;
+}
+.card-inner-highlight:hover a:not(.project-title) {
+	color: #ffffff;
+	filter: drop-shadow(0 0 5px color-mix(in srgb, var(--color-accent) 70%, transparent));
+}
+
+/* Project title — accent blue text-shadow glow */
+.card-inner-highlight .project-title {
+	transition: text-shadow 0.3s;
+}
+.card-inner-highlight:hover .project-title {
+	text-shadow: 0 0 8px var(--color-accent), 0 0 20px color-mix(in srgb, var(--color-accent) 50%, transparent);
+}
+
+/* Text (h2, span) — white + accent blue text-shadow glow */
+.card-inner-highlight h2,
+.card-inner-highlight span {
+	transition: text-shadow 0.3s;
+}
+.card-inner-highlight:hover h2,
+.card-inner-highlight:hover span {
+	color: #ffffff;
+	text-shadow: 0 0 8px var(--color-accent), 0 0 20px color-mix(in srgb, var(--color-accent) 50%, transparent);
+}
+
+/* Icons (SVG) — white + accent blue drop-shadow.
+   No filter in transition to avoid Safari compositing flicker. */
+.card-inner-highlight svg {
+	transition: color 0.3s;
+}
+.card-inner-highlight:hover svg {
+	color: #ffffff;
+	filter: drop-shadow(0 0 5px color-mix(in srgb, var(--color-accent) 70%, transparent));
+}
+
+/* Body text (p, pre) — lighten on hover */
+.card-inner-highlight p,
+.card-inner-highlight pre {
+	transition: color 0.3s;
+}
+.card-inner-highlight:hover p,
+.card-inner-highlight:hover pre {
+	color: #d4d4d4;
 }

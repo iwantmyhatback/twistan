@@ -125,9 +125,9 @@ function Home() {
 				onClick={handleNewImage}
 				whileHover={{ scale: 1.02, y: -2 }}
 				transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-				className="card card-terminal-hover ripple-container flex items-center justify-center cursor-pointer px-12"
+				className="card card-inner-highlight ripple-container flex items-center justify-center cursor-pointer px-12"
 			>
-				<span className="text-sm font-medium text-neutral-200">Wave Back!</span>
+				<span className="text-sm font-medium font-display text-neutral-200">Wave Back!</span>
 			</motion.button>
 		</div>
 	);

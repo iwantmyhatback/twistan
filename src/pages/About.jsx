@@ -52,11 +52,11 @@ function About() {
 
 			{/* Easter egg link */}
 			<AnimatedSection delay={0.8} className="mt-16">
-				<p className="text-sm text-neutral-600">
+				<p className="text-sm text-red-400/50">
 					Curious what I know about you?{' '}
 					<Link
 						to="/about-you"
-						className="text-neutral-500 hover:text-accent transition-colors duration-200 underline underline-offset-4"
+						className="text-red-400/60 hover:text-red-400 transition-colors duration-200 underline underline-offset-4"
 					>
 						Find out
 					</Link>
@@ -73,11 +73,11 @@ function About() {
 						<motion.div
 							whileHover={{ scale: 1.02, y: -2 }}
 							transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-							className="card card-terminal-hover ripple-container flex items-center gap-4 cursor-pointer"
+							className="card card-inner-highlight ripple-container flex items-center gap-4 cursor-pointer"
 							onClick={spawnRipple}
 						>
 							<skill.icon className="w-6 h-6 text-accent shrink-0" />
-							<span className="text-sm font-medium text-neutral-200">
+							<span className="text-sm font-medium font-display text-neutral-200">
 								{skill.label}
 							</span>
 						</motion.div>

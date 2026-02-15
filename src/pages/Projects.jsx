@@ -268,18 +268,26 @@ function Projects() {
 								onClick={(e) => spawnRipple(e)}
 								whileHover={{ scale: 1.01 }}
 								transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-								className="card card-terminal-hover ripple-container h-full flex flex-col"
+								className="card card-inner-highlight ripple-container h-full flex flex-col"
 							>
 							<div className="flex items-start justify-between gap-3 mb-3">
-								<h3 className="text-lg font-semibold text-white font-display">
-									{project.title}
+								<h3 className="text-lg font-semibold font-display">
+									<a
+										href={project.url}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="text-white project-title"
+										onClick={(e) => e.stopPropagation()}
+									>
+										{project.title}
+									</a>
 								</h3>
 								{project.url && (
 									<a
 										href={project.url}
 										target="_blank"
 										rel="noopener noreferrer"
-										className="text-neutral-500 hover:text-accent transition-colors duration-200 shrink-0"
+										className="text-neutral-500 shrink-0"
 										onClick={(e) => e.stopPropagation()}
 										aria-label={`Open ${project.title}`}
 									>

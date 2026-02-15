@@ -1,5 +1,22 @@
 import { useState, useEffect } from 'react';
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
+import {
+	FingerPrintIcon,
+	MapPinIcon,
+	GlobeAltIcon,
+	CpuChipIcon,
+	SignalIcon,
+	SwatchIcon,
+	CircleStackIcon,
+	BoltIcon,
+	SpeakerWaveIcon,
+	LanguageIcon,
+	WrenchScrewdriverIcon,
+	ChartBarIcon,
+	DevicePhoneMobileIcon,
+	PaintBrushIcon,
+	CubeIcon,
+} from '@heroicons/react/24/outline';
 import AnimatedSection from '../components/AnimatedSection';
 import { spawnRipple } from '../utils/ripple';
 
@@ -21,14 +38,17 @@ import { spawnRipple } from '../utils/ripple';
 const categories = [
 	{
 		title: 'Visitor ID',
+		icon: FingerPrintIcon,
 		keys: ['visitorId', 'confidence'],
 	},
 	{
 		title: 'IP & Location',
+		icon: MapPinIcon,
 		keys: ['ipAddress', 'ipLocation', 'isp', 'vpnProxy'],
 	},
 	{
 		title: 'Browser',
+		icon: GlobeAltIcon,
 		keys: [
 			'browser', 'userAgentData', 'referrer', 'sessionHistory', 'doNotTrack',
 			'cookiesEnabled', 'pdfViewer', 'adBlocker', 'incognito',
@@ -37,6 +57,7 @@ const categories = [
 	},
 	{
 		title: 'Hardware',
+		icon: CpuChipIcon,
 		keys: [
 			'os', 'cpu', 'fpArchitecture', 'cpuCores', 'memory', 'screen',
 			'screenFrame', 'viewport', 'devicePixelRatio', 'touchScreen',
@@ -45,10 +66,12 @@ const categories = [
 	},
 	{
 		title: 'Network',
+		icon: SignalIcon,
 		keys: ['network', 'onlineStatus', 'localIPs'],
 	},
 	{
 		title: 'Locale & Preferences',
+		icon: SwatchIcon,
 		keys: [
 			'timeZone', 'language', 'dateFormat', 'colorScheme',
 			'reducedMotion', 'reducedTransparency', 'contrast',
@@ -57,6 +80,7 @@ const categories = [
 	},
 	{
 		title: 'Storage & Permissions',
+		icon: CircleStackIcon,
 		keys: [
 			'cookies', 'localStorage', 'sessionStorage', 'indexedDB',
 			'storageEstimate', 'notifications', 'clipboard',
@@ -64,18 +88,22 @@ const categories = [
 	},
 	{
 		title: 'Battery',
+		icon: BoltIcon,
 		keys: ['battery'],
 	},
 	{
 		title: 'Audio',
+		icon: SpeakerWaveIcon,
 		keys: ['audioFingerprint', 'audioBaseLatency', 'audioDevices'],
 	},
 	{
 		title: 'Fonts',
+		icon: LanguageIcon,
 		keys: ['detectedFonts', 'fontPreferences'],
 	},
 	{
 		title: 'Features & APIs',
+		icon: WrenchScrewdriverIcon,
 		keys: [
 			'serviceWorker', 'webRTC', 'bluetooth', 'usb', 'midi',
 			'gamepads', 'speechSynthesis', 'webGPU', 'webTransport',
@@ -86,6 +114,7 @@ const categories = [
 	},
 	{
 		title: 'Performance',
+		icon: ChartBarIcon,
 		keys: ['pageLoadTiming', 'performanceMemory', 'mathFingerprint'],
 	},
 ];
@@ -170,8 +199,9 @@ function AboutYou() {
 					if (!hasData) return null;
 					return (
 						<AnimatedSection key={cat.title} delay={i * 0.06}>
-							<div className="card ripple-container h-full" onClick={(e) => spawnRipple(e)}>
-								<h2 className="text-sm font-semibold text-white mb-4">
+							<div className="card card-inner-highlight ripple-container h-full" onClick={(e) => spawnRipple(e)}>
+								<h2 className="text-sm font-semibold font-display text-white mb-4 flex items-center gap-2">
+									<cat.icon className="w-5 h-5 text-accent shrink-0" />
 									{cat.title}
 								</h2>
 								<div className="space-y-2">
@@ -180,10 +210,10 @@ function AboutYou() {
 										if (value === undefined) return null;
 										return (
 											<div key={key}>
-												<span className="text-xs text-neutral-500 uppercase tracking-wider">
+												<span className="text-xs text-white uppercase tracking-wider">
 													{key}
 												</span>
-												<pre className="font-mono text-xs text-neutral-300 whitespace-pre-wrap break-all mt-0.5">
+												<pre className="font-mono text-xs text-neutral-500 whitespace-pre-wrap break-all mt-0.5">
 													{formatValue(value)}
 												</pre>
 											</div>
@@ -198,13 +228,14 @@ function AboutYou() {
 
 			{info.mediaDevices && info.mediaDevices.length > 0 && (
 				<AnimatedSection delay={0.7} className="mt-4">
-					<div className="card ripple-container" onClick={(e) => spawnRipple(e)}>
-						<h2 className="text-sm font-semibold text-white mb-4">
+					<div className="card card-inner-highlight ripple-container" onClick={(e) => spawnRipple(e)}>
+						<h2 className="text-sm font-semibold font-display text-white mb-4 flex items-center gap-2">
+							<DevicePhoneMobileIcon className="w-5 h-5 text-accent shrink-0" />
 							Media Devices
 						</h2>
 						<div className="space-y-1">
 							{info.mediaDevices.map((device, idx) => (
-								<pre key={idx} className="font-mono text-xs text-neutral-300">
+								<pre key={idx} className="font-mono text-xs text-neutral-500">
 									{device.kind}: {device.label || 'unnamed'}{' '}
 									<span className="text-neutral-600">({device.deviceId.slice(0, 8)}...)</span>
 								</pre>
@@ -216,11 +247,12 @@ function AboutYou() {
 
 			{info.canvasFP && (
 				<AnimatedSection delay={0.75} className="mt-4">
-					<div className="card ripple-container" onClick={(e) => spawnRipple(e)}>
-						<h2 className="text-sm font-semibold text-white mb-4">
+					<div className="card card-inner-highlight ripple-container" onClick={(e) => spawnRipple(e)}>
+						<h2 className="text-sm font-semibold font-display text-white mb-4 flex items-center gap-2">
+							<PaintBrushIcon className="w-5 h-5 text-accent shrink-0" />
 							Canvas Fingerprint
 						</h2>
-						<pre className="font-mono text-xs text-neutral-300 whitespace-pre-wrap break-all">
+						<pre className="font-mono text-xs text-neutral-500 whitespace-pre-wrap break-all">
 							{info.canvasFP}
 						</pre>
 					</div>
@@ -229,11 +261,12 @@ function AboutYou() {
 
 			{info.webglFP && (
 				<AnimatedSection delay={0.8} className="mt-4">
-					<div className="card ripple-container" onClick={(e) => spawnRipple(e)}>
-						<h2 className="text-sm font-semibold text-white mb-4">
+					<div className="card card-inner-highlight ripple-container" onClick={(e) => spawnRipple(e)}>
+						<h2 className="text-sm font-semibold font-display text-white mb-4 flex items-center gap-2">
+							<CubeIcon className="w-5 h-5 text-accent shrink-0" />
 							WebGL Fingerprint
 						</h2>
-						<pre className="font-mono text-xs text-neutral-300 whitespace-pre-wrap break-all">
+						<pre className="font-mono text-xs text-neutral-500 whitespace-pre-wrap break-all">
 							{info.webglFP}
 						</pre>
 					</div>
