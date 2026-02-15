@@ -22,7 +22,6 @@ React SPA portfolio site built with Vite, deployed to Cloudflare Pages with serv
 - **[docs/CLOUDFLARE_SETUP.md](docs/CLOUDFLARE_SETUP.md)** - Complete Cloudflare Pages + DNS + KV deployment guide
 - **[docs/LOCAL_DEVELOPMENT.md](docs/LOCAL_DEVELOPMENT.md)** - Local environment setup and development workflow
 - **[docs/TESTING.md](docs/TESTING.md)** - Test suite documentation, coverage, and testing patterns
-- **[docs/EMAIL_NOTIFICATIONS_PLAN.md](docs/EMAIL_NOTIFICATIONS_PLAN.md)** - 🚧 Email notification implementation plan (in progress)
 
 **For setup/deployment questions:** Refer to documentation files above rather than duplicating content here.
 
@@ -44,7 +43,8 @@ twistan/
 │       ├── contact.js  # POST /api/contact - Contact form handler
 │       └── health.js   # GET /api/health - Health check endpoint
 ├── scripts/
-│   └── get-submissions.sh  # Retrieve contact form submissions from KV
+│   ├── get-submissions.sh    # Retrieve contact form submissions from KV
+│   └── clear-submissions.sh  # Clear all stored contact form submissions
 ├── dist/               # Build output (generated)
 ├── wrangler.toml       # Cloudflare configuration
 ├── vite.config.js      # Vite build configuration
@@ -58,6 +58,20 @@ twistan/
 - **Layout**: `src/components/Layout.jsx` provides shared navbar, footer, page transitions
 - **Pages**: Home, About, Projects, Contact, AboutYou, NotFound
 - **Components**: Reusable UI in `src/components/`
+
+### Projects README Rendering
+Project tiles on the Projects page have expandable README panels fetched from GitHub at runtime:
+- **Markdown parsing**: `marked` library with a custom renderer (headings get Tailwind classes, links open in new tabs, images validated, raw HTML stripped for XSS prevention)
+- **URL sanitization**: `isSafeUrl()` whitelists http(s)/relative/anchor URLs, blocks `javascript:`, `data:`, `vbscript:` schemes
+- **Caching**: Module-scope `Map` persists parsed HTML across navigations (survives component unmount)
+- **Fetch lifecycle**: `AbortController` cancels in-flight requests on panel close, tile switch, or unmount
+- **Ripple effect**: Tile-level `onClick` triggers `spawnRipple()` on the `.ripple-container` div; the README button uses `stopPropagation` and calls `handleTileClick` separately
+
+### Home Image Carousel
+The Home page displays a shuffled deck of wave GIF/WebP images from `src/assets/ImageUrls.js`:
+- A pinned first image is always shown on initial load
+- Remaining images are Fisher-Yates shuffled using `crypto.getRandomValues`
+- On deck exhaustion, reshuffles and avoids repeating the last-shown image
 
 ### Page Transitions
 Uses Framer Motion with `AnimatePresence` and `motion.main` in Layout component. Each route transition animates with 0.3s fade + vertical slide. Individual page sections use `AnimatedSection` component for staggered entrance animations.
@@ -170,7 +184,7 @@ See [docs/TESTING.md](docs/TESTING.md) for detailed documentation.
 - **tests/Layout.test.jsx** (5) - Composition, skip-to-content
 - **tests/CursorGlow.test.jsx** (5) - Canvas rendering, media query gating
 - **tests/utils/validation.test.js** (5) - Email validation, rate limiting logic
-- **tests/utils/ripple.test.js** (5) - DOM ripple effect utility
+- **tests/utils/ripple.test.js** (5) - Canvas ripple effect utility
 - **tests/AnimatedSection.test.jsx** (4) - Animation wrapper props
 - **tests/About.test.jsx** (4) - Skills grid, easter egg link
 - **tests/NotFound.test.jsx** (4) - 404 page, home link

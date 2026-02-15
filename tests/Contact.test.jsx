@@ -1,34 +1,59 @@
 /**
  * Contact form component tests.
  * Tests form validation, CAPTCHA integration, and submission handling.
+ * Uses useActionState with FormData-based uncontrolled inputs.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { createMemoryRouter, RouterProvider } from 'react-router';
 import Contact from '../src/pages/Contact';
 
 // Mock fetch
 global.fetch = vi.fn();
 
+/** Render Contact within a router context. */
+function renderContact() {
+	const router = createMemoryRouter(
+		[{ path: '*', element: <Contact /> }],
+		{ initialEntries: ['/contact'] }
+	);
+	return render(<RouterProvider router={router} />);
+}
+
+/**
+ * Fill form fields with provided values.
+ */
+async function fillForm(user, { name = 'Test User', email = 'test@example.com', message = 'Test message' } = {}) {
+	if (name) await user.type(screen.getByLabelText(/name/i), name);
+	if (email) await user.type(screen.getByLabelText(/email/i), email);
+	if (message) await user.type(screen.getByLabelText(/message/i), message);
+}
+
+/** Inject a hidden turnstile response input into the form. */
+function injectCaptchaToken(token = 'mock-captcha-token') {
+	const form = document.querySelector('form');
+	if (!form) return;
+	const existing = form.querySelector('[name="cf-turnstile-response"]');
+	if (existing) {
+		existing.value = token;
+		return;
+	}
+	const input = document.createElement('input');
+	input.type = 'hidden';
+	input.name = 'cf-turnstile-response';
+	input.value = token;
+	form.appendChild(input);
+}
+
 describe('Contact Form', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		// Mock successful CAPTCHA token
-		document.querySelector = vi.fn((selector) => {
-			if (selector === '[name="cf-turnstile-response"]') {
-				return { value: 'mock-captcha-token' };
-			}
-			return null;
-		});
 	});
 
 	it('renders contact form with all fields', () => {
-		render(
-			<BrowserRouter>
-				<Contact />
-			</BrowserRouter>
-		);
+		renderContact();
 
 		expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
 		expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
@@ -37,14 +62,10 @@ describe('Contact Form', () => {
 	});
 
 	it('validates required fields', async () => {
-		render(
-			<BrowserRouter>
-				<Contact />
-			</BrowserRouter>
-		);
+		const user = userEvent.setup();
+		renderContact();
 
-		const submitButton = screen.getByRole('button', { name: /send message/i });
-		fireEvent.click(submitButton);
+		await user.click(screen.getByRole('button', { name: /send message/i }));
 
 		await waitFor(() => {
 			expect(screen.getByText(/all fields are required/i)).toBeInTheDocument();
@@ -52,21 +73,12 @@ describe('Contact Form', () => {
 	});
 
 	it('validates email format', async () => {
-		render(
-			<BrowserRouter>
-				<Contact />
-			</BrowserRouter>
-		);
+		const user = userEvent.setup();
+		renderContact();
 
-		const nameInput = screen.getByLabelText(/name/i);
-		const emailInput = screen.getByLabelText(/email/i);
-		const messageInput = screen.getByLabelText(/message/i);
-		const submitButton = screen.getByRole('button', { name: /send message/i });
-
-		fireEvent.change(nameInput, { target: { value: 'Test User' } });
-		fireEvent.change(emailInput, { target: { value: 'invalid-email' } });
-		fireEvent.change(messageInput, { target: { value: 'Test message' } });
-		fireEvent.click(submitButton);
+		await fillForm(user, { email: 'invalid-email' });
+		injectCaptchaToken();
+		await user.click(screen.getByRole('button', { name: /send message/i }));
 
 		await waitFor(() => {
 			expect(screen.getByText(/valid email address/i)).toBeInTheDocument();
@@ -74,24 +86,12 @@ describe('Contact Form', () => {
 	});
 
 	it('requires CAPTCHA completion', async () => {
-		// Mock no CAPTCHA token
-		document.querySelector = vi.fn(() => ({ value: '' }));
+		const user = userEvent.setup();
+		renderContact();
 
-		render(
-			<BrowserRouter>
-				<Contact />
-			</BrowserRouter>
-		);
-
-		const nameInput = screen.getByLabelText(/name/i);
-		const emailInput = screen.getByLabelText(/email/i);
-		const messageInput = screen.getByLabelText(/message/i);
-		const submitButton = screen.getByRole('button', { name: /send message/i });
-
-		fireEvent.change(nameInput, { target: { value: 'Test User' } });
-		fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
-		fireEvent.change(messageInput, { target: { value: 'Test message' } });
-		fireEvent.click(submitButton);
+		await fillForm(user);
+		// No captcha token injected
+		await user.click(screen.getByRole('button', { name: /send message/i }));
 
 		await waitFor(() => {
 			expect(screen.getByText(/complete the captcha/i)).toBeInTheDocument();
@@ -104,21 +104,12 @@ describe('Contact Form', () => {
 			json: async () => ({ success: true, message: 'Message received.' }),
 		});
 
-		render(
-			<BrowserRouter>
-				<Contact />
-			</BrowserRouter>
-		);
+		const user = userEvent.setup();
+		renderContact();
 
-		const nameInput = screen.getByLabelText(/name/i);
-		const emailInput = screen.getByLabelText(/email/i);
-		const messageInput = screen.getByLabelText(/message/i);
-		const submitButton = screen.getByRole('button', { name: /send message/i });
-
-		fireEvent.change(nameInput, { target: { value: 'Test User' } });
-		fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
-		fireEvent.change(messageInput, { target: { value: 'Test message' } });
-		fireEvent.click(submitButton);
+		await fillForm(user);
+		injectCaptchaToken();
+		await user.click(screen.getByRole('button', { name: /send message/i }));
 
 		await waitFor(() => {
 			expect(screen.getByText(/message sent/i)).toBeInTheDocument();
@@ -140,53 +131,36 @@ describe('Contact Form', () => {
 			json: async () => ({ error: 'Server error' }),
 		});
 
-		render(
-			<BrowserRouter>
-				<Contact />
-			</BrowserRouter>
-		);
+		const user = userEvent.setup();
+		renderContact();
 
-		const nameInput = screen.getByLabelText(/name/i);
-		const emailInput = screen.getByLabelText(/email/i);
-		const messageInput = screen.getByLabelText(/message/i);
-		const submitButton = screen.getByRole('button', { name: /send message/i });
-
-		fireEvent.change(nameInput, { target: { value: 'Test User' } });
-		fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
-		fireEvent.change(messageInput, { target: { value: 'Test message' } });
-		fireEvent.click(submitButton);
+		await fillForm(user);
+		injectCaptchaToken();
+		await user.click(screen.getByRole('button', { name: /send message/i }));
 
 		await waitFor(() => {
 			expect(screen.getByText(/server error/i)).toBeInTheDocument();
 		});
 	});
 
-	it('clears form after successful submission', async () => {
+	it('resets form after successful submission', async () => {
 		global.fetch.mockResolvedValueOnce({
 			ok: true,
-			json: async () => ({ success: true, message: 'Message received.' }),
+			json: async () => ({ success: true }),
 		});
 
-		render(
-			<BrowserRouter>
-				<Contact />
-			</BrowserRouter>
-		);
+		const resetSpy = vi.spyOn(HTMLFormElement.prototype, 'reset');
+		const user = userEvent.setup();
+		renderContact();
 
-		const nameInput = screen.getByLabelText(/name/i);
-		const emailInput = screen.getByLabelText(/email/i);
-		const messageInput = screen.getByLabelText(/message/i);
-		const submitButton = screen.getByRole('button', { name: /send message/i });
-
-		fireEvent.change(nameInput, { target: { value: 'Test User' } });
-		fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
-		fireEvent.change(messageInput, { target: { value: 'Test message' } });
-		fireEvent.click(submitButton);
+		await fillForm(user);
+		injectCaptchaToken();
+		await user.click(screen.getByRole('button', { name: /send message/i }));
 
 		await waitFor(() => {
-			expect(nameInput.value).toBe('');
-			expect(emailInput.value).toBe('');
-			expect(messageInput.value).toBe('');
+			expect(resetSpy).toHaveBeenCalled();
 		});
+
+		resetSpy.mockRestore();
 	});
 });

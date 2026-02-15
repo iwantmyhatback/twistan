@@ -6,8 +6,7 @@ React SPA portfolio site deployed to Cloudflare Pages with serverless contact fo
 
 - **[Local Development Guide](docs/LOCAL_DEVELOPMENT.md)** - Setup, workflow, debugging
 - **[Cloudflare Deployment Guide](docs/CLOUDFLARE_SETUP.md)** - Production setup, DNS, KV configuration
-- **[Security Enhancements](docs/SECURITY_ENHANCEMENTS.md)** - Security features and implementation guide
-- **[Email Notifications Plan](docs/EMAIL_NOTIFICATIONS_PLAN.md)** - 🚧 In-progress feature
+- **[Testing Guide](docs/TESTING.md)** - Test suite documentation, coverage, and patterns
 
 ## Tech Stack
 
@@ -127,8 +126,6 @@ Applied to all routes via `public/_headers`:
 - **AboutYou Page**: Prominent disclosure of data collection practices
 - **Client-side Processing**: Fingerprinting data never sent to server
 - **Transparent**: Clear explanation of external API usage
-
-**See [Security Enhancements Guide](docs/SECURITY_ENHANCEMENTS.md) for implementation details.**
 
 ## Testing
 

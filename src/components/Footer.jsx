@@ -3,14 +3,14 @@
  */
 function Footer() {
 	return (
-		<footer className="mt-auto">
+		<footer className="mt-auto relative z-40">
 			<div className="section-container py-8 flex flex-col items-center gap-4">
 				{/* GitHub icon */}
 				<a
 					href="https://github.com/iwantmyhatback"
 					target="_blank"
 					rel="noopener noreferrer"
-					className="text-neutral-500 transition-all duration-200 github-glow"
+					className="text-neutral-500 hover:text-white transition-all duration-200 github-glow"
 					aria-label="GitHub"
 				>
 					<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">

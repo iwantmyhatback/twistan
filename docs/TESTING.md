@@ -112,10 +112,10 @@ Comprehensive test suite for the Twistan portfolio application using Vitest and 
 #### Utility Tests
 
 14. **tests/utils/ripple.test.js** (5 tests)
-    - Ripple span creation
-    - Size calculation from container dimensions
-    - Position calculation from click coordinates
-    - Cleanup after animationend event
+    - Ripple canvas element creation
+    - Canvas sizing to container dimensions
+    - Canvas positioning to fill container
+    - Pointer-events-none style
     - Append to currentTarget
 
 15. **tests/utils/validation.test.js** (5 tests)
@@ -139,14 +139,15 @@ Comprehensive test suite for the Twistan portfolio application using Vitest and 
 | Contact.jsx | 86% | 80% | 70% | 89% |
 | Home.jsx | 83% | 33% | 100% | 81% |
 | NotFound.jsx | 100% | 100% | 100% | 100% |
-| Projects.jsx | 100% | 100% | 100% | 100% |
+| Projects.jsx | ~45% | ~30% | ~40% | ~45% |
 | ripple.js | 100% | 100% | 100% | 100% |
 
 ### Known Coverage Gaps
 
+- **Projects.jsx** (~45% stmts): Existing tests cover static card rendering only. README fetch/parse pipeline (GitHub API calls, `marked` renderer, AbortController, module-scope cache, error states) is untested — would require mocking `fetch` and `marked`.
 - **CursorGlow.jsx** (55% stmts): Canvas `getContext()` not implemented in jsdom. The noise rendering loop and media query change handler can't be tested without a canvas polyfill.
-- **Home.jsx** (83% stmts): Deck reshuffle boundary (lines 39-45) only triggers after exhausting all ~49 images. AnimatePresence `mode="wait"` prevents DOM assertions during animation transitions.
-- **Contact.jsx** (86% stmts): Turnstile polling interval (lines 58-65) and initialization retry logic hard to test without real Turnstile SDK.
+- **Home.jsx** (83% stmts): Deck reshuffle boundary only triggers after exhausting all ~49 images. AnimatePresence `mode="wait"` prevents DOM assertions during animation transitions.
+- **Contact.jsx** (86% stmts): Turnstile polling interval and initialization retry logic hard to test without real Turnstile SDK.
 - **AboutYou.jsx**: Not tested — complex fingerprinting page with many browser API dependencies (WebRTC, WebGL, Battery API, Geolocation). Would require extensive mocking for limited value.
 
 ## Running Tests

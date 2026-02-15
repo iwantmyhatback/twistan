@@ -24,8 +24,18 @@ const TILE_PAD = 48;
 /** Max image dimension used in scaling — tile wrapper reserves this height so the button stays put. */
 const MAX_IMG = 420;
 
+/** Always-first image shown on initial page load. */
+const FIRST_IMAGE = 'https://c.tenor.com/Qy5sUxL5phgAAAAC/tenor.gif';
+
+/**
+ * Home page — displays a shuffled carousel of wave GIFs inside an animated tile.
+ * The first image is pinned; subsequent clicks cycle through a cryptographically shuffled deck.
+ */
 function Home() {
-	const deck = useRef(cryptoShuffle([...ImageUrls]));
+	const deck = useRef((() => {
+		const rest = ImageUrls.filter((u) => u !== FIRST_IMAGE);
+		return [FIRST_IMAGE, ...cryptoShuffle(rest)];
+	})());
 	const cursor = useRef(0);
 
 	const [imgUrl, setImgUrl] = useState(deck.current[0]);

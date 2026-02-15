@@ -8,13 +8,13 @@ import { render, screen } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import Layout from '../src/components/Layout';
 
-/** Render Layout with a child element at the given route. */
+/** Render Layout as a layout route with a child element. */
 function renderLayout(child = <div>Test Content</div>, initialPath = '/') {
 	const router = createMemoryRouter(
 		[
 			{
-				path: '*',
-				element: <Layout>{child}</Layout>,
+				element: <Layout />,
+				children: [{ path: '*', element: child }],
 			},
 		],
 		{ initialEntries: [initialPath] }
@@ -23,7 +23,7 @@ function renderLayout(child = <div>Test Content</div>, initialPath = '/') {
 }
 
 describe('Layout', () => {
-	it('renders children content', () => {
+	it('renders children content via Outlet', () => {
 		renderLayout(<p>Page Body</p>);
 		expect(screen.getByText('Page Body')).toBeInTheDocument();
 	});

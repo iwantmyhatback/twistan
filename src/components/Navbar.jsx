@@ -46,6 +46,7 @@ function Navbar() {
 							<li key={link.name}>
 								<NavLink
 									to={link.to}
+									viewTransition
 									className={({ isActive }) =>
 										`text-sm font-medium transition-all duration-200 ${
 											isActive
@@ -62,12 +63,12 @@ function Navbar() {
 				</div>
 
 				{/* Center: brand */}
-				<Link to="/" className="font-display text-xl font-bold text-white lowercase brand-glow justify-self-center">
+				<Link to="/" viewTransition className="font-display text-xl font-bold text-white lowercase brand-glow justify-self-center">
 					Twistan
 				</Link>
 
 				{/* Right: avatar */}
-				<Link to="/" className="shrink-0 justify-self-end">
+				<Link to="/" viewTransition className="shrink-0 justify-self-end">
 					<img
 						src={menuImage}
 						alt="Twistan avatar"
@@ -91,6 +92,7 @@ function Navbar() {
 								<li key={link.name}>
 									<NavLink
 										to={link.to}
+										viewTransition
 										onClick={() => setIsOpen(false)}
 										className={({ isActive }) =>
 											`block py-2 text-sm font-medium transition-all duration-200 ${

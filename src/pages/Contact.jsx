@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useActionState, useEffect, useRef } from 'react';
 import AnimatedSection from '../components/AnimatedSection';
 
-const INITIAL_FORM = { name: '', email: '', message: '' };
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '0x4AAAAAACciy0Z_rZz_YPMG';
 const MAX_LENGTHS = { name: 100, email: 254, message: 5000 };
 
@@ -15,23 +14,73 @@ function isValidEmail(email) {
 }
 
 /**
+ * Form action for contact submission.
+ * Validates fields, checks CAPTCHA, submits to API.
+ * @param {object} prevState - Previous form state
+ * @param {FormData} formData - Submitted form data
+ * @returns {Promise<{status: string, error: string}>}
+ */
+async function submitContact(prevState, formData) {
+	const name = formData.get('name')?.trim() ?? '';
+	const email = formData.get('email')?.trim() ?? '';
+	const message = formData.get('message')?.trim() ?? '';
+
+	/* Client-side validation */
+	if (!name || !email || !message) {
+		return { status: 'error', error: 'All fields are required.' };
+	}
+	if (!isValidEmail(email)) {
+		return { status: 'error', error: 'Please enter a valid email address.' };
+	}
+
+	const turnstileToken = formData.get('cf-turnstile-response');
+	if (!turnstileToken) {
+		return { status: 'error', error: 'Please complete the CAPTCHA verification.' };
+	}
+
+	try {
+		const res = await fetch('/api/contact', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ name, email, message, 'cf-turnstile-response': turnstileToken }),
+		});
+
+		if (!res.ok) {
+			const data = await res.json().catch(() => ({}));
+			throw new Error(data.error || `Server error (${res.status})`);
+		}
+
+		return { status: 'success', error: '' };
+	} catch (err) {
+		return { status: 'error', error: err.message || 'Something went wrong. Please try again.' };
+	}
+}
+
+/**
  * Contact form component with Cloudflare Turnstile CAPTCHA integration.
  *
- * Features:
- * - Client-side validation (required fields, email format)
- * - Cloudflare Turnstile CAPTCHA (dark theme, explicit rendering)
- * - Form state management with error handling
- * - Automatic widget reset on success/error
- *
- * Security: Form submission requires CAPTCHA completion.
- * Backend enforces rate limiting and server-side validation.
+ * Uses React 19 useActionState for form state management.
+ * Uncontrolled inputs with FormData-based submission.
+ * Automatic form/widget reset on success, widget reset on error.
  */
 function Contact() {
-	const [form, setForm] = useState(INITIAL_FORM);
-	const [status, setStatus] = useState('idle'); // idle | sending | success | error
-	const [errorMsg, setErrorMsg] = useState('');
+	const [state, formAction, isPending] = useActionState(submitContact, { status: 'idle', error: '' });
+	const formRef = useRef(null);
 	const turnstileRef = useRef(null);
 	const widgetIdRef = useRef(null);
+
+	/* Reset form + turnstile on success, reset turnstile on error */
+	useEffect(() => {
+		if (state.status === 'success') {
+			formRef.current?.reset();
+			if (window.turnstile && widgetIdRef.current) {
+				window.turnstile.reset(widgetIdRef.current);
+			}
+		}
+		if (state.status === 'error' && window.turnstile && widgetIdRef.current) {
+			window.turnstile.reset(widgetIdRef.current);
+		}
+	}, [state]);
 
 	/**
 	 * Initialize Turnstile widget after script loads.
@@ -66,69 +115,6 @@ function Contact() {
 		}
 	}, []);
 
-	const handleChange = (e) => {
-		setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-	};
-
-	/**
-	 * Handle form submission with validation and CAPTCHA verification.
-	 * Validates fields client-side, checks for CAPTCHA token, submits to API.
-	 * Resets form and widget on success, resets widget on error for retry.
-	 */
-	const handleSubmit = async (e) => {
-		e.preventDefault();
-		setErrorMsg('');
-
-		/* Client-side Validation */
-		if (!form.name.trim() || !form.email.trim() || !form.message.trim()) {
-			setErrorMsg('All fields are required.');
-			setStatus('error');
-			return;
-		}
-		if (!isValidEmail(form.email)) {
-			setErrorMsg('Please enter a valid email address.');
-			setStatus('error');
-			return;
-		}
-
-		const turnstileToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
-		if (!turnstileToken) {
-			setErrorMsg('Please complete the CAPTCHA verification.');
-			setStatus('error');
-			return;
-		}
-
-		setStatus('sending');
-
-		try {
-			const res = await fetch('/api/contact', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					...form,
-					'cf-turnstile-response': turnstileToken
-				}),
-			});
-
-			if (!res.ok) {
-				const data = await res.json().catch(() => ({}));
-				throw new Error(data.error || `Server error (${res.status})`);
-			}
-
-			setStatus('success');
-			setForm(INITIAL_FORM);
-			if (window.turnstile && widgetIdRef.current) {
-				window.turnstile.reset(widgetIdRef.current);
-			}
-		} catch (err) {
-			setErrorMsg(err.message || 'Something went wrong. Please try again.');
-			setStatus('error');
-			if (window.turnstile && widgetIdRef.current) {
-				window.turnstile.reset(widgetIdRef.current);
-			}
-		}
-	};
-
 	const inputBase =
 		'w-full bg-surface-100 border border-surface-300 rounded-lg px-4 py-3 text-sm text-neutral-200 ' +
 		'placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent ' +
@@ -147,7 +133,8 @@ function Contact() {
 
 			<AnimatedSection delay={0.2}>
 				<form
-					onSubmit={handleSubmit}
+					ref={formRef}
+					action={formAction}
 					className="max-w-lg flex flex-col gap-5"
 					noValidate
 				>
@@ -159,8 +146,6 @@ function Contact() {
 							id="name"
 							name="name"
 							type="text"
-							value={form.name}
-							onChange={handleChange}
 							placeholder="Your name"
 							maxLength={MAX_LENGTHS.name}
 							className={inputBase}
@@ -176,8 +161,6 @@ function Contact() {
 							id="email"
 							name="email"
 							type="email"
-							value={form.email}
-							onChange={handleChange}
 							placeholder="you@example.com"
 							maxLength={MAX_LENGTHS.email}
 							className={inputBase}
@@ -193,8 +176,6 @@ function Contact() {
 							id="message"
 							name="message"
 							rows={5}
-							value={form.message}
-							onChange={handleChange}
 							placeholder="What's on your mind?"
 							maxLength={MAX_LENGTHS.message}
 							className={`${inputBase} resize-none`}
@@ -206,20 +187,20 @@ function Contact() {
 
 					<button
 						type="submit"
-						disabled={status === 'sending'}
+						disabled={isPending}
 						className="w-full py-3 rounded-lg text-sm font-medium bg-accent hover:bg-accent-dark
 						           text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
 					>
-						{status === 'sending' ? 'Sending...' : 'Send Message'}
+						{isPending ? 'Sending...' : 'Send Message'}
 					</button>
 
-					{status === 'success' && (
+					{state.status === 'success' && (
 						<p className="text-sm text-green-400" role="status">
 							Message sent. I&rsquo;ll get back to you soon.
 						</p>
 					)}
-					{status === 'error' && errorMsg && (
-						<p className="text-sm text-red-400" role="alert">{errorMsg}</p>
+					{state.status === 'error' && state.error && (
+						<p className="text-sm text-red-400" role="alert">{state.error}</p>
 					)}
 				</form>
 			</AnimatedSection>

@@ -1,28 +1,13 @@
-import { useLocation } from 'react-router';
-import { AnimatePresence, motion } from 'framer-motion';
+import { Outlet } from 'react-router';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import CursorGlow from './CursorGlow';
 
-const pageVariants = {
-	initial: { opacity: 0, y: 12 },
-	animate: { opacity: 1, y: 0 },
-	exit: { opacity: 0, y: -12 },
-};
-
-const pageTransition = {
-	duration: 0.3,
-	ease: 'easeInOut',
-};
-
 /**
- * Shared layout shell: navbar, animated page content, footer.
- * @param {object} props
- * @param {React.ReactNode} props.children - Route element to render
+ * Shared layout shell: navbar, page content via Outlet, footer.
+ * Page transitions handled by View Transitions API via router viewTransition prop.
  */
-function Layout({ children }) {
-	const location = useLocation();
-
+function Layout() {
 	return (
 		<div className="min-h-screen flex flex-col">
 			<a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[60] focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-accent focus:text-white focus:rounded">
@@ -30,20 +15,9 @@ function Layout({ children }) {
 			</a>
 			<Navbar />
 			<CursorGlow />
-			<AnimatePresence mode="wait">
-				<motion.main
-					id="main-content"
-					key={location.pathname}
-					variants={pageVariants}
-					initial="initial"
-					animate="animate"
-					exit="exit"
-					transition={pageTransition}
-					className="flex-1 pt-16"
-				>
-					{children}
-				</motion.main>
-			</AnimatePresence>
+			<main id="main-content" className="flex-1 pt-16">
+				<Outlet />
+			</main>
 			<Footer />
 		</div>
 	);

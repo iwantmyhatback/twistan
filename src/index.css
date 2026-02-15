@@ -48,6 +48,11 @@
 	50% { opacity: 1; }
 }
 
+@keyframes fade-out {
+	from { opacity: 1; }
+	to { opacity: 0; }
+}
+
 @layer base {
 	html {
 		scroll-behavior: smooth;
@@ -59,6 +64,14 @@
 
 	::selection {
 		@apply bg-accent/30 text-white;
+	}
+
+	/* View Transitions API — cross-fade between route navigations */
+	::view-transition-old(root) {
+		animation: fade-out 0.25s ease-in;
+	}
+	::view-transition-new(root) {
+		animation: fade-in 0.3s ease-out;
 	}
 }
 
@@ -118,11 +131,104 @@
 		box-shadow: 0 0 8px rgba(51, 255, 51, 0.3), 0 0 16px rgba(51, 255, 51, 0.15);
 	}
 
-	/* GitHub icon green glow on hover */
-	.github-glow:hover {
-		color: #33ff33;
-		filter: drop-shadow(0 0 6px rgba(51, 255, 51, 0.5));
+	/* GitHub icon green glow on hover — drop-shadow on SVG directly for Safari compat */
+	.github-glow > svg {
+		filter: drop-shadow(0 0 0 transparent);
+		transition: filter 0.3s, stroke 0.3s;
+		stroke: transparent;
+		stroke-width: 0.5;
 	}
+	.github-glow:hover > svg {
+		filter: drop-shadow(0 0 6px rgba(51, 255, 51, 0.5)) drop-shadow(0 0 12px rgba(51, 255, 51, 0.25));
+		stroke: #33ff33;
+	}
+
+	/* Basic GitHub-flavored markdown styles for `.prose` */
+	.prose {
+		color: var(--tw-prose-body, #cbd5e1);
+		line-height: 1.6;
+	}
+
+	.prose h1, .prose h2, .prose h3, .prose h4 {
+		color: #ffffff;
+		margin-top: 1.2em;
+		margin-bottom: 0.6em;
+	}
+
+	.prose pre {
+		background: #0f1724;
+		color: #e6edf3;
+		padding: 1rem;
+		border-radius: 8px;
+		overflow: auto;
+		font-family: var(--font-mono);
+		font-size: 0.875rem;
+	}
+
+	.prose code {
+		background: rgba(255,255,255,0.03);
+		padding: 0.15rem 0.35rem;
+		border-radius: 4px;
+		font-family: var(--font-mono);
+		font-size: 0.875rem;
+	}
+
+	.prose blockquote {
+		border-left: 4px solid rgba(255,255,255,0.06);
+		padding-left: 1rem;
+		color: #9ca3af;
+		background: rgba(255,255,255,0.02);
+		border-radius: 4px;
+		padding: 0.5rem 1rem;
+	}
+
+	.prose table {
+		width: 100%;
+		border-collapse: collapse;
+		overflow: auto;
+	}
+
+	.prose th, .prose td {
+		border: 1px solid rgba(255,255,255,0.06);
+		padding: 0.5rem 0.75rem;
+	}
+
+	/* Ensure list markers are visible and properly indented */
+	.prose ul,
+	.prose ol {
+		margin-top: 0.5rem;
+		margin-bottom: 0.5rem;
+		padding-left: 1.25rem;
+	}
+
+	.prose ul {
+		list-style-type: disc;
+	}
+
+	.prose ol {
+		list-style-type: decimal;
+	}
+
+	.prose li {
+		margin-top: 0.25rem;
+	}
+
+	.prose li::marker {
+		color: #9ca3af;
+	}
+
+	.prose input[type="checkbox"] {
+		margin-right: 0.5rem;
+		vertical-align: middle;
+	}
+
+	/* Horizontal rule spacing in prose */
+	.prose hr {
+		border: 0;
+		border-top: 1px solid rgba(255,255,255,0.06);
+		margin: 1rem 0;
+	}
+
 
 	/* Water ripple container — canvas-based effect rendered by ripple.js */
 	.ripple-container {

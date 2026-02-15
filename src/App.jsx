@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router';
+import { createBrowserRouter, RouterProvider } from 'react-router';
 import Layout from './components/Layout';
 
 const Home = lazy(() => import('./pages/Home'));
@@ -18,32 +18,22 @@ function PageLoader() {
 	);
 }
 
-/** Inner routing component — needs useLocation inside BrowserRouter. */
-function AppRoutes() {
-	const location = useLocation();
-
-	return (
-		<Layout>
-			<Suspense fallback={<PageLoader />}>
-				<Routes location={location} key={location.pathname}>
-					<Route path="/" element={<Home />} />
-					<Route path="/about" element={<About />} />
-					<Route path="/projects" element={<Projects />} />
-					<Route path="/contact" element={<Contact />} />
-					<Route path="/about-you" element={<AboutYou />} />
-					<Route path="*" element={<NotFound />} />
-				</Routes>
-			</Suspense>
-		</Layout>
-	);
-}
+const router = createBrowserRouter([
+	{
+		element: <Layout />,
+		children: [
+			{ path: '/', element: <Suspense fallback={<PageLoader />}><Home /></Suspense> },
+			{ path: '/about', element: <Suspense fallback={<PageLoader />}><About /></Suspense> },
+			{ path: '/projects', element: <Suspense fallback={<PageLoader />}><Projects /></Suspense> },
+			{ path: '/contact', element: <Suspense fallback={<PageLoader />}><Contact /></Suspense> },
+			{ path: '/about-you', element: <Suspense fallback={<PageLoader />}><AboutYou /></Suspense> },
+			{ path: '*', element: <Suspense fallback={<PageLoader />}><NotFound /></Suspense> },
+		],
+	},
+]);
 
 function App() {
-	return (
-		<BrowserRouter>
-			<AppRoutes />
-		</BrowserRouter>
-	);
+	return <RouterProvider router={router} />;
 }
 
 export default App;

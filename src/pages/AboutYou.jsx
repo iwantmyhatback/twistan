@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
 import AnimatedSection from '../components/AnimatedSection';
+import { spawnRipple } from '../utils/ripple';
 
 /**
  * AboutYou page - Browser fingerprinting demonstration.
@@ -29,17 +30,17 @@ const categories = [
 	{
 		title: 'Browser',
 		keys: [
-			'browser', 'referrer', 'sessionHistory', 'doNotTrack',
+			'browser', 'userAgentData', 'referrer', 'sessionHistory', 'doNotTrack',
 			'cookiesEnabled', 'pdfViewer', 'adBlocker', 'incognito',
-			'installedPlugins',
+			'installedPlugins', 'vendorFlavors',
 		],
 	},
 	{
 		title: 'Hardware',
 		keys: [
-			'os', 'cpu', 'cpuCores', 'memory', 'screen', 'viewport',
-			'devicePixelRatio', 'touchScreen', 'maxTouchPoints', 'gpu',
-			'colorGamut', 'hdr',
+			'os', 'cpu', 'fpArchitecture', 'cpuCores', 'memory', 'screen',
+			'screenFrame', 'viewport', 'devicePixelRatio', 'touchScreen',
+			'maxTouchPoints', 'gpu', 'colorGamut', 'hdr',
 		],
 	},
 	{
@@ -51,7 +52,7 @@ const categories = [
 		keys: [
 			'timeZone', 'language', 'dateFormat', 'colorScheme',
 			'reducedMotion', 'reducedTransparency', 'contrast',
-			'forcedColors', 'mathML',
+			'forcedColors', 'invertedColors', 'monochrome', 'mathML',
 		],
 	},
 	{
@@ -67,11 +68,11 @@ const categories = [
 	},
 	{
 		title: 'Audio',
-		keys: ['audioFingerprint', 'audioDevices'],
+		keys: ['audioFingerprint', 'audioBaseLatency', 'audioDevices'],
 	},
 	{
 		title: 'Fonts',
-		keys: ['detectedFonts'],
+		keys: ['detectedFonts', 'fontPreferences'],
 	},
 	{
 		title: 'Features & APIs',
@@ -79,12 +80,13 @@ const categories = [
 			'serviceWorker', 'webRTC', 'bluetooth', 'usb', 'midi',
 			'gamepads', 'speechSynthesis', 'webGPU', 'webTransport',
 			'sharedArrayBuffer', 'webAssembly', 'webShare',
-			'persistentStorage', 'webAuthn',
+			'persistentStorage', 'webAuthn', 'applePay',
+			'ink', 'serial', 'hid', 'windowControlsOverlay', 'scheduling',
 		],
 	},
 	{
 		title: 'Performance',
-		keys: ['pageLoadTiming', 'performanceMemory'],
+		keys: ['pageLoadTiming', 'performanceMemory', 'mathFingerprint'],
 	},
 ];
 
@@ -148,10 +150,11 @@ function AboutYou() {
 						</p>
 						<ul className="list-disc list-inside space-y-1 text-neutral-400">
 							<li>Device information (CPU, memory, screen, GPU)</li>
-							<li>Browser capabilities and installed fonts</li>
+							<li>Browser capabilities, installed fonts, and vendor detection</li>
+							<li>UA Client Hints (architecture, platform version, bitness)</li>
 							<li>Network details (connection type, local IPs via WebRTC)</li>
 							<li>IP geolocation via external APIs (ipapi.co, ipify.org)</li>
-							<li>Audio/canvas fingerprints and system preferences</li>
+							<li>Audio/canvas/math fingerprints and system preferences</li>
 						</ul>
 						<p className="pt-2 text-neutral-400">
 							<strong>No data is stored or transmitted</strong> to any server except the external
@@ -167,7 +170,7 @@ function AboutYou() {
 					if (!hasData) return null;
 					return (
 						<AnimatedSection key={cat.title} delay={i * 0.06}>
-							<div className="card h-full">
+							<div className="card ripple-container h-full" onClick={(e) => spawnRipple(e)}>
 								<h2 className="text-sm font-semibold text-white mb-4">
 									{cat.title}
 								</h2>
@@ -195,7 +198,7 @@ function AboutYou() {
 
 			{info.mediaDevices && info.mediaDevices.length > 0 && (
 				<AnimatedSection delay={0.7} className="mt-4">
-					<div className="card">
+					<div className="card ripple-container" onClick={(e) => spawnRipple(e)}>
 						<h2 className="text-sm font-semibold text-white mb-4">
 							Media Devices
 						</h2>
@@ -213,7 +216,7 @@ function AboutYou() {
 
 			{info.canvasFP && (
 				<AnimatedSection delay={0.75} className="mt-4">
-					<div className="card">
+					<div className="card ripple-container" onClick={(e) => spawnRipple(e)}>
 						<h2 className="text-sm font-semibold text-white mb-4">
 							Canvas Fingerprint
 						</h2>
@@ -226,7 +229,7 @@ function AboutYou() {
 
 			{info.webglFP && (
 				<AnimatedSection delay={0.8} className="mt-4">
-					<div className="card">
+					<div className="card ripple-container" onClick={(e) => spawnRipple(e)}>
 						<h2 className="text-sm font-semibold text-white mb-4">
 							WebGL Fingerprint
 						</h2>
@@ -466,6 +469,7 @@ async function gatherAllInfo() {
 		audioFP,
 		localIPs,
 		ipGeo,
+		uaData,
 	] = await Promise.all([
 		FingerprintJS.load().then((fp) => fp.get()).catch(() => null),
 		getBatteryInfo(),
@@ -475,7 +479,11 @@ async function gatherAllInfo() {
 		getAudioFingerprint(),
 		getLocalIPs(),
 		getIPGeolocation(),
+		getUserAgentData(),
 	]);
+
+	/** Safely read a FingerprintJS component value. */
+	const fpVal = (key) => fpResult?.components?.[key]?.value;
 
 	const detectedFonts = detectFonts();
 	const webglFP = getWebGLFingerprint();
@@ -550,14 +558,16 @@ async function gatherAllInfo() {
 
 		// Browser
 		browser: { name: browserName, userAgent: ua },
+		userAgentData: uaData,
 		referrer: document.referrer || 'Direct',
 		sessionHistory: window.history.length,
 		doNotTrack: navigator.doNotTrack === '1',
 		cookiesEnabled: navigator.cookieEnabled,
 		pdfViewer: navigator.pdfViewerEnabled ?? 'Unknown',
-		adBlocker: fpResult?.components?.adBlock?.value ?? 'Unknown',
-		incognito: fpResult?.components?.privateClickMeasurement?.value != null ? 'Possible' : 'No',
+		adBlocker: fpVal('domBlockers') ?? 'Unknown',
+		incognito: fpVal('privateClickMeasurement') != null ? 'Possible' : 'No',
 		installedPlugins: getPlugins(),
+		vendorFlavors: fpVal('vendorFlavors'),
 
 		// Hardware
 		os: { name: osName, platform },
@@ -565,6 +575,7 @@ async function gatherAllInfo() {
 			architecture: /x64|x86_64|amd64/i.test(ua) ? 'x86-64' :
 				/arm64|aarch64/i.test(ua) ? 'ARM64' : navigator.platform,
 		},
+		fpArchitecture: fpVal('architecture') != null ? `Bitness indicator: ${fpVal('architecture')}` : undefined,
 		cpuCores: navigator.hardwareConcurrency || 'Unknown',
 		memory: navigator.deviceMemory ? `${navigator.deviceMemory} GB` : 'Unknown',
 		screen: {
@@ -573,6 +584,9 @@ async function gatherAllInfo() {
 			colorDepth: `${screen.colorDepth}-bit`,
 			orientation: screen.orientation?.type || 'Unknown',
 		},
+		screenFrame: fpVal('screenFrame')
+			? { top: fpVal('screenFrame')[0], right: fpVal('screenFrame')[1], bottom: fpVal('screenFrame')[2], left: fpVal('screenFrame')[3] }
+			: undefined,
 		viewport: {
 			inner: `${window.innerWidth}x${window.innerHeight}`,
 			outer: `${window.outerWidth}x${window.outerHeight}`,
@@ -622,6 +636,8 @@ async function gatherAllInfo() {
 		contrast: mqMatch('(prefers-contrast: more)') ? 'High' :
 			mqMatch('(prefers-contrast: less)') ? 'Low' : 'Normal',
 		forcedColors: mqMatch('(forced-colors: active)'),
+		invertedColors: fpVal('invertedColors'),
+		monochrome: fpVal('monochrome') != null ? `${fpVal('monochrome')}-bit` : undefined,
 		mathML: (() => {
 			try {
 				const el = document.createElement('math');
@@ -645,12 +661,14 @@ async function gatherAllInfo() {
 
 		// Audio
 		audioFingerprint: audioFP,
+		audioBaseLatency: fpVal('audioBaseLatency') != null ? `${fpVal('audioBaseLatency')}s` : undefined,
 		audioDevices: mediaDevices
 			?.filter((d) => d.kind.includes('audio'))
 			.map((d) => `${d.kind}: ${d.label || 'unnamed'}`) || [],
 
 		// Fonts
 		detectedFonts,
+		fontPreferences: fpVal('fontPreferences'),
 
 		// Features & APIs
 		serviceWorker: 'serviceWorker' in navigator,
@@ -667,10 +685,17 @@ async function gatherAllInfo() {
 		webShare: 'share' in navigator,
 		persistentStorage: 'storage' in navigator && 'persist' in navigator.storage,
 		webAuthn: 'credentials' in navigator,
+		applePay: fpVal('applePay') != null ? fpVal('applePay') : undefined,
+		ink: 'ink' in navigator,
+		serial: 'serial' in navigator,
+		hid: 'hid' in navigator,
+		windowControlsOverlay: 'windowControlsOverlay' in navigator,
+		scheduling: 'scheduling' in navigator,
 
 		// Performance
 		pageLoadTiming: getPageTiming(),
 		performanceMemory: getPerfMemory(),
+		mathFingerprint: fpVal('math'),
 
 		// Fingerprints (full-width cards below)
 		mediaDevices,
@@ -780,6 +805,34 @@ async function getStorageEstimate() {
 		}
 	}
 	return 'Not supported';
+}
+
+/**
+ * Get high-entropy UA Client Hints (Chromium-based browsers only).
+ * Returns structured platform, architecture, bitness, and version info.
+ *
+ * @returns {Promise<object|null>}
+ */
+async function getUserAgentData() {
+	if (!navigator.userAgentData?.getHighEntropyValues) return null;
+	try {
+		const data = await navigator.userAgentData.getHighEntropyValues([
+			'architecture', 'bitness', 'fullVersionList',
+			'model', 'platformVersion', 'wow64',
+		]);
+		return {
+			platform: data.platform || navigator.userAgentData.platform,
+			architecture: data.architecture || 'Unknown',
+			bitness: data.bitness || 'Unknown',
+			model: data.model || 'N/A',
+			platformVersion: data.platformVersion || 'Unknown',
+			wow64: data.wow64,
+			mobile: navigator.userAgentData.mobile,
+			brands: data.fullVersionList?.map((b) => `${b.brand} ${b.version}`).join(', ') || 'Unknown',
+		};
+	} catch {
+		return null;
+	}
 }
 
 export default AboutYou;
