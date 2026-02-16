@@ -129,6 +129,51 @@ npx wrangler kv key list --namespace-id=99b1efa188d544c78cff0a633c22d6df --prefi
 
 **Stop server:** `Ctrl+C`
 
+## Turnstile CAPTCHA Setup for Local Development
+
+Cloudflare Turnstile works on localhost using official dummy/test keys. These keys produce a dummy token (`XXXX.DUMMY.TOKEN.XXXX`) that only pairs with dummy secret keys — **never mix dummy and real keys**.
+
+### Key Pairing Rules
+
+| Client (Site Key) | Server (Secret Key) | Result |
+|---|---|---|
+| Dummy | Dummy (pass) | Always succeeds |
+| Dummy | Dummy (fail) | Always fails |
+| Dummy | Real/production | Rejects dummy token |
+| Real | Dummy | Rejects real token |
+| Real | Real | Normal verification |
+
+### Local Development Keys
+
+**Client-side** (`.env.development` — committed, safe to share):
+```bash
+# Always-passes visible widget
+VITE_TURNSTILE_SITE_KEY=1x00000000000000000000AA
+```
+
+Other test site keys:
+- `2x00000000000000000000AB` — Always blocks (visible)
+- `3x00000000000000000000FF` — Forces interactive challenge (visible)
+- `1x00000000000000000000BB` — Always passes (invisible)
+
+**Server-side** (`.dev.vars` — gitignored):
+```bash
+# Always-passes validation (only accepts dummy tokens)
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
+```
+
+Other test secret keys:
+- `2x0000000000000000000000000000000AA` — Always fails validation
+- `3x0000000000000000000000000000000AA` — Returns "token already spent" error
+
+### Production Keys
+
+Set via Cloudflare Pages dashboard environment variables:
+- `VITE_TURNSTILE_SITE_KEY` — Your real site key (build-time variable)
+- `TURNSTILE_SECRET_KEY` — Your real secret key (runtime secret)
+
+Reference: https://developers.cloudflare.com/turnstile/troubleshooting/testing/
+
 ## KV Namespace Setup for Local Development
 
 Contact form requires a Cloudflare KV namespace for storage.
@@ -453,6 +498,34 @@ WRANGLER_LOG=debug npm run preview
 - `200` - Success
 - `400` - Validation error (check request body)
 - `500` - Server error (check KV binding)
+
+## Environment Variables Reference
+
+### Client-Side (Vite — `import.meta.env.*`)
+
+Set in `.env.development` (committed) or `.env.production.local` (gitignored).
+
+| Variable | Required | Description |
+|---|---|---|
+| `VITE_TURNSTILE_SITE_KEY` | Yes | Cloudflare Turnstile site key. Dummy key `1x00000000000000000000AA` for dev, real key for production (set in Cloudflare Pages dashboard). |
+
+### Server-Side (Cloudflare Workers — `context.env.*`)
+
+Set in `.dev.vars` (gitignored, local wrangler dev) or Cloudflare Pages dashboard (production).
+
+| Variable | Required | Description |
+|---|---|---|
+| `TURNSTILE_SECRET_KEY` | Yes* | Cloudflare Turnstile secret key for server-side token verification. Dummy key `1x0000000000000000000000000000000AA` for dev. |
+| `SKIP_CAPTCHA` | No | Set to `"true"` to bypass Turnstile verification entirely. Only for local dev when you don't need CAPTCHA at all. Any other value is ignored (fail-closed). |
+| `CONTACT_SUBMISSIONS` | Yes | KV namespace binding (configured in `wrangler.toml`, not `.dev.vars`). |
+
+*If `TURNSTILE_SECRET_KEY` is missing and `SKIP_CAPTCHA` is not `"true"`, the API rejects all requests with 503.
+
+### Test Runner
+
+| Variable | Required | Description |
+|---|---|---|
+| `DEBUG_TESTS` | No | Set to `1` to show all `console.log`/`warn`/`error` output and jsdom stderr during tests. Suppressed by default for clean output. Usage: `DEBUG_TESTS=1 npm run test:run` |
 
 ## Environment-Specific Behavior
 

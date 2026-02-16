@@ -1,8 +1,10 @@
 import { useActionState, useEffect, useRef } from 'react';
+import { motion } from 'motion/react';
 import AnimatedSection from '../components/AnimatedSection';
 import ExplodingText from '../components/ExplodingText';
+import { spawnRipple } from '../utils/ripple';
 
-const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '0x4AAAAAACciy0Z_rZz_YPMG';
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY;
 const MAX_LENGTHS = { name: 100, email: 254, message: 5000 };
 
 /**
@@ -186,14 +188,19 @@ function Contact() {
 
 					<div ref={turnstileRef} id="turnstile-widget"></div>
 
-					<button
+					<motion.button
 						type="submit"
 						disabled={isPending}
-						className="w-full py-3 rounded-lg text-sm font-medium bg-accent hover:bg-accent-dark
-						           text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+						onClick={spawnRipple}
+						whileHover={isPending ? {} : { scale: 1.02, y: -2 }}
+						transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+						className="card card-inner-highlight ripple-container flex items-center justify-center cursor-pointer w-full
+						           disabled:opacity-50 disabled:cursor-not-allowed"
 					>
-						{isPending ? 'Sending...' : 'Send Message'}
-					</button>
+						<span className="text-sm font-medium font-display text-neutral-200">
+							{isPending ? 'Sending...' : 'Send Message'}
+						</span>
+					</motion.button>
 
 					{state.status === 'success' && (
 						<p className="text-sm text-green-400" role="status">

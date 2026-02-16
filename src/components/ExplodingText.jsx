@@ -50,6 +50,7 @@ function ExplodingText({ text, className = '', rematerializeDelay = 15, explosio
 		const duration = 2; // seconds
 		const dt = duration / steps;
 		const gravity = 1200; // px/s^2
+		const bounceDamping = 0.6;
 
 		// 70% chance upward bias
 		const upward = Math.random() < 0.7;
@@ -58,21 +59,41 @@ function ExplodingText({ text, className = '', rematerializeDelay = 15, explosio
 			: Math.random() * Math.PI * 2;
 
 		const speed = (350 + Math.random() * 450) * explosionForce;
-		const vx = Math.cos(angle) * speed;
-		const vy = Math.sin(angle) * speed;
+		let vx = Math.cos(angle) * speed;
+		let vy = Math.sin(angle) * speed;
 		const rotSpeed = (Math.random() - 0.5) * 720;
 
 		// Starting position relative to container
 		const startX = charRect.left - containerRect.left;
 		const startY = charRect.top - containerRect.top;
 
+		// Viewport boundaries in container-relative coords
+		const leftEdge = -containerRect.left;
+		const rightEdge = window.innerWidth - containerRect.left - charRect.width;
+
+		// Simulate with bouncing instead of pure parametric
+		let px = startX;
+		let py = startY;
 		const keyframes = { x: [], y: [], rotate: [], opacity: [] };
 		for (let i = 0; i <= steps; i++) {
-			const t = i * dt;
-			keyframes.x.push(startX + vx * t);
-			keyframes.y.push(startY + vy * t + 0.5 * gravity * t * t);
-			keyframes.rotate.push(rotSpeed * t);
+			keyframes.x.push(px);
+			keyframes.y.push(py);
+			keyframes.rotate.push(rotSpeed * i * dt);
 			keyframes.opacity.push(i < steps * 0.75 ? 1 : 1 - (i - steps * 0.75) / (steps * 0.25));
+
+			// Integrate for next step
+			vy += gravity * dt;
+			px += vx * dt;
+			py += vy * dt;
+
+			// Bounce off left/right viewport edges
+			if (px < leftEdge) {
+				px = leftEdge;
+				vx = Math.abs(vx) * bounceDamping;
+			} else if (px > rightEdge) {
+				px = rightEdge;
+				vx = -Math.abs(vx) * bounceDamping;
+			}
 		}
 
 		return { keyframes, startX, startY, width: charRect.width, height: charRect.height };

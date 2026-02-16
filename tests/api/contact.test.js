@@ -337,6 +337,41 @@ describe('Contact API - KV Storage', () => {
 	});
 });
 
+describe('Contact API - Error Handling', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		global.fetch.mockResolvedValue({
+			json: async () => ({ success: true }),
+		});
+	});
+
+	it('returns 500 when request.json() throws', async () => {
+		const { onRequestPost } = await import('../../functions/api/contact.js');
+		const context = createMockContext();
+		context.request.json.mockRejectedValue(new Error('Invalid JSON'));
+
+		const response = await onRequestPost(context);
+		const data = await response.json();
+
+		expect(response.status).toBe(500);
+		expect(data.error).toContain('Internal server error');
+	});
+
+	it('logs submission to console when KV binding is missing', async () => {
+		const { onRequestPost } = await import('../../functions/api/contact.js');
+		const context = createMockContext();
+		context.env.CONTACT_SUBMISSIONS.get.mockResolvedValue('0');
+		// Remove KV binding
+		delete context.env.CONTACT_SUBMISSIONS;
+
+		const response = await onRequestPost(context);
+		const data = await response.json();
+
+		expect(response.status).toBe(200);
+		expect(data.success).toBe(true);
+	});
+});
+
 describe('Contact API - CORS', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -413,6 +448,24 @@ describe('Contact API - CORS', () => {
 		const headers = Object.fromEntries(response.headers.entries());
 
 		expect(headers['access-control-allow-origin']).toBe('http://localhost:5173');
+	});
+
+	it('handles malformed origin URLs gracefully', async () => {
+		const { onRequestOptions } = await import('../../functions/api/contact.js');
+
+		const context = {
+			request: {
+				headers: {
+					get: vi.fn((h) => h === 'Origin' ? 'not-a-valid-url' : null),
+				},
+			},
+		};
+
+		const response = await onRequestOptions(context);
+		const headers = Object.fromEntries(response.headers.entries());
+
+		// Should fall back to default production origin
+		expect(headers['access-control-allow-origin']).toBe('https://twistan.com');
 	});
 
 	it('allows *.pages.dev origins', async () => {

@@ -1,4 +1,5 @@
-import { motion } from 'motion/react';
+import { useRef, useState, useEffect } from 'react';
+import { motion, useInView } from 'motion/react';
 import {
 	CodeBracketIcon,
 	ArrowPathIcon,
@@ -33,6 +34,77 @@ const skills = [
 	{ label: 'Cross-Platform Mobile', icon: GlobeAltIcon },
 ];
 
+const EASTER_FULL = 'Curious what I know about you? Find out here';
+const CHAR_DELAY_MS = 100;
+
+/**
+ * Typewriter letter-by-letter reveal of "Curious what I know about you? Find out here"
+ * with a blinking block cursor. No initial delay — starts typing immediately
+ * when scrolled into view.
+ */
+function EasterEggReveal() {
+	const ref = useRef(null);
+	const isInView = useInView(ref, { once: true });
+	const [visibleCount, setVisibleCount] = useState(0);
+
+	useEffect(() => {
+		if (!isInView) return;
+		let intervalId;
+		const timeout = setTimeout(() => {
+			let i = 0;
+			intervalId = setInterval(() => {
+				i++;
+				setVisibleCount(i);
+				if (i >= EASTER_FULL.length) clearInterval(intervalId);
+			}, CHAR_DELAY_MS);
+		}, 10000);
+		return () => {
+			clearTimeout(timeout);
+			if (intervalId) clearInterval(intervalId);
+		};
+	}, [isInView]);
+
+	const linkStart = EASTER_FULL.indexOf('Find out here');
+
+	return (
+		<p
+			ref={ref}
+			className="text-sm text-red-900 font-mono"
+			style={{ textShadow: '0 0 8px rgba(153, 27, 27, 0.8), 0 0 20px rgba(127, 29, 29, 0.5)' }}
+		>
+			{EASTER_FULL.slice(0, linkStart).split('').map((char, i) => (
+				<span key={i}>
+					{i === visibleCount && <span className="text-red-900" style={{ animation: 'subtle-pulse 0.6s step-end infinite' }} aria-hidden="true">&#9608;</span>}
+					<span style={{ visibility: i < visibleCount ? 'visible' : 'hidden' }}>{char}</span>
+				</span>
+			))}
+			<Link
+				to="/about-you"
+				className="text-red-900 hover:text-red-600 transition-colors duration-200 underline underline-offset-4 font-bold"
+			>
+				{'Find out here'.split('').map((char, i) => {
+					const idx = linkStart + i;
+					return (
+						<span key={i}>
+							{idx === visibleCount && <span className="text-red-900" style={{ animation: 'subtle-pulse 0.6s step-end infinite' }} aria-hidden="true">&#9608;</span>}
+							<span style={{ visibility: idx < visibleCount ? 'visible' : 'hidden' }}>{char}</span>
+						</span>
+					);
+				})}
+			</Link>
+			{visibleCount >= EASTER_FULL.length && (
+				<span
+					className="text-red-900"
+					style={{ animation: 'subtle-pulse 0.6s step-end infinite' }}
+					aria-hidden="true"
+				>
+					{' '}&#9608;
+				</span>
+			)}
+		</p>
+	);
+}
+
 function About() {
 	return (
 		<div className="section-container py-24">
@@ -45,8 +117,8 @@ function About() {
 					DevOps | Automation | Software Engineer | System Admin
 				</p>
 				<p className="text-body max-w-2xl mb-3">
-					Jack of all trades with extensive experience owning large-scale CI/CD systems for enterprise mobile application development. 
-					Proven track record leading process modernization, improving developer productivity, and ensuring secure, compliant release pipelines. 
+					Jack of all trades with extensive experience owning large-scale CI/CD systems for enterprise mobile application development.
+					Proven track record leading process modernization, improving developer productivity, and ensuring secure, compliant release pipelines.
 					Adept at cross-team collaboration, root-cause analysis, and delivering robust, auditable build systems in highly regulated environments.
 				</p>
 				<p className="font-mono text-sm text-accent mb-16">
@@ -54,17 +126,9 @@ function About() {
 				</p>
 			</AnimatedSection>
 
-			{/* Easter egg link */}
-			<AnimatedSection delay={0.8} className="mt-16">
-				<p className="text-sm text-red-400/50">
-					Curious what I know about you?{' '}
-					<Link
-						to="/about-you"
-						className="text-red-400/60 hover:text-red-400 transition-colors duration-200 underline underline-offset-4"
-					>
-						Find out
-					</Link>
-				</p>
+			{/* Easter egg link — typewriter reveal + dramatic thump */}
+			<AnimatedSection className="mt-16">
+				<EasterEggReveal />
 				<br/>
 				<br/>
 				<br/>

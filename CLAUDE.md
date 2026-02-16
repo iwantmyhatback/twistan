@@ -172,17 +172,17 @@ Contact form implements comprehensive validation and security:
 - **@testing-library/react** for component testing
 - **@testing-library/jest-dom** for DOM assertions
 
-### Test Suite (129 tests across 17 files)
+### Test Suite (153 tests across 18 files)
 See [docs/TESTING.md](docs/TESTING.md) for detailed documentation.
 
-- **tests/api/contact.test.js** (21) - API endpoint, rate limiting, CAPTCHA, CORS, validation
-- **tests/Projects.test.jsx** (14) - Project cards, links, tags, README fetch/display/error/toggle
+- **tests/api/contact.test.js** (24) - API endpoint, rate limiting, CAPTCHA, CORS, validation, error handling
+- **tests/Projects.test.jsx** (18) - Project cards, links, tags, README fetch/display/error/toggle, markdown renderer, URL safety
+- **tests/Contact.test.jsx** (13) - Turnstile init, form validation, submission, error handling
 - **tests/utils/ripple.test.js** (13) - Canvas ripple creation, animation loop, color parsing, cleanup
 - **tests/ExplodingText.test.jsx** (12) - Idle render, click, reduced motion, state transitions
 - **tests/Home.test.jsx** (9) - Image carousel, wave button, error handling, deck reshuffle
 - **tests/utils/imageExplosion.test.js** (8) - Reduced motion, null guards, overlay lifecycle, rAF loop
-- **tests/Contact.test.jsx** (7) - Form validation, submission, error handling
-- **tests/CursorGlow.test.jsx** (7) - Canvas rendering, noise loop, media query change handler
+- **tests/CursorGlow.test.jsx** (8) - Canvas rendering, noise loop, cleanup, media query change handler
 - **tests/Navbar.test.jsx** (6) - Navigation, mobile menu, accessibility
 - **tests/Layout.test.jsx** (5) - Composition, skip-to-content
 - **tests/utils/validation.test.js** (5) - Email validation, rate limiting logic
@@ -190,6 +190,7 @@ See [docs/TESTING.md](docs/TESTING.md) for detailed documentation.
 - **tests/About.test.jsx** (4) - Skills grid, easter egg link
 - **tests/NotFound.test.jsx** (4) - 404 page, home link
 - **tests/App.test.jsx** (4) - Routing and navigation
+- **tests/api/turnstile.test.js** (10) - Turnstile dummy key matrix: pass/fail/token-spent, key pairing, network failure, SKIP_CAPTCHA
 - **tests/api/health.test.js** (3) - Health check endpoint
 - **tests/Footer.test.jsx** (3) - Copyright, GitHub link
 
@@ -199,6 +200,7 @@ npm test           # Watch mode
 npm run test:run   # CI mode (single run)
 npm run test:ui    # Interactive UI
 npm run test:coverage  # Coverage report
+DEBUG_TESTS=1 npm run test:run  # Show suppressed console/stderr output
 ```
 
 ### Key Testing Patterns

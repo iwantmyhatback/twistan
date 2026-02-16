@@ -233,3 +233,166 @@ describe('Projects README interaction', () => {
 		expect(screen.queryByText('Aborted')).toBeNull();
 	});
 });
+
+/**
+ * Markdown renderer and URL safety tests.
+ * These test the `marked` custom renderer used for README parsing.
+ * Since readmeCache is module-scoped, each test that fetches a README
+ * must use a unique project index not used by earlier test suites.
+ *
+ * Cached indices from README interaction tests above:
+ *   0 = python-wrapper (cached), 2 = twistan (cached)
+ * Available for new fetches: 1, 3, 4, 5
+ *
+ * To test multiple markdown features without running out of indices,
+ * we combine multiple assertions into single fetches where possible.
+ */
+describe('Projects - Markdown renderer and URL safety', () => {
+	beforeEach(() => {
+		Element.prototype.scrollIntoView = vi.fn();
+		vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => { cb(); return 1; });
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
+		delete Element.prototype.scrollIntoView;
+	});
+
+	// Index 1 — heading levels, links, images, hr, XSS stripping
+	it('renders headings, links, images, hr, and strips raw HTML', async () => {
+		const md = [
+			'# H1 Heading',
+			'## H2 Heading',
+			'### H3 Heading',
+			'[Example](https://example.com "Example Title")',
+			'[Evil](javascript:alert(1))',
+			'[VB](vbscript:MsgBox)',
+			'![safe](https://example.com/img.png "Photo")',
+			'![evil](data:text/html,<script>)',
+			'',
+			'---',
+			'',
+			'<script>alert("xss")</script>',
+			'',
+			'Safe text after HTML strip',
+			'[Relative](./docs/README.md)',
+			'[Anchor](#usage)',
+		].join('\n');
+
+		global.fetch = vi.fn().mockResolvedValueOnce({
+			ok: true,
+			text: () => Promise.resolve(md),
+		});
+
+		renderProjects();
+		fireEvent.click(screen.getAllByText('See project README')[1]);
+
+		await waitFor(() => {
+			expect(screen.getByText('Safe text after HTML strip')).toBeInTheDocument();
+		});
+
+		// H1 with large bold styling
+		const h1 = document.querySelector('h1.text-3xl');
+		expect(h1).not.toBeNull();
+		expect(h1.textContent).toBe('H1 Heading');
+
+		// H2 with semibold styling
+		const h2 = document.querySelector('h2.text-2xl');
+		expect(h2).not.toBeNull();
+
+		// H3 with medium styling
+		const h3 = document.querySelector('h3.text-xl');
+		expect(h3).not.toBeNull();
+
+		// Safe link with target=_blank
+		const safeLink = document.querySelector('a[href="https://example.com"]');
+		expect(safeLink).not.toBeNull();
+		expect(safeLink.getAttribute('target')).toBe('_blank');
+		expect(safeLink.getAttribute('rel')).toBe('noopener noreferrer');
+		expect(safeLink.getAttribute('title')).toBe('Example Title');
+
+		// javascript: and vbscript: URLs stripped from links
+		expect(document.querySelector('a[href*="javascript"]')).toBeNull();
+		expect(document.querySelector('a[href*="vbscript"]')).toBeNull();
+
+		// Safe image rendered, data: URL stripped
+		const img = document.querySelector('img[src="https://example.com/img.png"]');
+		expect(img).not.toBeNull();
+		expect(img.getAttribute('alt')).toBe('safe');
+		expect(img.getAttribute('title')).toBe('Photo');
+		expect(document.querySelector('img[src*="data:"]')).toBeNull();
+
+		// Horizontal rule rendered
+		expect(document.querySelector('hr')).not.toBeNull();
+
+		// Script tag stripped
+		expect(document.querySelector('script')).toBeNull();
+
+		// Relative and anchor URLs allowed
+		expect(document.querySelector('a[href="./docs/README.md"]')).not.toBeNull();
+		expect(document.querySelector('a[href="#usage"]')).not.toBeNull();
+	});
+
+	// Index 3 — h4+ default styling (depth > 3 fallback)
+	it('renders h4+ with default styling', async () => {
+		global.fetch = vi.fn().mockResolvedValueOnce({
+			ok: true,
+			text: () => Promise.resolve('#### Deep Heading'),
+		});
+
+		renderProjects();
+		fireEvent.click(screen.getAllByText('See project README')[3]);
+
+		await waitFor(() => {
+			const h4 = document.querySelector('h4.text-lg');
+			expect(h4).not.toBeNull();
+			expect(h4.textContent).toBe('Deep Heading');
+		});
+	});
+});
+
+describe('Projects - fetch pipeline edge cases', () => {
+	beforeEach(() => {
+		Element.prototype.scrollIntoView = vi.fn();
+		vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => { cb(); return 1; });
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
+		delete Element.prototype.scrollIntoView;
+	});
+
+	// Index 4 — raw.githubusercontent fallback
+	it('falls back to raw.githubusercontent when API returns non-ok', async () => {
+		global.fetch = vi.fn()
+			.mockResolvedValueOnce({ ok: false, status: 404 })
+			.mockResolvedValueOnce({ ok: true, text: () => Promise.resolve('# Fallback README') });
+
+		renderProjects();
+		fireEvent.click(screen.getAllByText('See project README')[4]);
+
+		await waitFor(() => {
+			expect(screen.getByText('Fallback README')).toBeInTheDocument();
+		});
+
+		expect(global.fetch).toHaveBeenCalledTimes(2);
+	});
+
+	// Index 5 — master branch fallback
+	it('tries master branch when main branch fails', async () => {
+		global.fetch = vi.fn()
+			.mockResolvedValueOnce({ ok: false })
+			.mockResolvedValueOnce({ ok: false })
+			.mockResolvedValueOnce({ ok: true, text: () => Promise.resolve('# Master branch') });
+
+		renderProjects();
+		fireEvent.click(screen.getAllByText('See project README')[5]);
+
+		await waitFor(() => {
+			expect(screen.getByText('Master branch')).toBeInTheDocument();
+		});
+
+		expect(global.fetch).toHaveBeenCalledTimes(3);
+		expect(global.fetch.mock.calls[2][0]).toContain('/master/README.md');
+	});
+});

@@ -120,18 +120,34 @@ export function spawnImageExplosion(imgElement) {
 
 		const DURATION = 1.8; // seconds
 		const GRAVITY = 1400; // px/s²
+		const BOUNCE_DAMPING = 0.6; // velocity retained on wall bounce
+		const viewW = window.innerWidth;
 		const start = performance.now();
+		let lastTime = start;
 
 		function frame(now) {
+			const dt = (now - lastTime) / 1000;
+			lastTime = now;
 			const elapsed = (now - start) / 1000;
 			const t = Math.min(elapsed / DURATION, 1);
 
-			ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+			ctx.clearRect(0, 0, viewW, window.innerHeight);
 
 			for (const frag of fragments) {
-				const px = frag.x + frag.vx * elapsed;
-				const py = frag.y + frag.vy * elapsed + 0.5 * GRAVITY * elapsed * elapsed;
-				const rot = frag.rotation + frag.rotVel * elapsed;
+				// Integrate velocity → position with gravity
+				frag.vy += GRAVITY * dt;
+				frag.x += frag.vx * dt;
+				frag.y += frag.vy * dt;
+				frag.rotation += frag.rotVel * dt;
+
+				// Bounce off left/right viewport edges
+				if (frag.x < 0) {
+					frag.x = 0;
+					frag.vx = Math.abs(frag.vx) * BOUNCE_DAMPING;
+				} else if (frag.x + fragW > viewW) {
+					frag.x = viewW - fragW;
+					frag.vx = -Math.abs(frag.vx) * BOUNCE_DAMPING;
+				}
 
 				// Opacity: hold full for first 40%, then fade to 0
 				const opacity = t < 0.4 ? 1 : Math.max(0, 1 - (t - 0.4) / 0.6);
@@ -139,8 +155,8 @@ export function spawnImageExplosion(imgElement) {
 
 				ctx.save();
 				ctx.globalAlpha = opacity;
-				ctx.translate(px + fragW / 2, py + fragH / 2);
-				ctx.rotate((rot * Math.PI) / 180);
+				ctx.translate(frag.x + fragW / 2, frag.y + fragH / 2);
+				ctx.rotate((frag.rotation * Math.PI) / 180);
 				ctx.drawImage(
 					fragImages[frag.imgIdx],
 					0, 0, fragImages[frag.imgIdx].width, fragImages[frag.imgIdx].height,

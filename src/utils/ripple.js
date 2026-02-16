@@ -106,14 +106,14 @@ export function spawnRipple(e) {
 			/* Outer ring — use configured ripple color */
 			ctx.beginPath();
 			ctx.arc(cx, cy, Math.max(0, radius), 0, Math.PI * 2);
-			ctx.strokeStyle = `rgba(${base}, ${alpha * 0.35})`;
+			ctx.strokeStyle = `rgba(${base}, ${alpha * 0.15})`;
 			ctx.lineWidth = thickness;
 			ctx.stroke();
 
 			/* Inner highlight — brighter, thinner, slightly smaller */
 			ctx.beginPath();
 			ctx.arc(cx, cy, Math.max(0, radius - thickness * 0.6), 0, Math.PI * 2);
-			ctx.strokeStyle = `rgba(${highlight}, ${alpha * 0.5})`;
+			ctx.strokeStyle = `rgba(${highlight}, ${alpha * 0.2})`;
 			ctx.lineWidth = Math.max(0.5, thickness * 0.4);
 			ctx.stroke();
 
@@ -124,7 +124,7 @@ export function spawnRipple(e) {
 					cx, cy, radius + thickness * 2,
 				);
 				grad.addColorStop(0, `rgba(${base}, 0)`);
-				grad.addColorStop(0.5, `rgba(${base}, ${alpha * 0.08})`);
+				grad.addColorStop(0.5, `rgba(${base}, ${alpha * 0.04})`);
 				grad.addColorStop(1, `rgba(${base}, 0)`);
 				ctx.beginPath();
 				ctx.arc(cx, cy, radius + thickness * 2, 0, Math.PI * 2);

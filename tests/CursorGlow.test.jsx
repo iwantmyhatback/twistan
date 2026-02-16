@@ -101,6 +101,26 @@ describe('CursorGlow', () => {
 		rafSpy.mockRestore();
 	});
 
+	it('cleans up resize listener and animation on unmount', () => {
+		window.matchMedia = vi.fn(() => ({
+			matches: true,
+			media: '',
+			addEventListener: vi.fn(),
+			removeEventListener: vi.fn(),
+		}));
+
+		const rafSpy = vi.spyOn(window, 'requestAnimationFrame').mockReturnValue(42);
+		const cafSpy = vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => {});
+
+		const { unmount } = render(<CursorGlow />);
+		unmount();
+
+		expect(cafSpy).toHaveBeenCalledWith(42);
+
+		rafSpy.mockRestore();
+		cafSpy.mockRestore();
+	});
+
 	it('cancels animation when media query changes to non-matching', () => {
 		let changeHandler;
 		window.matchMedia = vi.fn(() => ({

@@ -47,6 +47,84 @@ function injectCaptchaToken(token = 'mock-captcha-token') {
 	form.appendChild(input);
 }
 
+describe('Contact Turnstile Initialization', () => {
+	it('polls for turnstile and renders widget when available', async () => {
+		vi.useFakeTimers();
+		const renderSpy = vi.fn().mockReturnValue('widget-id');
+
+		// Remove turnstile initially
+		const originalTurnstile = window.turnstile;
+		delete window.turnstile;
+
+		renderContact();
+
+		// After 100ms polling interval, add turnstile
+		window.turnstile = { render: renderSpy, reset: vi.fn(), remove: vi.fn() };
+		await vi.advanceTimersByTimeAsync(200);
+
+		expect(renderSpy).toHaveBeenCalled();
+
+		// Restore
+		window.turnstile = originalTurnstile;
+		vi.useRealTimers();
+	});
+
+	it('renders widget immediately when turnstile already loaded', () => {
+		const renderSpy = vi.fn().mockReturnValue('widget-id');
+		const originalTurnstile = window.turnstile;
+		window.turnstile = { render: renderSpy, reset: vi.fn(), remove: vi.fn() };
+
+		renderContact();
+
+		expect(renderSpy).toHaveBeenCalled();
+
+		window.turnstile = originalTurnstile;
+	});
+
+	it('handles turnstile render error gracefully', () => {
+		const originalTurnstile = window.turnstile;
+		window.turnstile = {
+			render: vi.fn(() => { throw new Error('Widget error'); }),
+			reset: vi.fn(),
+			remove: vi.fn(),
+		};
+
+		// Should not throw
+		expect(() => renderContact()).not.toThrow();
+
+		window.turnstile = originalTurnstile;
+	});
+
+	it('resets turnstile widget on error state', async () => {
+		const resetSpy = vi.fn();
+		const originalTurnstile = window.turnstile;
+		window.turnstile = {
+			render: vi.fn().mockReturnValue('widget-id'),
+			reset: resetSpy,
+			remove: vi.fn(),
+		};
+
+		global.fetch.mockResolvedValueOnce({
+			ok: false,
+			status: 400,
+			json: async () => ({ error: 'Bad request' }),
+		});
+
+		const user = userEvent.setup();
+		renderContact();
+
+		await fillForm(user);
+		injectCaptchaToken();
+		await user.click(screen.getByRole('button', { name: /send message/i }));
+
+		await waitFor(() => {
+			expect(resetSpy).toHaveBeenCalled();
+		});
+
+		window.turnstile = originalTurnstile;
+	});
+});
+
 describe('Contact Form', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -140,6 +218,40 @@ describe('Contact Form', () => {
 
 		await waitFor(() => {
 			expect(screen.getByText(/server error/i)).toBeInTheDocument();
+		});
+	});
+
+	it('handles network error with non-JSON response', async () => {
+		global.fetch.mockResolvedValueOnce({
+			ok: false,
+			status: 500,
+			json: async () => { throw new Error('not json'); },
+		});
+
+		const user = userEvent.setup();
+		renderContact();
+
+		await fillForm(user);
+		injectCaptchaToken();
+		await user.click(screen.getByRole('button', { name: /send message/i }));
+
+		await waitFor(() => {
+			expect(screen.getByText(/server error \(500\)/i)).toBeInTheDocument();
+		});
+	});
+
+	it('handles fetch rejection (network failure)', async () => {
+		global.fetch.mockRejectedValueOnce(new Error('Network failure'));
+
+		const user = userEvent.setup();
+		renderContact();
+
+		await fillForm(user);
+		injectCaptchaToken();
+		await user.click(screen.getByRole('button', { name: /send message/i }));
+
+		await waitFor(() => {
+			expect(screen.getByText(/network failure/i)).toBeInTheDocument();
 		});
 	});
 
