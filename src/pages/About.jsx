@@ -15,6 +15,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { Link } from 'react-router';
 import AnimatedSection from '../components/AnimatedSection';
+import ExplodingText from '../components/ExplodingText';
 import { spawnRipple } from '../utils/ripple';
 
 const skills = [
@@ -37,7 +38,7 @@ function About() {
 		<div className="section-container py-24">
 			{/* Intro */}
 			<AnimatedSection>
-				<h1 className="heading-xl mb-6">About Me</h1>
+				<ExplodingText text="About Me" className="heading-xl mb-6" />
 			</AnimatedSection>
 			<AnimatedSection delay={0.1}>
 				<p className="text-body max-w-2xl mb-3">

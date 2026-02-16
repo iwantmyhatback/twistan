@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import AnimatedSection from '../components/AnimatedSection';
+import ExplodingText from '../components/ExplodingText';
 import { spawnRipple } from '../utils/ripple';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { marked } from 'marked';
@@ -249,7 +250,7 @@ function Projects() {
 	return (
 		<div className="section-container py-24">
 			<AnimatedSection>
-				<h1 className="heading-xl mb-3">Projects</h1>
+				<ExplodingText text="Projects" className="heading-xl mb-3" />
 			</AnimatedSection>
 			<AnimatedSection delay={0.1}>
 				<p className="text-body mb-16">Things I&rsquo;ve built or broken recently in my spare time</p>

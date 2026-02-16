@@ -19,7 +19,7 @@ function renderProjects() {
 describe('Projects Page', () => {
 	it('renders heading', () => {
 		renderProjects();
-		expect(screen.getByText('Projects')).toBeInTheDocument();
+		expect(screen.getByLabelText('Projects')).toBeInTheDocument();
 	});
 
 	it('renders all project titles', () => {

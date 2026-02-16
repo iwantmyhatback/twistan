@@ -18,6 +18,7 @@ import {
 	CubeIcon,
 } from '@heroicons/react/24/outline';
 import AnimatedSection from '../components/AnimatedSection';
+import ExplodingText from '../components/ExplodingText';
 import { spawnRipple } from '../utils/ripple';
 
 /**
@@ -156,7 +157,7 @@ function AboutYou() {
 	return (
 		<div className="section-container py-24">
 			<AnimatedSection>
-				<h1 className="heading-xl mb-3">About You</h1>
+				<ExplodingText text="About You" className="heading-xl mb-3" />
 			</AnimatedSection>
 			<AnimatedSection delay={0.1}>
 				<p className="text-body mb-4">

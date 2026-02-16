@@ -172,7 +172,7 @@ Contact form implements comprehensive validation and security:
 - **@testing-library/react** for component testing
 - **@testing-library/jest-dom** for DOM assertions
 
-### Test Suite (89 tests across 15 files)
+### Test Suite (98 tests across 16 files)
 See [docs/TESTING.md](docs/TESTING.md) for detailed documentation.
 
 - **tests/api/contact.test.js** (21) - API endpoint, rate limiting, CAPTCHA, CORS, validation
@@ -185,6 +185,7 @@ See [docs/TESTING.md](docs/TESTING.md) for detailed documentation.
 - **tests/CursorGlow.test.jsx** (5) - Canvas rendering, media query gating
 - **tests/utils/validation.test.js** (5) - Email validation, rate limiting logic
 - **tests/utils/ripple.test.js** (5) - Canvas ripple effect utility
+- **tests/ExplodingText.test.jsx** (9) - Exploding text idle render, click, reduced motion, cleanup
 - **tests/AnimatedSection.test.jsx** (4) - Animation wrapper props
 - **tests/About.test.jsx** (4) - Skills grid, easter egg link
 - **tests/NotFound.test.jsx** (4) - 404 page, home link

@@ -19,7 +19,7 @@ function renderAbout() {
 describe('About Page', () => {
 	it('renders heading', () => {
 		renderAbout();
-		expect(screen.getByText('About Me')).toBeInTheDocument();
+		expect(screen.getByLabelText('About Me')).toBeInTheDocument();
 	});
 
 	it('renders intro text', () => {

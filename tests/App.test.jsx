@@ -42,7 +42,7 @@ describe('App Routing', () => {
 		render(<RouterProvider router={router} />);
 
 		await waitFor(() => {
-			expect(screen.getByText(/get in touch/i)).toBeInTheDocument();
+			expect(screen.getByLabelText(/get in touch/i)).toBeInTheDocument();
 		});
 	});
 
@@ -59,7 +59,7 @@ describe('App Routing', () => {
 		render(<RouterProvider router={router} />);
 
 		await waitFor(() => {
-			expect(screen.getByText(/about me/i)).toBeInTheDocument();
+			expect(screen.getByLabelText(/about me/i)).toBeInTheDocument();
 		});
 	});
 

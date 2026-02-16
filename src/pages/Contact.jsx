@@ -1,5 +1,6 @@
 import { useActionState, useEffect, useRef } from 'react';
 import AnimatedSection from '../components/AnimatedSection';
+import ExplodingText from '../components/ExplodingText';
 
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '0x4AAAAAACciy0Z_rZz_YPMG';
 const MAX_LENGTHS = { name: 100, email: 254, message: 5000 };
@@ -123,7 +124,7 @@ function Contact() {
 	return (
 		<div className="section-container py-24">
 			<AnimatedSection>
-				<h1 className="heading-xl mb-3">Get in Touch</h1>
+				<ExplodingText text="Get in Touch" className="heading-xl mb-3" />
 			</AnimatedSection>
 			<AnimatedSection delay={0.1}>
 				<p className="text-body mb-12">
