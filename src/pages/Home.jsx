@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ImageUrls from '../assets/ImageUrls';
 import AnimatedSection from '../components/AnimatedSection';
 import { spawnRipple } from '../utils/ripple';
+import { spawnImageExplosion } from '../utils/imageExplosion';
 
 /**
  * Fisher-Yates shuffle using crypto.getRandomValues.
@@ -41,9 +42,16 @@ function Home() {
 	const [imgUrl, setImgUrl] = useState(deck.current[0]);
 	const [imageKey, setImageKey] = useState(0);
 	const [tileSize, setTileSize] = useState({ width: 350, height: 350 });
+	const imgRef = useRef(null);
 
 	const handleNewImage = useCallback((e) => {
 		spawnRipple(e);
+
+		// Fire explosion overlay from the current image (runs independently, self-cleans)
+		if (imgRef.current) {
+			spawnImageExplosion(imgRef.current);
+		}
+
 		cursor.current += 1;
 		if (cursor.current >= deck.current.length) {
 			const last = deck.current[deck.current.length - 1];
@@ -100,6 +108,7 @@ function Home() {
 				>
 					<AnimatePresence mode="wait">
 						<motion.img
+							ref={imgRef}
 							key={imageKey}
 							src={imgUrl}
 							alt="Wave"
