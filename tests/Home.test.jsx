@@ -1,6 +1,7 @@
 /**
  * Home page tests.
- * Tests image display, wave button interaction, and image error handling.
+ * Tests image display, wave button interaction, image error handling,
+ * and deck reshuffle on exhaustion.
  */
 
 import { describe, it, expect, vi } from 'vitest';
@@ -10,6 +11,11 @@ import { createMemoryRouter, RouterProvider } from 'react-router';
 // Mock the ripple utility — DOM manipulation doesn't work in jsdom
 vi.mock('../src/utils/ripple', () => ({
 	spawnRipple: vi.fn(),
+}));
+
+// Mock image explosion — canvas operations don't work in jsdom
+vi.mock('../src/utils/imageExplosion', () => ({
+	spawnImageExplosion: vi.fn(() => Promise.resolve()),
 }));
 
 // Mock crypto.getRandomValues for deterministic shuffle
@@ -22,6 +28,7 @@ vi.stubGlobal('crypto', {
 });
 
 import { spawnRipple } from '../src/utils/ripple';
+import ImageUrls from '../src/assets/ImageUrls';
 import Home from '../src/pages/Home';
 
 function renderHome() {
@@ -85,6 +92,39 @@ describe('Home Page', () => {
 
 		// After error, the component should still have an image
 		// (AnimatePresence may keep the old element, but state was updated)
+		expect(screen.getByAltText('Wave')).toBeInTheDocument();
+	});
+});
+
+describe('Home deck reshuffle', () => {
+	it('survives clicking through all images without crashing', () => {
+		renderHome();
+
+		// Click enough times to exhaust the deck and trigger reshuffle
+		// Deck has ImageUrls.length items. Click that many + a few extra.
+		const totalClicks = ImageUrls.length + 5;
+		const button = screen.getByText('Wave Back!');
+
+		for (let i = 0; i < totalClicks; i++) {
+			fireEvent.click(button);
+		}
+
+		// Should still render correctly after reshuffle
+		expect(screen.getByAltText('Wave')).toBeInTheDocument();
+		expect(screen.getByText('Wave Back!')).toBeInTheDocument();
+	});
+
+	it('survives exhausting deck via error events', () => {
+		renderHome();
+		const img = screen.getByAltText('Wave');
+
+		// Fire enough errors to exhaust the deck
+		const totalErrors = ImageUrls.length + 3;
+		for (let i = 0; i < totalErrors; i++) {
+			fireEvent.error(img);
+		}
+
+		// Should still have a valid image element
 		expect(screen.getByAltText('Wave')).toBeInTheDocument();
 	});
 });

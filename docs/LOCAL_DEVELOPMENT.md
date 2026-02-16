@@ -36,7 +36,7 @@ This installs:
 - React 19 + React Router 7
 - Vite 7 (build tool)
 - Tailwind CSS 4
-- Framer Motion (animations)
+- Motion (animations)
 - Wrangler 4 (Cloudflare CLI)
 - ESLint 9 and plugins (flat config)
 
@@ -176,7 +176,7 @@ twistan/
 │   │   ├── Navbar.jsx      # Top navigation
 │   │   ├── Footer.jsx      # Site footer
 │   │   ├── CursorGlow.jsx  # Custom cursor effect
-│   │   ├── AnimatedSection.jsx  # Framer Motion wrapper
+│   │   ├── AnimatedSection.jsx  # Motion wrapper
 │   │   └── BrowserInfo.jsx # Browser detection utility
 │   ├── assets/             # Static files
 │   │   ├── avatar.png      # Profile image

@@ -12,7 +12,7 @@ React SPA portfolio site deployed to Cloudflare Pages with serverless contact fo
 
 - **Frontend**: React 19, React Router 7, Vite 7
 - **Styling**: Tailwind CSS 4 (dark terminal theme, CSS-first config)
-- **Animations**: Framer Motion
+- **Animations**: Motion (formerly Framer Motion)
 - **Deployment**: Cloudflare Pages
 - **API**: Cloudflare Pages Functions
 - **Storage**: Cloudflare KV (contact submissions)

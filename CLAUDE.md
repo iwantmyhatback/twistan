@@ -14,7 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-React SPA portfolio site built with Vite, deployed to Cloudflare Pages with serverless API endpoints. Uses Tailwind CSS with a dark terminal-inspired theme and Framer Motion for page transitions.
+React SPA portfolio site built with Vite, deployed to Cloudflare Pages with serverless API endpoints. Uses Tailwind CSS with a dark terminal-inspired theme and Motion for page transitions.
 
 ## Documentation Index
 
@@ -74,7 +74,7 @@ The Home page displays a shuffled deck of wave GIF/WebP images from `src/assets/
 - On deck exhaustion, reshuffles and avoids repeating the last-shown image
 
 ### Page Transitions
-Uses Framer Motion with `AnimatePresence` and `motion.main` in Layout component. Each route transition animates with 0.3s fade + vertical slide. Individual page sections use `AnimatedSection` component for staggered entrance animations.
+Uses Motion with `AnimatePresence` and `motion.main` in Layout component. Each route transition animates with 0.3s fade + vertical slide. Individual page sections use `AnimatedSection` component for staggered entrance animations.
 
 ### Cloudflare Pages Functions
 API endpoints are Cloudflare Pages Functions in `functions/api/`:
@@ -172,24 +172,25 @@ Contact form implements comprehensive validation and security:
 - **@testing-library/react** for component testing
 - **@testing-library/jest-dom** for DOM assertions
 
-### Test Suite (98 tests across 16 files)
+### Test Suite (129 tests across 17 files)
 See [docs/TESTING.md](docs/TESTING.md) for detailed documentation.
 
 - **tests/api/contact.test.js** (21) - API endpoint, rate limiting, CAPTCHA, CORS, validation
-- **tests/api/health.test.js** (3) - Health check endpoint
+- **tests/Projects.test.jsx** (14) - Project cards, links, tags, README fetch/display/error/toggle
+- **tests/utils/ripple.test.js** (13) - Canvas ripple creation, animation loop, color parsing, cleanup
+- **tests/ExplodingText.test.jsx** (12) - Idle render, click, reduced motion, state transitions
+- **tests/Home.test.jsx** (9) - Image carousel, wave button, error handling, deck reshuffle
+- **tests/utils/imageExplosion.test.js** (8) - Reduced motion, null guards, overlay lifecycle, rAF loop
 - **tests/Contact.test.jsx** (7) - Form validation, submission, error handling
-- **tests/Home.test.jsx** (7) - Image carousel, wave button, error handling
+- **tests/CursorGlow.test.jsx** (7) - Canvas rendering, noise loop, media query change handler
 - **tests/Navbar.test.jsx** (6) - Navigation, mobile menu, accessibility
-- **tests/Projects.test.jsx** (6) - Project cards, links, tags
 - **tests/Layout.test.jsx** (5) - Composition, skip-to-content
-- **tests/CursorGlow.test.jsx** (5) - Canvas rendering, media query gating
 - **tests/utils/validation.test.js** (5) - Email validation, rate limiting logic
-- **tests/utils/ripple.test.js** (5) - Canvas ripple effect utility
-- **tests/ExplodingText.test.jsx** (9) - Exploding text idle render, click, reduced motion, cleanup
 - **tests/AnimatedSection.test.jsx** (4) - Animation wrapper props
 - **tests/About.test.jsx** (4) - Skills grid, easter egg link
 - **tests/NotFound.test.jsx** (4) - 404 page, home link
 - **tests/App.test.jsx** (4) - Routing and navigation
+- **tests/api/health.test.js** (3) - Health check endpoint
 - **tests/Footer.test.jsx** (3) - Copyright, GitHub link
 
 ### Running Tests

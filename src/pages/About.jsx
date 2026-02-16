@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import {
 	CodeBracketIcon,
 	ArrowPathIcon,
@@ -38,13 +38,16 @@ function About() {
 		<div className="section-container py-24">
 			{/* Intro */}
 			<AnimatedSection>
-				<ExplodingText text="About Me" className="heading-xl mb-6" />
+				<ExplodingText text="About Me" className="heading-xl mb-3" />
 			</AnimatedSection>
 			<AnimatedSection delay={0.1}>
+				<p className="font-mono text-sm text-accent mb-3">
+					DevOps | Automation | Software Engineer | System Admin
+				</p>
 				<p className="text-body max-w-2xl mb-3">
-					Engineer with a focus on developer tooling, automation, and making
-					systems work reliably at scale. I enjoy building infrastructure
-					that gets out of the way and lets people ship... when its supposed to
+					Jack of all trades with extensive experience owning large-scale CI/CD systems for enterprise mobile application development. 
+					Proven track record leading process modernization, improving developer productivity, and ensuring secure, compliant release pipelines. 
+					Adept at cross-team collaboration, root-cause analysis, and delivering robust, auditable build systems in highly regulated environments.
 				</p>
 				<p className="font-mono text-sm text-accent mb-16">
 					&quot;I&rsquo;m just another man in love with his computer&quot;

@@ -1,10 +1,11 @@
 /**
  * ExplodingText component tests.
- * Tests idle rendering, click behavior, reduced motion, and cleanup.
+ * Tests idle rendering, click behavior, reduced motion, cleanup,
+ * and timer-driven state transitions (exploding → waiting → rematerializing → idle).
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import ExplodingText from '../src/components/ExplodingText';
 
 describe('ExplodingText', () => {
@@ -118,5 +119,91 @@ describe('ExplodingText', () => {
 		// Advance timers — should not throw (timer was cleaned up)
 		expect(() => vi.advanceTimersByTime(10000)).not.toThrow();
 		vi.useRealTimers();
+	});
+});
+
+describe('ExplodingText state transitions', () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+		window.matchMedia = (query) => ({
+			matches: false,
+			media: query,
+			onchange: null,
+			addListener: () => {},
+			removeListener: () => {},
+			addEventListener: () => {},
+			removeEventListener: () => {},
+			dispatchEvent: () => {},
+		});
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	/**
+	 * Helper: render, mock rects, click to trigger explosion.
+	 */
+	function triggerExplosion(delay = 10) {
+		const result = render(
+			<ExplodingText text="AB" className="heading-xl" rematerializeDelay={delay} />
+		);
+		const h1 = result.container.querySelector('h1');
+
+		h1.getBoundingClientRect = () => ({ left: 0, top: 0, width: 200, height: 50 });
+		h1.querySelectorAll('span').forEach((span) => {
+			span.getBoundingClientRect = () => ({ left: 10, top: 10, width: 20, height: 30 });
+		});
+
+		fireEvent.click(h1);
+		return result;
+	}
+
+	it('transitions from exploding to waiting after 2s', () => {
+		const { container } = triggerExplosion(10);
+
+		// In exploding state: placeholder is invisible, motion.spans exist
+		expect(container.querySelector('h1.invisible')).not.toBeNull();
+
+		// Advance 2000ms → transitions to waiting
+		act(() => { vi.advanceTimersByTime(2000); });
+
+		// In waiting state: only the invisible placeholder remains, no motion.spans
+		const heading = screen.getByRole('heading', { level: 1 });
+		expect(heading).toBeInTheDocument();
+
+		// The placeholder h1 should be invisible
+		const h1 = container.querySelector('h1');
+		expect(h1.className).toContain('invisible');
+	});
+
+	it('transitions from waiting to rematerializing after rematerializeDelay', () => {
+		const { container } = triggerExplosion(5);
+
+		// exploding → waiting (2s)
+		act(() => { vi.advanceTimersByTime(2000); });
+
+		// waiting → rematerializing ((delay - 2) * 1000 = 3000ms)
+		act(() => { vi.advanceTimersByTime(3000); });
+
+		// In rematerializing state: motion.spans should be back (vaporize keys)
+		const heading = screen.getByRole('heading', { level: 1 });
+		expect(heading).toBeInTheDocument();
+
+		// The placeholder h1 should still be present (invisible)
+		const h1 = container.querySelector('h1');
+		expect(h1).not.toBeNull();
+		expect(h1.className).toContain('invisible');
+	});
+
+	it('does not trigger explosion when already exploding', () => {
+		const { container } = triggerExplosion(10);
+
+		// Try clicking again while exploding — should be a no-op
+		const heading = screen.getByRole('heading', { level: 1 });
+		fireEvent.click(heading);
+
+		// Should still be in exploding state (invisible placeholder present)
+		expect(container.querySelector('h1.invisible')).not.toBeNull();
 	});
 });

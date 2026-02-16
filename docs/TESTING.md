@@ -4,14 +4,14 @@ Comprehensive test suite for the Twistan portfolio application using Vitest and 
 
 ## Test Coverage
 
-**Total: 89 tests across 15 test files**
+**Total: 129 tests across 17 test files**
 
 | Metric | Coverage |
 |--------|----------|
-| Statements | 83.07% |
-| Branches | 79.36% |
-| Functions | 89.36% |
-| Lines | 84.87% |
+| Statements | 88.13% |
+| Branches | 70.06% |
+| Functions | 84.44% |
+| Lines | 92.23% |
 
 ### Test Files
 
@@ -56,16 +56,22 @@ Comprehensive test suite for the Twistan portfolio application using Vitest and 
    - Default props handling
    - Multiple children rendering
 
-7. **tests/CursorGlow.test.jsx** (5 tests)
+7. **tests/CursorGlow.test.jsx** (7 tests)
    - Canvas element rendering
    - Pointer-events-none class
    - Responsive visibility classes
    - Animation loop skipped on mobile
    - Animation loop started on desktop
+   - Noise rendering (createImageData/putImageData)
+   - Media query change handler cancels animation
+
+8. **tests/ExplodingText.test.jsx** (12 tests)
+   - Idle render, click, reduced motion, cleanup (9 tests)
+   - Timer-driven state transitions: exploding → waiting → rematerializing (3 tests)
 
 #### Page Tests
 
-8. **tests/Contact.test.jsx** (7 tests)
+9. **tests/Contact.test.jsx** (7 tests)
    - Form field rendering
    - Required field validation
    - Email format validation
@@ -74,36 +80,45 @@ Comprehensive test suite for the Twistan portfolio application using Vitest and 
    - API error handling
    - Form clearing after submission
 
-9. **tests/Home.test.jsx** (7 tests)
-   - Wave button rendering
-   - Image display with external src
-   - spawnRipple called on button click
-   - Button element type
-   - Image accessibility (alt text)
-   - Image load handler
-   - Image error handler
+10. **tests/Home.test.jsx** (9 tests)
+    - Wave button rendering
+    - Image display with external src
+    - spawnRipple called on button click
+    - Button element type
+    - Image accessibility (alt text)
+    - Image load handler
+    - Image error handler
+    - Deck reshuffle via click exhaustion
+    - Deck reshuffle via error exhaustion
 
-10. **tests/About.test.jsx** (4 tests)
+11. **tests/About.test.jsx** (4 tests)
     - Heading rendering
     - Intro text rendering
     - All 12 skill tiles rendering
     - Easter egg link to about-you page
 
-11. **tests/Projects.test.jsx** (6 tests)
+12. **tests/Projects.test.jsx** (14 tests)
     - Heading rendering
     - All project title rendering
     - Project description rendering
     - GitHub links with security attributes
     - Project tag rendering
     - Correct project count
+    - README button rendering
+    - README panel open/close toggle
+    - Loading state on README fetch
+    - Rendered README content on successful fetch
+    - Error message on fetch failure
+    - Error on GitHub API + raw fallback failure
+    - AbortError handling (no error displayed)
 
-12. **tests/NotFound.test.jsx** (4 tests)
+13. **tests/NotFound.test.jsx** (4 tests)
     - 404 heading rendering
     - Descriptive message
     - Home link
     - Glitch-text CSS class
 
-13. **tests/App.test.jsx** (4 tests)
+14. **tests/App.test.jsx** (4 tests)
     - Home page routing
     - Contact page routing
     - About page routing
@@ -111,18 +126,36 @@ Comprehensive test suite for the Twistan portfolio application using Vitest and 
 
 #### Utility Tests
 
-14. **tests/utils/ripple.test.js** (5 tests)
+15. **tests/utils/ripple.test.js** (13 tests)
     - Ripple canvas element creation
     - Canvas sizing to container dimensions
     - Canvas positioning to fill container
     - Pointer-events-none style
     - Append to currentTarget
+    - Null context fallback (canvas removed, no rAF)
+    - requestAnimationFrame invocation
+    - Ring and gradient drawing on animation frame
+    - Radial gradient glow effect
+    - Frame scheduling during animation
+    - Canvas removal on animation complete
+    - RGB CSS variable color parsing
+    - Hex CSS variable color parsing
 
-15. **tests/utils/validation.test.js** (5 tests)
+16. **tests/utils/validation.test.js** (5 tests)
     - Email validation (valid/invalid formats)
     - Rate limiting timestamp bucketing (UTC)
     - Rate limiting key uniqueness
     - KV key generation format
+
+17. **tests/utils/imageExplosion.test.js** (8 tests)
+    - Reduced motion bailout (immediate resolve)
+    - Null imgElement bailout
+    - Incomplete image bailout
+    - Overlay canvas appended to document.body
+    - Animation lifecycle (rAF → overlay removal → promise resolve)
+    - Null overlay context graceful handling
+    - Null srcCanvas context graceful handling
+    - Frame scheduling during animation
 
 ### Per-File Coverage
 
@@ -130,24 +163,25 @@ Comprehensive test suite for the Twistan portfolio application using Vitest and 
 |------|-------|--------|-------|-------|
 | contact.js | 89% | 84% | 100% | 91% |
 | health.js | 100% | 100% | 100% | 100% |
-| AnimatedSection.jsx | 100% | 100% | 100% | 100% |
-| CursorGlow.jsx | 55% | 38% | 67% | 58% |
+| AnimatedSection.jsx | 100% | 75% | 100% | 100% |
+| CursorGlow.jsx | 95% | 63% | 100% | 100% |
+| ExplodingText.jsx | 91% | 78% | 93% | 97% |
 | Footer.jsx | 100% | 100% | 100% | 100% |
 | Layout.jsx | 100% | 100% | 100% | 100% |
 | Navbar.jsx | 100% | 100% | 100% | 100% |
 | About.jsx | 100% | 100% | 100% | 100% |
-| Contact.jsx | 86% | 80% | 70% | 89% |
-| Home.jsx | 83% | 33% | 100% | 81% |
+| Contact.jsx | 83% | 80% | 67% | 87% |
+| Home.jsx | 98% | 75% | 100% | 98% |
 | NotFound.jsx | 100% | 100% | 100% | 100% |
-| Projects.jsx | ~45% | ~30% | ~40% | ~45% |
-| ripple.js | 100% | 100% | 100% | 100% |
+| Projects.jsx | 65% | 40% | 63% | 72% |
+| imageExplosion.js | 100% | 91% | 100% | 100% |
+| ripple.js | 95% | 74% | 80% | 99% |
 
 ### Known Coverage Gaps
 
-- **Projects.jsx** (~45% stmts): Existing tests cover static card rendering only. README fetch/parse pipeline (GitHub API calls, `marked` renderer, AbortController, module-scope cache, error states) is untested — would require mocking `fetch` and `marked`.
-- **CursorGlow.jsx** (55% stmts): Canvas `getContext()` not implemented in jsdom. The noise rendering loop and media query change handler can't be tested without a canvas polyfill.
-- **Home.jsx** (83% stmts): Deck reshuffle boundary only triggers after exhausting all ~49 images. AnimatePresence `mode="wait"` prevents DOM assertions during animation transitions.
-- **Contact.jsx** (86% stmts): Turnstile polling interval and initialization retry logic hard to test without real Turnstile SDK.
+- **Projects.jsx** (65% stmts): README fetch/parse pipeline is partially tested. Remaining uncovered lines include the custom `marked` renderer callbacks (heading, link, image, html, hr) and the `parseRepoFromUrl` error path. The module-scope `readmeCache` makes isolation between tests challenging.
+- **Contact.jsx** (83% stmts): Turnstile polling interval and initialization retry logic hard to test without real Turnstile SDK.
+- **ExplodingText.jsx** (91% stmts): `onAnimationComplete` callback on the last rematerializing character (resets to idle) requires Motion to actually fire animation events, which jsdom doesn't support.
 - **AboutYou.jsx**: Not tested — complex fingerprinting page with many browser API dependencies (WebRTC, WebGL, Battery API, Geolocation). Would require extensive mocking for limited value.
 
 ## Running Tests
@@ -211,6 +245,20 @@ const createMockContext = (overrides = {}) => ({
 ```javascript
 const container = document.createElement('div');
 container.getBoundingClientRect = vi.fn(() => ({ width: 200, height: 100, ... }));
+```
+
+**Canvas animation tests** mock rAF and manually invoke callbacks:
+```javascript
+let rafCallbacks = [];
+vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+  rafCallbacks.push(cb);
+  return rafCallbacks.length;
+});
+vi.spyOn(performance, 'now').mockReturnValue(0);
+
+// Invoke frame at specific time
+performance.now.mockReturnValue(500);
+rafCallbacks[0](500);
 ```
 
 ## CI/CD Integration

@@ -1,5 +1,12 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
+
+// UNUSED — prior melt/drip effects preserved in utils/meltKeyframes.js for reuse:
+//   computeStretchMeltKeyframes  — v1 taffy-pull stretch + skewX (2s, 1 elem/char)
+//   computeDaliMeltKeyframes     — v2 surreal SVG displacement warp (2.5s, 1 elem/char)
+//   computeLavaMeltKeyframes     — v3 heat→soften→deform→drip with blur (3s, 1 elem/char)
+//   computeWaxMeltData           — v4 multi-fragment candle-wax decomposition (3.5s, N elems/char)
+// Import any and swap into handleClick to restore.
 
 /**
  * Exploding text component — click to shatter heading into physics-driven fragments.

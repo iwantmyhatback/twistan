@@ -24,7 +24,7 @@ describe('About Page', () => {
 
 	it('renders intro text', () => {
 		renderAbout();
-		expect(screen.getByText(/developer tooling/i)).toBeInTheDocument();
+		expect(screen.getByText(/developer productivity/i)).toBeInTheDocument();
 	});
 
 	it('renders all skill tiles', () => {
