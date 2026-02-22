@@ -249,6 +249,42 @@
 	}
 }
 
+/* ─── Easter egg: hidden text revealed on selection ─────────────────────────── */
+/* Text color matches the card/body background — invisible until selected.        */
+/* Placed at the end of a paragraph so it produces no mid-sentence blank gap.     */
+.about-hidden-text {
+	color: var(--color-surface);
+	user-select: text;
+	font-size: 0.7em;
+	letter-spacing: -0.02em;
+}
+.about-hidden-text::selection {
+	background-color: var(--color-terminal);
+	color: #000;
+}
+
+/* ─── Easter egg: idle droop animation ──────────────────────────────────────── */
+/* Single-direction gradual lean — holds at max droop via animation-fill-mode.   */
+@keyframes droop {
+	0%   { transform: rotate(0deg) translateY(0px); }
+	100% { transform: rotate(4deg) translateY(12px); }
+}
+body.idle-droop main {
+	animation: droop 10s ease-in forwards;
+	transform-origin: top center;
+}
+
+/* ─── Easter egg: hacker mode (5-click avatar) ──────────────────────────────── */
+body.hacker-mode,
+body.hacker-mode * {
+	background-color: #000 !important;
+	color: #33ff33 !important;
+	border-color: #33ff33 !important;
+}
+body.hacker-mode canvas {
+	display: none !important;
+}
+
 /*
  * card-inner-highlight child hover effects
  * Outside @layer to beat Tailwind utility specificity (e.g. border-surface-300).

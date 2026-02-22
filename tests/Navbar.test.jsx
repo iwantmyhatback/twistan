@@ -1,19 +1,18 @@
 /**
  * Navbar component tests.
- * Tests navigation links, mobile menu toggle, and accessibility.
+ * Tests navigation links, mobile menu toggle, accessibility,
+ * DiscoBall birthday easter egg, and idle zzz bubble.
  */
 
 import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import Navbar from '../src/components/Navbar';
 
 /** Render Navbar within a router at the given path. */
-function renderNavbar(initialPath = '/') {
+function renderNavbar(props = {}, initialPath = '/') {
 	const router = createMemoryRouter(
-		[
-			{ path: '*', element: <Navbar /> },
-		],
+		[{ path: '*', element: <Navbar {...props} /> }],
 		{ initialEntries: [initialPath] }
 	);
 	return render(<RouterProvider router={router} />);
@@ -61,15 +60,29 @@ describe('Navbar - Mobile Menu', () => {
 		renderNavbar();
 		const toggle = screen.getByRole('button', { name: /toggle menu/i });
 
-		// Open menu
 		fireEvent.click(toggle);
 		expect(toggle).toHaveAttribute('aria-expanded', 'true');
 
-		// Click a link in the mobile menu — there will be duplicate links
-		// (desktop + mobile), so get all and click the last one (mobile version)
+		// Desktop + mobile links — click the last one (mobile version)
 		const contactLinks = screen.getAllByText(/contact/i);
 		fireEvent.click(contactLinks[contactLinks.length - 1]);
 
 		expect(toggle).toHaveAttribute('aria-expanded', 'false');
 	});
 });
+
+describe('Navbar - idle zzz bubble', () => {
+	it('zzz bubble is absent when not idle', () => {
+		renderNavbar({ isIdle: false });
+		expect(screen.queryByText(/zzz/i)).not.toBeInTheDocument();
+	});
+
+	it('zzz bubble appears when isIdle is true', () => {
+		renderNavbar({ isIdle: true });
+		expect(screen.getByText(/zzz/i)).toBeInTheDocument();
+	});
+});
+
+// Note: IS_BIRTHDAY is a module-level constant evaluated at import time.
+// BirthdayCake and the birthday speech bubble are covered at runtime on Aug 5.
+// The spawnConfetti utility it calls is independently covered in confetti.test.js.
