@@ -217,12 +217,12 @@ twistan/
 │   │   ├── AboutYou.jsx    # "About You" page (uses FingerprintJS)
 │   │   └── NotFound.jsx    # 404 page
 │   ├── components/         # Reusable components
-│   │   ├── Layout.jsx      # Page wrapper with navbar/footer
-│   │   ├── Navbar.jsx      # Top navigation
-│   │   ├── Footer.jsx      # Site footer
-│   │   ├── CursorGlow.jsx  # Custom cursor effect
-│   │   ├── AnimatedSection.jsx  # Motion wrapper
-│   │   └── BrowserInfo.jsx # Browser detection utility
+│   │   ├── Layout.jsx      # Page wrapper with navbar/footer/idle detection
+│   │   ├── Navbar.jsx      # Top navigation + birthday easter egg
+│   │   ├── Footer.jsx      # Site footer + hacker mode + year easter egg
+│   │   ├── CursorGlow.jsx  # Film-grain noise overlay (desktop only)
+│   │   ├── AnimatedSection.jsx  # Motion scroll-entrance wrapper
+│   │   └── ExplodingText.jsx    # Click-to-shatter heading component
 │   ├── assets/             # Static files
 │   │   ├── avatar.png      # Profile image
 │   │   └── ImageUrls.js    # External image references

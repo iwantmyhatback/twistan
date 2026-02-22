@@ -41,7 +41,7 @@ function BirthdayCake() {
  */
 function AvatarGitHub({ isIdle, isBirthday }) {
 	const showBubble = isBirthday || isIdle;
-	const bubbleText = isBirthday ? "it's twistan's birthday!" : 'zZzZzZ';
+	const bubbleText = isBirthday ? "it's my birthday!" : 'zZzZzZ';
 
 	return (
 		<div className="flex items-center justify-end gap-2 shrink-0 justify-self-end overflow-hidden">

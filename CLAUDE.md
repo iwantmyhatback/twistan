@@ -34,6 +34,11 @@ twistan/
 ├── src/
 │   ├── pages/          # Route components (Home, About, Projects, Contact, etc.)
 │   ├── components/     # Reusable UI components (Layout, Navbar, Footer, etc.)
+│   ├── utils/
+│   │   ├── ripple.js          # Canvas water-ripple click effect
+│   │   ├── imageExplosion.js  # Canvas image-shatter physics animation
+│   │   ├── confetti.js        # Canvas confetti drop (birthday easter egg)
+│   │   └── meltKeyframes.js   # ARCHIVED melt keyframe generators (unused, kept for reuse)
 │   ├── assets/         # Images and static assets
 │   ├── main.jsx        # React app entry point
 │   ├── App.jsx         # Router configuration with lazy loading
@@ -55,9 +60,9 @@ twistan/
 ### Frontend Structure
 - **Entry**: `src/main.jsx` → `src/App.jsx`
 - **Routing**: React Router 7 (`react-router` package) with lazy-loaded pages in `src/pages/`
-- **Layout**: `src/components/Layout.jsx` provides shared navbar, footer, page transitions
+- **Layout**: `src/components/Layout.jsx` provides shared navbar, footer, film-grain overlay, idle detection
 - **Pages**: Home, About, Projects, Contact, AboutYou, NotFound
-- **Components**: Reusable UI in `src/components/`
+- **Components**: Layout, Navbar, Footer, CursorGlow, AnimatedSection, ExplodingText
 
 ### Projects README Rendering
 Project tiles on the Projects page have expandable README panels fetched from GitHub at runtime:
@@ -71,10 +76,11 @@ Project tiles on the Projects page have expandable README panels fetched from Gi
 The Home page displays a shuffled deck of wave GIF/WebP images from `src/assets/ImageUrls.js`:
 - A pinned first image is always shown on initial load
 - Remaining images are Fisher-Yates shuffled using `crypto.getRandomValues`
-- On deck exhaustion, reshuffles and avoids repeating the last-shown image
+- On deck exhaustion, `spawnImageExplosion` shatters the current image before reshuffling, then reshuffles and avoids repeating the last-shown image
+- Image transitions use a clip-path dot→bar→full reveal/exit animation via Motion `AnimatePresence`
 
 ### Page Transitions
-Uses Motion with `AnimatePresence` and `motion.main` in Layout component. Each route transition animates with 0.3s fade + vertical slide. Individual page sections use `AnimatedSection` component for staggered entrance animations.
+Page-level transitions use React Router's `viewTransition` prop on `NavLink`/`Link` elements, combined with CSS View Transitions API rules in `src/index.css` (`::view-transition-old(root)` / `::view-transition-new(root)` cross-fade at 0.25–0.3s). Layout renders `<Outlet />` directly — no Motion `AnimatePresence` at the layout level. Individual page sections use `AnimatedSection` (Motion `motion.div` + `useInView`) for staggered entrance animations on scroll.
 
 ### Cloudflare Pages Functions
 API endpoints are Cloudflare Pages Functions in `functions/api/`:
@@ -98,14 +104,20 @@ Tailwind v4 CSS-first config in `src/index.css` using `@import "tailwindcss"` an
 - **No `tailwind.config.js`** — all theme config lives in CSS via `@theme` block
 
 ### Custom CSS Utilities
-Defined in `src/index.css` @layer components:
+Defined in `src/index.css` @layer components (and below @layer for specificity overrides):
 - `.section-container`: max-width container with responsive padding
 - `.heading-xl`, `.heading-lg`: responsive heading styles
+- `.text-body`: body text style (neutral-400, relaxed leading)
 - `.card`: bordered card with hover state
+- `.link-hover`: underline-slide hover link effect
 - `.nav-active-glow`: terminal-green text shadow for active nav
 - `.brand-glow`: blue accent glow for navbar brand
-- `.card-inner-highlight`: accent blue glow on card hover with child element effects (buttons, links, icons, text)
-- `.github-glow`: green drop-shadow on GitHub icon hover
+- `.card-inner-highlight`: accent blue box-shadow on hover + child element effects (buttons, links, icons, headings, body text — all excluded from `.prose *` to avoid clashing with markdown content)
+- `.github-glow`: SVG drop-shadow green glow on GitHub icon hover (uses drop-shadow not box-shadow for Safari SVG compat)
+- `.prose`: GitHub-flavored markdown styles for README panels (headings, pre, code, blockquote, table, lists, hr, checkboxes)
+- `.ripple-container`: anchor for canvas-based ripple effect (`position: relative; overflow: hidden`)
+- `.glitch-text`: CSS glitch animation for the 404 page heading
+- `.about-hidden-text`: invisible easter egg text (color matches background, revealed on selection)
 
 ### Design Theme
 Dark terminal aesthetic with terminal-green (`#33ff33`) accents for interactive states. Default background is `surface` (#0a0a0a), with lighter surface tones for cards and borders. Blue `accent` used for primary actions and branding.
@@ -142,6 +154,24 @@ AboutYou page includes prominent warning banner explaining:
 - Types of data collected (device info, browser fingerprinting, IP geolocation)
 - Client-side only processing (no server storage)
 - External API usage (ipapi.co, ipify.org)
+
+## Easter Eggs
+
+The site contains several hidden interactions. All respect `prefers-reduced-motion` where motion is involved.
+
+| Egg | Trigger | Implementation |
+|-----|---------|----------------|
+| **Idle droop** | 60s of no user input | `Layout.jsx` `useIdleDetection` adds `body.idle-droop` → CSS `droop` keyframe leans `<main>` 4° over 10s |
+| **Hacker mode** | Hold GitHub icon in footer for 5s | `Footer.jsx` `FooterGitHub` adds `body.hacker-mode` for 5s → CSS forces all elements to `#000` bg + `#33ff33` text; overlay message appears |
+| **Birthday confetti** | August 5 only (Twistan's birthday) | `Navbar.jsx` detects date → renders `BirthdayCake` 🎂 button; click calls `spawnConfetti()` from `utils/confetti.js` |
+| **Hidden About text** | Select text near end of bio paragraph | `.about-hidden-text` CSS — color matches background, visible only on selection |
+| **Typewriter Easter egg link** | Scroll to About page, wait 8s | `EasterEggReveal` component types out link to `/about-you` with blinking cursor |
+| **Fake skills loading** | Scroll to bottom of skills grid | `SkillsBottomEgg` shows spinner + escalating typewriter messages ("i think hes asleep...") that never resolve |
+| **Image explosion** | Click wave button until deck is exhausted | `Home.jsx` calls `spawnImageExplosion()` on last image before reshuffling deck |
+| **Footer year secret** | Click copyright year in footer | `YearEasterEgg` types out "days since last bugfix was deployed: X" |
+| **ExplodingText** | Click "About Me" heading | Characters shatter with physics, wait `rematerializeDelay` seconds, then vaporize back |
+
+**Note:** `LAST_BUGFIX_DEPLOY` in `Footer.jsx` must be manually updated after each deployment.
 
 ## Code Patterns
 

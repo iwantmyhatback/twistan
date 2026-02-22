@@ -298,7 +298,7 @@ body.hacker-mode canvas {
 }
 .card-inner-highlight:hover button:not(.prose *) {
 	border-color: #a1a1a1;
-	border-width: 1.2px;
+	border-width: 1px;
 	box-shadow: 0 0 8px color-mix(in srgb, var(--color-accent) 30%, transparent),
 	            0 0 16px color-mix(in srgb, var(--color-accent) 20%, transparent);
 }
@@ -308,8 +308,8 @@ button.card-inner-highlight {
 	transition: border-color 0.3s, border-width 0.3s, box-shadow 0.3s;
 }
 button.card-inner-highlight:hover {
-	border-color: #ffffff;6
-	border-width: 1.2px;
+	border-color: #ffffff;
+	border-width: 1px;
 }
 
 /* Links (excl. project title and prose content) — white + accent blue drop-shadow.
