@@ -63,7 +63,7 @@ function Navbar() {
 				</div>
 
 				{/* Center: brand */}
-				<Link to="/" viewTransition className="font-display text-xl font-bold text-white lowercase brand-glow justify-self-center">
+				<Link to="/" viewTransition className="font-display text-2xl font-bold text-white lowercase brand-glow justify-self-center leading-none">
 					Twistan
 				</Link>
 

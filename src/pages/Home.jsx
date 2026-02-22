@@ -47,8 +47,9 @@ function Home() {
 	const handleNewImage = useCallback((e) => {
 		spawnRipple(e);
 
-		// Fire explosion overlay from the current image (runs independently, self-cleans)
-		if (imgRef.current) {
+		// Only explode on the last image in the deck; all others transition normally
+		const isLastInDeck = cursor.current === deck.current.length - 1;
+		if (imgRef.current && isLastInDeck) {
 			spawnImageExplosion(imgRef.current);
 		}
 
@@ -114,10 +115,20 @@ function Home() {
 							alt="Wave"
 							onLoad={handleImageLoad}
 							onError={handleImageError}
-							initial={{ opacity: 0 }}
-							animate={{ opacity: 1 }}
-							exit={{ opacity: 0 }}
-							transition={{ duration: 0.3 }}
+							initial={{ clipPath: 'inset(49.5% 49.75% 49.5% 49.75%)' }}
+							animate={{ clipPath: [
+								'inset(49.5% 49.75% 49.5% 49.75%)',  // dot
+								'inset(49.5% 49.75% 49.5% 49.75%)',  // hold dot
+								'inset(49.5% 0% 49.5% 0%)',          // thin horizontal bar
+								'inset(0% 0% 0% 0%)',                // full image
+							] }}
+							exit={{ clipPath: [
+								'inset(0% 0% 0% 0%)',                // full image
+								'inset(49.5% 0% 49.5% 0%)',          // thin horizontal bar
+								'inset(49.5% 49.75% 49.5% 49.75%)',  // dot
+								'inset(49.5% 49.75% 49.5% 49.75%)',  // hold dot
+							] }}
+							transition={{ duration: 0.585, times: [0, 0.18, 0.45, 1], ease: 'easeInOut' }}
 							className="rounded-lg object-contain"
 							style={{
 								maxWidth: tileSize.width,
@@ -134,7 +145,7 @@ function Home() {
 				onClick={handleNewImage}
 				whileHover={{ scale: 1.02, y: -2 }}
 				transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-				className="card card-inner-highlight ripple-container flex items-center justify-center cursor-pointer px-12"
+				className="card card-inner-highlight ripple-container flex items-center justify-center cursor-pointer w-24 h-24 rounded-full"
 			>
 				<span className="text-sm font-medium font-display text-neutral-200">Wave Back!</span>
 			</motion.button>

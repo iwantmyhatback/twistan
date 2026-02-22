@@ -28,6 +28,7 @@ vi.stubGlobal('crypto', {
 });
 
 import { spawnRipple } from '../src/utils/ripple';
+import { spawnImageExplosion } from '../src/utils/imageExplosion';
 import ImageUrls from '../src/assets/ImageUrls';
 import Home from '../src/pages/Home';
 
@@ -93,6 +94,38 @@ describe('Home Page', () => {
 		// After error, the component should still have an image
 		// (AnimatePresence may keep the old element, but state was updated)
 		expect(screen.getByAltText('Wave')).toBeInTheDocument();
+	});
+});
+
+describe('Home explosion trigger', () => {
+	it('fires spawnImageExplosion only on the last image in the deck', () => {
+		spawnImageExplosion.mockClear();
+
+		renderHome();
+		const button = screen.getByText('Wave Back!');
+
+		// Click through all but the final image — explosion must not fire yet
+		for (let i = 0; i < ImageUrls.length - 1; i++) {
+			fireEvent.click(button);
+		}
+		expect(spawnImageExplosion).not.toHaveBeenCalled();
+
+		// One more click lands on the last deck entry — explosion fires exactly once
+		fireEvent.click(button);
+		expect(spawnImageExplosion).toHaveBeenCalledTimes(1);
+	});
+
+	it('does not fire spawnImageExplosion on non-last clicks', () => {
+		spawnImageExplosion.mockClear();
+
+		renderHome();
+		const button = screen.getByText('Wave Back!');
+
+		// A handful of early clicks — should never trigger explosion
+		for (let i = 0; i < 5; i++) {
+			fireEvent.click(button);
+		}
+		expect(spawnImageExplosion).not.toHaveBeenCalled();
 	});
 });
 

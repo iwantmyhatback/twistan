@@ -315,7 +315,7 @@ function Projects() {
 								{project.tags.map((tag) => (
 									<span
 										key={tag}
-										className="px-2.5 py-0.5 text-xs font-mono text-neutral-400
+										className="project-tag px-2.5 py-0.5 text-xs font-mono text-neutral-400
 										           bg-surface-200 border border-surface-300 rounded-full"
 									>
 										{tag}

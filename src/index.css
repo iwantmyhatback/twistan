@@ -257,14 +257,14 @@
  */
 
 /* Child buttons — white border + accent blue shadow */
-.card-inner-highlight button {
+.card-inner-highlight button:not(.prose *) {
 	transition: border-color 0.3s, border-width 0.3s, box-shadow 0.3s;
 }
-.card-inner-highlight:hover button {
-	border-color: #ffffff;
+.card-inner-highlight:hover button:not(.prose *) {
+	border-color: #a1a1a1;
 	border-width: 1.2px;
-	box-shadow: 0 0 8px color-mix(in srgb, var(--color-accent) 60%, transparent),
-	            0 0 16px color-mix(in srgb, var(--color-accent) 30%, transparent);
+	box-shadow: 0 0 8px color-mix(in srgb, var(--color-accent) 30%, transparent),
+	            0 0 16px color-mix(in srgb, var(--color-accent) 20%, transparent);
 }
 
 /* Home wave button — border on hover when the button IS the card */
@@ -272,16 +272,16 @@ button.card-inner-highlight {
 	transition: border-color 0.3s, border-width 0.3s, box-shadow 0.3s;
 }
 button.card-inner-highlight:hover {
-	border-color: #ffffff;
+	border-color: #ffffff;6
 	border-width: 1.2px;
 }
 
-/* Links (excl. project title) — white + accent blue drop-shadow.
+/* Links (excl. project title and prose content) — white + accent blue drop-shadow.
    No filter in transition to avoid Safari compositing flicker. */
-.card-inner-highlight a:not(.project-title) {
+.card-inner-highlight a:not(.project-title):not(.prose *) {
 	transition: color 0.3s;
 }
-.card-inner-highlight:hover a:not(.project-title) {
+.card-inner-highlight:hover a:not(.project-title):not(.prose *) {
 	color: #ffffff;
 	filter: drop-shadow(0 0 5px color-mix(in srgb, var(--color-accent) 70%, transparent));
 }
@@ -294,33 +294,33 @@ button.card-inner-highlight:hover {
 	text-shadow: 0 0 8px var(--color-accent), 0 0 20px color-mix(in srgb, var(--color-accent) 50%, transparent);
 }
 
-/* Text (h2, span) — white + accent blue text-shadow glow */
-.card-inner-highlight h2,
-.card-inner-highlight span {
+/* Text (h2, span) — white + accent blue text-shadow glow. Exclude prose content. */
+.card-inner-highlight h2:not(.prose *),
+.card-inner-highlight span:not(.prose *):not(.project-tag) {
 	transition: text-shadow 0.3s;
 }
-.card-inner-highlight:hover h2,
-.card-inner-highlight:hover span {
+.card-inner-highlight:hover h2:not(.prose *),
+.card-inner-highlight:hover span:not(.prose *):not(.project-tag) {
 	color: #ffffff;
 	text-shadow: 0 0 8px var(--color-accent), 0 0 20px color-mix(in srgb, var(--color-accent) 50%, transparent);
 }
 
-/* Icons (SVG) — white + accent blue drop-shadow.
+/* Icons (SVG) — white + accent blue drop-shadow. Exclude prose content.
    No filter in transition to avoid Safari compositing flicker. */
-.card-inner-highlight svg {
+.card-inner-highlight svg:not(.prose *) {
 	transition: color 0.3s;
 }
-.card-inner-highlight:hover svg {
+.card-inner-highlight:hover svg:not(.prose *) {
 	color: #ffffff;
 	filter: drop-shadow(0 0 5px color-mix(in srgb, var(--color-accent) 70%, transparent));
 }
 
-/* Body text (p, pre) — lighten on hover */
-.card-inner-highlight p,
-.card-inner-highlight pre {
+/* Body text (p, pre) — lighten on hover. Exclude prose content. */
+.card-inner-highlight p:not(.prose *),
+.card-inner-highlight pre:not(.prose *) {
 	transition: color 0.3s;
 }
-.card-inner-highlight:hover p,
-.card-inner-highlight:hover pre {
+.card-inner-highlight:hover p:not(.prose *),
+.card-inner-highlight:hover pre:not(.prose *) {
 	color: #d4d4d4;
 }

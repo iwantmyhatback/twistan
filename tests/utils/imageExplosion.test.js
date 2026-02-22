@@ -32,6 +32,11 @@ describe('spawnImageExplosion', () => {
 			translate: vi.fn(),
 			rotate: vi.fn(),
 			drawImage: vi.fn(),
+			beginPath: vi.fn(),
+			moveTo: vi.fn(),
+			lineTo: vi.fn(),
+			closePath: vi.fn(),
+			clip: vi.fn(),
 			globalAlpha: 1,
 			createImageData: vi.fn(() => ({ data: new Uint8ClampedArray(16) })),
 			putImageData: vi.fn(),
@@ -110,9 +115,9 @@ describe('spawnImageExplosion', () => {
 		// Plus fragment canvases. The first rAF callback is the animation frame.
 		expect(rafCallbacks.length).toBe(1);
 
-		// Simulate time past DURATION (1.8s = 1800ms)
-		performance.now.mockReturnValue(2000);
-		rafCallbacks[0](2000);
+		// Simulate time past MAX_DURATION (6s = 6000ms)
+		performance.now.mockReturnValue(7000);
+		rafCallbacks[0](7000);
 
 		await promise;
 
@@ -144,6 +149,28 @@ describe('spawnImageExplosion', () => {
 		const img = createMockImg();
 		const promise = spawnImageExplosion(img);
 		await expect(promise).resolves.toBeUndefined();
+	});
+
+	it('calls resolveObstacles path when DOM elements are present in viewport', () => {
+		// Provide a mock obstacle element whose bounding rect overlaps the image area
+		const mockEl = {
+			getBoundingClientRect: vi.fn(() => ({
+				left: 80, top: 30, right: 320, bottom: 220,
+				width: 240, height: 190,
+			})),
+		};
+		vi.spyOn(document, 'querySelectorAll').mockReturnValue([mockEl]);
+
+		const img = createMockImg();
+		spawnImageExplosion(img);
+
+		performance.now.mockReturnValue(100);
+		rafCallbacks[0](100);
+
+		// Animation continued — another rAF was queued
+		expect(rafCallbacks.length).toBe(2);
+
+		document.querySelectorAll.mockRestore();
 	});
 
 	it('schedules another rAF when animation is not complete', () => {

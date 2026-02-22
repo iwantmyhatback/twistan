@@ -48,6 +48,21 @@ const ImageUrls = [
 	"https://i.giphy.com/XArWwAhHLmXAY.webp",
 	"https://i.giphy.com/ELUtlbLMx8K0U.webp",
 	"https://i.giphy.com/Cmr1OMJ2FN0B2.webp",
+	"https://i.giphy.com/l2JHPBjZZPkUCWQSc.webp",
+	"https://i.giphy.com/LPFNd1AJBoYcVUExmE.webp",
+	"https://i.giphy.com/noyBeNjH4nbtXV5ZLA.webp",
+	"https://i.giphy.com/3o7budMRwZvNGJ3pyE.webp",
+	"https://i.giphy.com/brsEO1JayBVja.webp",
+	"https://i.giphy.com/WSTOQm088Cg1zv6cjO.webp",
+	"https://i.giphy.com/3oKIPeSlkkwh3Pt6A8.webp",
+	"https://i.giphy.com/rQ5cWOkvXfoTUZLIPh.webp",
+	"https://i.giphy.com/3CIxYBdTB4KjYGtfGC.webp",
+	"https://i.giphy.com/zk7rMtHiNQEkReFm7U.webp",
+	"https://i.giphy.com/adRst5zprCop5oWqag.webp",
+	"https://i.giphy.com/Wj7lNjMNDxSmc.webp",
+	"https://i.giphy.com/0vcCfc5y3MXCHzpzRw.webp",
+	"https://i.giphy.com/Nry46O07xcwE.webp",
+	"https://i.giphy.com/CRvli78ltHy8P0FyD7.webp",
   ];
 
   export default ImageUrls;
