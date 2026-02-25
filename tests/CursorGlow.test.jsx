@@ -49,9 +49,9 @@ describe('CursorGlow', () => {
 	});
 
 	it('starts animation loop when matchMedia returns true', () => {
-		window.matchMedia = vi.fn(() => ({
-			matches: true,
-			media: '',
+		window.matchMedia = vi.fn((query) => ({
+			matches: !query.includes('prefers-reduced-motion'),
+			media: query,
 			addEventListener: vi.fn(),
 			removeEventListener: vi.fn(),
 		}));
@@ -73,9 +73,9 @@ describe('CursorGlow', () => {
 		HTMLCanvasElement.prototype.getContext = vi.fn(() => mockCtx);
 
 		let changeHandler;
-		window.matchMedia = vi.fn(() => ({
-			matches: true,
-			media: '',
+		window.matchMedia = vi.fn((query) => ({
+			matches: !query.includes('prefers-reduced-motion'),
+			media: query,
 			addEventListener: vi.fn((event, handler) => {
 				if (event === 'change') changeHandler = handler;
 			}),
@@ -102,9 +102,9 @@ describe('CursorGlow', () => {
 	});
 
 	it('cleans up resize listener and animation on unmount', () => {
-		window.matchMedia = vi.fn(() => ({
-			matches: true,
-			media: '',
+		window.matchMedia = vi.fn((query) => ({
+			matches: !query.includes('prefers-reduced-motion'),
+			media: query,
 			addEventListener: vi.fn(),
 			removeEventListener: vi.fn(),
 		}));
@@ -123,9 +123,9 @@ describe('CursorGlow', () => {
 
 	it('cancels animation when media query changes to non-matching', () => {
 		let changeHandler;
-		window.matchMedia = vi.fn(() => ({
-			matches: true,
-			media: '',
+		window.matchMedia = vi.fn((query) => ({
+			matches: !query.includes('prefers-reduced-motion'),
+			media: query,
 			addEventListener: vi.fn((event, handler) => {
 				if (event === 'change') changeHandler = handler;
 			}),

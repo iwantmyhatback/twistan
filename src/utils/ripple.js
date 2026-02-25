@@ -6,6 +6,8 @@
  * @param {React.MouseEvent} e
  */
 export function spawnRipple(e) {
+	if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
 	const el = e.currentTarget;
 	const rect = el.getBoundingClientRect();
 	const x = e.clientX - rect.left;

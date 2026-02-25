@@ -15,6 +15,8 @@ function CursorGlow() {
 		const mq = window.matchMedia('(min-width: 1024px)');
 		if (!mq.matches) return;
 
+		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
 		const ctx = canvas.getContext('2d');
 		let animId;
 		let lastFrame = 0;
