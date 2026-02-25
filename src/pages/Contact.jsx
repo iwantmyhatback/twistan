@@ -104,18 +104,31 @@ function Contact() {
 			}
 		};
 
+		let checkInterval;
+
 		if (window.turnstile) {
 			initTurnstile();
 		} else {
-			const checkInterval = setInterval(() => {
+			let attempts = 0;
+			checkInterval = setInterval(() => {
+				attempts++;
 				if (window.turnstile) {
 					initTurnstile();
 					clearInterval(checkInterval);
+				} else if (attempts >= 100) {
+					console.error('Turnstile script failed to load after 10s');
+					clearInterval(checkInterval);
 				}
 			}, 100);
-
-			return () => clearInterval(checkInterval);
 		}
+
+		return () => {
+			clearInterval(checkInterval);
+			if (window.turnstile && widgetIdRef.current) {
+				window.turnstile.remove(widgetIdRef.current);
+			}
+			widgetIdRef.current = null;
+		};
 	}, []);
 
 	const inputBase =

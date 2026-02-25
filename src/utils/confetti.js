@@ -100,11 +100,10 @@ export function spawnConfetti({ batchSize = 25, spawnDuration = 4000, spawnInter
 
 	rafId = requestAnimationFrame(draw);
 
-	// Safety cleanup: spawnDuration + enough time for last wave to fall off screen
-	const falloffMs = (canvas.height / 2) * (1000 / 60);
+	// Safety cleanup: spawnDuration + generous falloff for last wave to exit viewport
 	setTimeout(() => {
 		clearInterval(spawnTimer);
 		cancelAnimationFrame(rafId);
 		canvas.remove();
-	}, spawnDuration + falloffMs);
+	}, spawnDuration + 4000);
 }
