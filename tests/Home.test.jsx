@@ -47,8 +47,8 @@ describe('Home Page', () => {
 	});
 
 	it('renders an image with a src from the image pool', () => {
-		renderHome();
-		const img = screen.getByAltText('Wave');
+		const { container } = renderHome();
+		const img = container.querySelector('img');
 		expect(img).toBeInTheDocument();
 		expect(img.getAttribute('src')).toMatch(/^https:\/\//);
 	});
@@ -67,15 +67,15 @@ describe('Home Page', () => {
 		expect(button.closest('button')).not.toBeNull();
 	});
 
-	it('image has alt text for accessibility', () => {
-		renderHome();
-		const img = screen.getByAltText('Wave');
-		expect(img).toBeInTheDocument();
+	it('decorative image has empty alt text', () => {
+		const { container } = renderHome();
+		const img = container.querySelector('img');
+		expect(img).toHaveAttribute('alt', '');
 	});
 
 	it('handles image load event to calculate tile sizing', () => {
-		renderHome();
-		const img = screen.getByAltText('Wave');
+		const { container } = renderHome();
+		const img = container.querySelector('img');
 
 		// Simulate image load with natural dimensions
 		Object.defineProperty(img, 'naturalWidth', { value: 300, writable: true });
@@ -87,13 +87,12 @@ describe('Home Page', () => {
 	});
 
 	it('handles image error by advancing to next image', () => {
-		renderHome();
-		const img = screen.getByAltText('Wave');
+		const { container } = renderHome();
+		const img = container.querySelector('img');
 		fireEvent.error(img);
 
 		// After error, the component should still have an image
-		// (AnimatePresence may keep the old element, but state was updated)
-		expect(screen.getByAltText('Wave')).toBeInTheDocument();
+		expect(container.querySelector('img')).toBeInTheDocument();
 	});
 });
 
@@ -131,7 +130,7 @@ describe('Home explosion trigger', () => {
 
 describe('Home deck reshuffle', () => {
 	it('survives clicking through all images without crashing', () => {
-		renderHome();
+		const { container } = renderHome();
 
 		// Click enough times to exhaust the deck and trigger reshuffle
 		// Deck has ImageUrls.length items. Click that many + a few extra.
@@ -143,13 +142,13 @@ describe('Home deck reshuffle', () => {
 		}
 
 		// Should still render correctly after reshuffle
-		expect(screen.getByAltText('Wave')).toBeInTheDocument();
+		expect(container.querySelector('img')).toBeInTheDocument();
 		expect(screen.getByText('Wave Back!')).toBeInTheDocument();
 	});
 
 	it('survives exhausting deck via error events', () => {
-		renderHome();
-		const img = screen.getByAltText('Wave');
+		const { container } = renderHome();
+		const img = container.querySelector('img');
 
 		// Fire enough errors to exhaust the deck
 		const totalErrors = ImageUrls.length + 3;
@@ -158,6 +157,6 @@ describe('Home deck reshuffle', () => {
 		}
 
 		// Should still have a valid image element
-		expect(screen.getByAltText('Wave')).toBeInTheDocument();
+		expect(container.querySelector('img')).toBeInTheDocument();
 	});
 });

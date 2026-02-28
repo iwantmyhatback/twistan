@@ -129,7 +129,7 @@ Applied to all routes via `public/_headers`:
 
 ## Testing
 
-Comprehensive test suite with 153 tests across 18 files covering components, API endpoints, routing, and utilities.
+Comprehensive test suite with 184 tests across 19 files covering components, API endpoints, routing, and utilities.
 
 **Framework:** Vitest 4 + React Testing Library
 
@@ -138,9 +138,10 @@ Comprehensive test suite with 153 tests across 18 files covering components, API
 - ✅ API rate limiting, CAPTCHA verification, KV storage
 - ✅ Route navigation and 404 handling
 - ✅ Email validation and utility functions
-- ✅ Canvas animations (ripple, image explosion, confetti)
+- ✅ Canvas animations (ripple, image explosion, confetti) with motion guard coverage
 - ✅ ExplodingText component lifecycle and state transitions
 - ✅ Turnstile dummy key matrix (pass/fail/token-spent scenarios)
+- ✅ Accessibility (focus trap, keyboard nav, reduced motion, ARIA attributes)
 
 **Run tests:**
 ```bash

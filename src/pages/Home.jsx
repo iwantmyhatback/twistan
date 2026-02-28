@@ -4,6 +4,7 @@ import ImageUrls from '../assets/ImageUrls';
 import AnimatedSection from '../components/AnimatedSection';
 import { spawnRipple } from '../utils/ripple';
 import { spawnImageExplosion } from '../utils/imageExplosion';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 /**
  * Fisher-Yates shuffle using crypto.getRandomValues.
@@ -20,13 +21,11 @@ function cryptoShuffle(arr) {
 	return arr;
 }
 
-/** Padding inside the gel tile (p-6 = 24px per side). */
-const TILE_PAD = 48;
-/** Max image dimension used in scaling — tile wrapper reserves this height so the button stays put. */
+/** Max image dimension used in scaling — wrapper reserves this height so the button stays put. */
 const MAX_IMG = 420;
 
 /** Always-first image shown on initial page load. */
-const FIRST_IMAGE = 'https://c.tenor.com/Qy5sUxL5phgAAAAC/tenor.gif';
+const FIRST_IMAGE = ImageUrls[0];
 
 /**
  * Crack paths for the wave button — each appears at its threshold and grows
@@ -65,8 +64,8 @@ const CRACKS = [
 	// Phase 8: final connections — everything meets the center
 	{ threshold: 0.84, d: 'M 66 44 L 58 46 L 52 44 L 48 48' },
 	{ threshold: 0.88, d: 'M 30 48 L 37 50 L 43 46 L 48 48' },
-	{ threshold: 0.92, d: 'M 48 48 L 51 38 L 55 28 L 60 20' },
-	{ threshold: 0.94, d: 'M 33 64 L 38 58 L 44 53 L 48 48' },
+	{ threshold: 0.85, d: 'M 48 48 L 51 38 L 55 28 L 60 20' },
+	{ threshold: 0.85, d: 'M 33 64 L 38 58 L 44 53 L 48 48' },
 ];
 /** Each crack draws from 0→1 over this fraction of total progress after its threshold. */
 const CRACK_GROW_RANGE = 0.15;
@@ -76,6 +75,7 @@ const CRACK_GROW_RANGE = 0.15;
  * The first image is pinned; subsequent clicks cycle through a cryptographically shuffled deck.
  */
 function Home() {
+	usePageTitle('');
 	const prefersReducedMotion = useMemo(
 		() => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
 		[],
@@ -144,13 +144,13 @@ function Home() {
 
 	return (
 		<div className="min-h-[calc(100svh-4rem)] flex flex-col items-center justify-center px-4 py-12 gap-6">
-			{/* Fixed-height zone so the button never shifts when the tile morphs */}
-			<div className="flex items-center justify-center" style={{ height: MAX_IMG + TILE_PAD }}>
+			{/* Fixed-height zone so the button never shifts when the image morphs */}
+			<div className="flex items-center justify-center" style={{ height: MAX_IMG }}>
 			<AnimatedSection className="flex justify-center">
 				<motion.div
 					animate={{
-						width: tileSize.width + TILE_PAD,
-						height: tileSize.height + TILE_PAD,
+						width: tileSize.width,
+						height: tileSize.height,
 					}}
 					transition={{
 						type: 'spring',
@@ -158,14 +158,14 @@ function Home() {
 						damping: 12,
 						mass: 2,
 					}}
-					className="bg-surface-100 border border-surface-300 rounded-xl flex items-center justify-center overflow-hidden"
+					className="flex items-center justify-center overflow-hidden"
 				>
 					<AnimatePresence mode="wait">
 						<motion.img
 							ref={imgRef}
 							key={imageKey}
 							src={imgUrl}
-							alt="Wave"
+							alt=""
 							onLoad={handleImageLoad}
 							onError={handleImageError}
 							initial={{ clipPath: 'inset(49.5% 49.75% 49.5% 49.75%)' }}
@@ -182,7 +182,7 @@ function Home() {
 								'inset(49.5% 49.75% 49.5% 49.75%)',  // hold dot
 							] }}
 							transition={{ duration: 0.585, times: [0, 0.18, 0.45, 1], ease: 'easeInOut' }}
-							className="rounded-lg object-contain"
+							className="object-contain"
 							style={{
 								maxWidth: tileSize.width,
 								maxHeight: tileSize.height,

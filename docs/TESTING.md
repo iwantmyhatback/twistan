@@ -4,7 +4,7 @@ Comprehensive test suite for the Twistan portfolio application using Vitest and 
 
 ## Test Coverage
 
-**Total: 153 tests across 18 test files**
+**Total: 184 tests across 19 test files**
 
 | Metric | Coverage |
 |--------|----------|
@@ -41,18 +41,23 @@ Comprehensive test suite for the Twistan portfolio application using Vitest and 
 
 #### Component Tests
 
-4. **tests/Navbar.test.jsx** (6 tests)
+4. **tests/Navbar.test.jsx** (8 tests)
    - Brand link rendering
    - Desktop nav link rendering
-   - Avatar image rendering
+   - Avatar image with aria-label
    - Hamburger aria-expanded state
    - Mobile menu toggle
    - Mobile menu close on nav link click
+   - Mobile menu focus trap (FocusTrap from @headlessui/react)
+   - Mobile menu close on Escape key / outside click
 
-5. **tests/Footer.test.jsx** (3 tests)
+5. **tests/Footer.test.jsx** (14 tests)
    - Dynamic copyright year
    - Brand name rendering
    - GitHub link with security attributes
+   - Hacker mode hold interaction and cleanup
+   - Year easter egg typewriter output
+   - Hold-to-activate preventDefault guard
 
 6. **tests/Layout.test.jsx** (5 tests)
    - Children content rendering
@@ -87,26 +92,31 @@ Comprehensive test suite for the Twistan portfolio application using Vitest and 
    - **Submission** (4): Successful submission, API error, non-JSON error response, network failure
    - **Reset** (2): Form clearing after success, Turnstile widget reset
 
-11. **tests/Home.test.jsx** (9 tests)
+11. **tests/Home.test.jsx** (11 tests)
     - Wave button rendering
     - Image display with external src
     - spawnRipple called on button click
     - Button element type
-    - Image accessibility (alt text)
+    - Decorative image (empty alt text)
     - Image load handler
     - Image error handler
     - Deck reshuffle via click exhaustion
     - Deck reshuffle via error exhaustion
+    - Crack SVG and EMP reduced-motion guards
+    - Document title set to base title
 
-12. **tests/About.test.jsx** (4 tests)
+12. **tests/About.test.jsx** (11 tests)
     - Heading rendering
     - Intro text rendering
     - All 12 skill tiles rendering
     - Easter egg link to about-you page
+    - Typewriter reveal after scroll + delay
+    - Hidden text easter egg
+    - Document title set to "About"
 
-13. **tests/Projects.test.jsx** (18 tests)
+13. **tests/Projects.test.jsx** (19 tests)
     - **Page Rendering** (7): Heading, project titles, descriptions, GitHub links, tags, card count, README buttons
-    - **README Interaction** (7): Panel toggle, loading state, content display, error on failure, close/reopen, API+raw fallback failure, AbortError handling
+    - **README Interaction** (8): Panel toggle, loading state, content display, error on failure, close/reopen, API+raw fallback failure, AbortError handling, scroll-into-view on open
     - **Markdown Renderer** (2): Heading levels with Tailwind classes, links/images/hr/XSS stripping, URL safety (javascript:/vbscript:/data: blocked, relative/anchor allowed)
     - **Fetch Pipeline** (2): raw.githubusercontent fallback, master branch fallback
 
@@ -145,7 +155,7 @@ Comprehensive test suite for the Twistan portfolio application using Vitest and 
     - Rate limiting key uniqueness
     - KV key generation format
 
-18. **tests/utils/imageExplosion.test.js** (8 tests)
+18. **tests/utils/imageExplosion.test.js** (9 tests)
     - Reduced motion bailout (immediate resolve)
     - Null imgElement bailout
     - Incomplete image bailout
@@ -154,6 +164,16 @@ Comprehensive test suite for the Twistan portfolio application using Vitest and 
     - Null overlay context graceful handling
     - Null srcCanvas context graceful handling
     - Frame scheduling during animation
+    - Off-screen fragment physics skip optimization
+
+19. **tests/utils/confetti.test.js** (7 tests)
+    - Reduced motion bailout (no canvas created)
+    - Canvas appended to document.body
+    - Canvas fixed positioning and pointer-events-none
+    - Canvas z-index above content
+    - Animation loop started via requestAnimationFrame
+    - Canvas removed after safety timeout
+    - Custom options accepted without error
 
 ### Per-File Coverage
 
@@ -177,7 +197,7 @@ Comprehensive test suite for the Twistan portfolio application using Vitest and 
 
 ### Known Coverage Gaps
 
-- **Projects.jsx** (87% stmts): Remaining uncovered lines are the `marked.parse` error fallback (line 236), `scrollIntoView` scheduling within `requestAnimationFrame`, and some JSX branch paths in the tile rendering. The module-scope `readmeCache` makes full isolation between tests challenging.
+- **Projects.jsx** (87% stmts): Remaining uncovered lines are the `marked.parse` error fallback and some JSX branch paths in tile rendering. The module-scope `readmeCache` makes full isolation between tests challenging.
 - **ExplodingText.jsx** (92% stmts): `onAnimationComplete` callback on the last rematerializing character (resets to idle) requires Motion to actually fire animation events, which jsdom doesn't support.
 - **CursorGlow.jsx** (63% branch): The noise rendering loop and resize handler branches are exercised but v8 reports partial branch coverage due to jsdom canvas limitations.
 - **AboutYou.jsx**: Not tested — complex fingerprinting page with many browser API dependencies (WebRTC, WebGL, Battery API, Geolocation). Would require extensive mocking for limited value.
@@ -213,7 +233,7 @@ Console output (`console.log`, `console.warn`, `console.error`) and jsdom stderr
 
 ### Global Mocks (tests/setup.js)
 
-- `window.matchMedia` — Media query matching (returns `matches: false` by default)
+- `window.matchMedia` — Media query matching (returns `matches: false` by default). Tests that exercise `prefers-reduced-motion` guards must override with a query-aware mock: `matches: !query.includes('prefers-reduced-motion')`
 - `window.IntersectionObserver` — Intersection observation (no-op)
 - `window.turnstile` — Cloudflare Turnstile CAPTCHA widget (mock render/reset/remove)
 - `console.log/warn/error` — Suppressed unless `DEBUG_TESTS=1` (keeps test output clean)

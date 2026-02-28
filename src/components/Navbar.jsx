@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { NavLink, Link } from 'react-router';
 import { AnimatePresence, motion } from 'motion/react';
+import { FocusTrap } from '@headlessui/react';
 import menuImage from '../assets/avatar.png';
 import { spawnConfetti } from '../utils/confetti';
 
@@ -11,9 +12,11 @@ const navLinks = [
 	{ name: 'Contact', to: '/contact' },
 ];
 
-/** August 5 — Twistan's birthday. Month is 0-indexed. */
-const today = new Date();
-const IS_BIRTHDAY = today.getMonth() === 7 && today.getDate() === 5;
+/** August 5 — Twistan's birthday. Month is 0-indexed. Evaluated per call so it updates on date change. */
+function isBirthday() {
+	const today = new Date();
+	return today.getMonth() === 7 && today.getDate() === 5;
+}
 
 /**
  * Cake button shown only on August 5.
@@ -67,6 +70,7 @@ function AvatarGitHub({ isIdle, isBirthday }) {
 				href="https://github.com/iwantmyhatback"
 				target="_blank"
 				rel="noopener noreferrer"
+				aria-label="Twistan's GitHub profile"
 			>
 				<img
 					src={menuImage}
@@ -85,6 +89,32 @@ function AvatarGitHub({ isIdle, isBirthday }) {
  */
 function Navbar({ isIdle = false }) {
 	const [isOpen, setIsOpen] = useState(false);
+	const menuRef = useRef(null);
+	const toggleRef = useRef(null);
+	const IS_BIRTHDAY = isBirthday();
+
+	/* Close mobile menu on Escape or outside click */
+	useEffect(() => {
+		if (!isOpen) return;
+
+		const handleKeyDown = (e) => {
+			if (e.key === 'Escape') setIsOpen(false);
+		};
+		const handleClickOutside = (e) => {
+			// Ignore clicks on the hamburger toggle — its own onClick handles toggling
+			if (toggleRef.current && toggleRef.current.contains(e.target)) return;
+			if (menuRef.current && !menuRef.current.contains(e.target)) {
+				setIsOpen(false);
+			}
+		};
+
+		document.addEventListener('keydown', handleKeyDown);
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => {
+			document.removeEventListener('keydown', handleKeyDown);
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, [isOpen]);
 
 	return (
 		<nav className="fixed top-0 left-0 right-0 w-full z-50 bg-surface/80 backdrop-blur-lg border-b border-surface-300">
@@ -93,6 +123,7 @@ function Navbar({ isIdle = false }) {
 				<div className="flex items-center gap-6">
 					{/* Hamburger (mobile) */}
 					<button
+						ref={toggleRef}
 						onClick={() => setIsOpen(!isOpen)}
 						className="md:hidden flex flex-col justify-center items-center w-8 h-8 gap-1.5"
 						aria-label="Toggle menu"
@@ -148,32 +179,35 @@ function Navbar({ isIdle = false }) {
 			<AnimatePresence>
 				{isOpen && (
 					<motion.div
+						ref={menuRef}
 						initial={{ height: 0, opacity: 0 }}
 						animate={{ height: 'auto', opacity: 1 }}
 						exit={{ height: 0, opacity: 0 }}
 						transition={{ duration: 0.25, ease: 'easeInOut' }}
 						className="md:hidden overflow-hidden bg-surface/95 backdrop-blur-lg border-b border-surface-300"
 					>
-						<ul className="px-4 sm:px-6 py-4 flex flex-col gap-3">
-							{navLinks.map((link) => (
-								<li key={link.name}>
-									<NavLink
-										to={link.to}
-										viewTransition
-										onClick={() => setIsOpen(false)}
-										className={({ isActive }) =>
-											`block py-2 text-sm font-medium transition-all duration-200 ${
-												isActive
-													? 'text-white nav-active-glow'
-													: 'text-neutral-400 hover:text-white'
-											}`
-										}
-									>
-										{link.name}
-									</NavLink>
-								</li>
-							))}
-						</ul>
+						<FocusTrap>
+							<ul className="px-4 sm:px-6 py-4 flex flex-col gap-3">
+								{navLinks.map((link) => (
+									<li key={link.name}>
+										<NavLink
+											to={link.to}
+											viewTransition
+											onClick={() => setIsOpen(false)}
+											className={({ isActive }) =>
+												`block py-2 text-sm font-medium transition-all duration-200 ${
+													isActive
+														? 'text-white nav-active-glow'
+														: 'text-neutral-400 hover:text-white'
+												}`
+											}
+										>
+											{link.name}
+										</NavLink>
+									</li>
+								))}
+							</ul>
+						</FocusTrap>
 					</motion.div>
 				)}
 			</AnimatePresence>

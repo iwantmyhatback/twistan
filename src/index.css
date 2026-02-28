@@ -29,6 +29,7 @@
 
 	/* Animations */
 	--animate-fade-in: fade-in 0.6s ease-out;
+	--animate-fade-out: fade-out 0.6s ease-in;
 	--animate-slide-up: slide-up 0.6s ease-out;
 	--animate-subtle-pulse: subtle-pulse 3s ease-in-out infinite;
 }
@@ -114,12 +115,12 @@
 
 	/* Terminal green text shadow for active nav items */
 	.nav-active-glow {
-		text-shadow: 0 0 6px #33ff33, 0 0 12px rgba(51, 255, 51, 0.4);
+		text-shadow: 0 0 6px var(--color-terminal), 0 0 12px color-mix(in srgb, var(--color-terminal) 40%, transparent);
 	}
 
 	/* Blue accent glow for "Twistan" navbar brand */
 	.brand-glow {
-		text-shadow: 0 0 8px #3b82f6, 0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.2);
+		text-shadow: 0 0 8px var(--color-accent), 0 0 20px color-mix(in srgb, var(--color-accent) 50%, transparent), 0 0 40px color-mix(in srgb, var(--color-accent) 20%, transparent);
 	}
 
 	/* Accent blue glow for card hover — used across all pages */
@@ -141,8 +142,8 @@
 		stroke-width: 0.5;
 	}
 	.github-glow:hover > svg {
-		filter: drop-shadow(0 0 6px rgba(51, 255, 51, 0.5)) drop-shadow(0 0 12px rgba(51, 255, 51, 0.25));
-		stroke: #33ff33;
+		filter: drop-shadow(0 0 6px color-mix(in srgb, var(--color-terminal) 50%, transparent)) drop-shadow(0 0 12px color-mix(in srgb, var(--color-terminal) 25%, transparent));
+		stroke: var(--color-terminal);
 	}
 
 	/* Basic GitHub-flavored markdown styles for `.prose` */
@@ -177,7 +178,6 @@
 
 	.prose blockquote {
 		border-left: 4px solid rgba(255,255,255,0.06);
-		padding-left: 1rem;
 		color: #9ca3af;
 		background: rgba(255,255,255,0.02);
 		border-radius: 4px;
@@ -242,13 +242,14 @@
 	.glitch-text {
 		animation: glitch 2s infinite;
 	}
-	@keyframes glitch {
-		0%, 90%, 100% { text-shadow: none; }
-		92% { text-shadow: -8px 0 #3b82f6, 2px 0 #ef4444; }
-		94% { text-shadow: 8px 0 #3b82f6, -2px 0 #ef4444; }
-		96% { text-shadow: -4px 0 #3b82f6, 1px 0 #ef4444; }
-		98% { text-shadow: 4px 0 #3b82f6, -1px 0 #ef4444; }
-	}
+}
+
+@keyframes glitch {
+	0%, 90%, 100% { text-shadow: none; }
+	92% { text-shadow: -8px 0 var(--color-accent), 2px 0 #ef4444; }
+	94% { text-shadow: 8px 0 var(--color-accent), -2px 0 #ef4444; }
+	96% { text-shadow: -4px 0 var(--color-accent), 1px 0 #ef4444; }
+	98% { text-shadow: 4px 0 var(--color-accent), -1px 0 #ef4444; }
 }
 
 /* ─── Easter egg: hidden text revealed on selection ─────────────────────────── */
@@ -280,8 +281,8 @@ body.idle-droop main {
 body.hacker-mode,
 body.hacker-mode * {
 	background-color: #000 !important;
-	color: #33ff33 !important;
-	border-color: #33ff33 !important;
+	color: var(--color-terminal) !important;
+	border-color: var(--color-terminal) !important;
 }
 body.hacker-mode canvas {
 	display: none !important;

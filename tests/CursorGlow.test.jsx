@@ -56,6 +56,11 @@ describe('CursorGlow', () => {
 			removeEventListener: vi.fn(),
 		}));
 
+		HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
+			createImageData: vi.fn(() => ({ data: new Uint8ClampedArray(16) })),
+			putImageData: vi.fn(),
+		}));
+
 		const rafSpy = vi.spyOn(window, 'requestAnimationFrame').mockReturnValue(1);
 
 		render(<CursorGlow />);
@@ -107,6 +112,11 @@ describe('CursorGlow', () => {
 			media: query,
 			addEventListener: vi.fn(),
 			removeEventListener: vi.fn(),
+		}));
+
+		HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
+			createImageData: vi.fn(() => ({ data: new Uint8ClampedArray(16) })),
+			putImageData: vi.fn(),
 		}));
 
 		const rafSpy = vi.spyOn(window, 'requestAnimationFrame').mockReturnValue(42);

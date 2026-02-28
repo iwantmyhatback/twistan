@@ -1,4 +1,5 @@
 import { motion } from 'motion/react';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import AnimatedSection from '../components/AnimatedSection';
 import ExplodingText from '../components/ExplodingText';
@@ -186,10 +187,11 @@ async function fetchReadmeFromGithub(url, signal) {
  * READMEs are fetched from GitHub, parsed with marked, and cached at module scope.
  */
 function Projects() {
+	usePageTitle('Projects');
 
 	const [openIndex, setOpenIndex] = useState(null);
-	/** Set of project titles whose HTML is cached — used only as a render trigger */
-	const [, setCachedTitles] = useState(() => new Set(readmeCache.keys()));
+	/** Counter incremented when a new README is cached — triggers re-render */
+	const [, setCacheVersion] = useState(0);
 	const [loadingIndex, setLoadingIndex] = useState(null);
 	const [errors, setErrors] = useState({});
 	const abortRef = useRef(null);
@@ -202,6 +204,13 @@ function Projects() {
 		};
 	}, []);
 
+	// Scroll opened tile into view after DOM update
+	useEffect(() => {
+		if (openIndex == null) return;
+		const el = tileRefs.current[openIndex];
+		if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+	}, [openIndex]);
+
 	const handleTileClick = useCallback(async (project, index) => {
 		if (openIndex === index) {
 			setOpenIndex(null);
@@ -210,12 +219,6 @@ function Projects() {
 			return;
 		}
 		setOpenIndex(index);
-
-		// Scroll tile into view after expanding
-		requestAnimationFrame(() => {
-			const el = tileRefs.current[index];
-			if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-		});
 
 		// Already cached or already loading
 		if (readmeCache.has(project.title) || loadingIndex === index) return;
@@ -238,7 +241,7 @@ function Projects() {
 			// Prepend a small label above the README content
 			const wrapped = `<div><div class="mb-2 text-sm font-mono text-neutral-400">Project's README.md :</div>${html}</div>`;
 			readmeCache.set(project.title, wrapped);
-			setCachedTitles(new Set(readmeCache.keys()));
+			setCacheVersion((v) => v + 1);
 		} catch (err) {
 			if (err.name === 'AbortError') return;
 			setErrors((p) => ({ ...p, [project.title]: err.message || 'Failed to load README' }));

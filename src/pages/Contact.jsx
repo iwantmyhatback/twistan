@@ -1,4 +1,5 @@
 import { useActionState, useEffect, useRef } from 'react';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { motion } from 'motion/react';
 import AnimatedSection from '../components/AnimatedSection';
 import ExplodingText from '../components/ExplodingText';
@@ -67,6 +68,7 @@ async function submitContact(prevState, formData) {
  * Automatic form/widget reset on success, widget reset on error.
  */
 function Contact() {
+	usePageTitle('Contact');
 	const [state, formAction, isPending] = useActionState(submitContact, { status: 'idle', error: '' });
 	const formRef = useRef(null);
 	const turnstileRef = useRef(null);
@@ -164,6 +166,7 @@ function Contact() {
 							type="text"
 							placeholder="Your name"
 							maxLength={MAX_LENGTHS.name}
+							autoComplete="name"
 							className={inputBase}
 							required
 						/>
@@ -179,6 +182,7 @@ function Contact() {
 							type="email"
 							placeholder="you@example.com"
 							maxLength={MAX_LENGTHS.email}
+							autoComplete="email"
 							className={inputBase}
 							required
 						/>

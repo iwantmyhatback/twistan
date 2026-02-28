@@ -34,10 +34,12 @@ twistan/
 ├── src/
 │   ├── pages/          # Route components (Home, About, Projects, Contact, etc.)
 │   ├── components/     # Reusable UI components (Layout, Navbar, Footer, etc.)
+│   ├── hooks/
+│   │   └── usePageTitle.js    # Sets document.title per page, restores on unmount
 │   ├── utils/
 │   │   ├── ripple.js          # Canvas water-ripple click effect
 │   │   ├── imageExplosion.js  # Canvas image-shatter physics animation
-│   │   ├── confetti.js        # Canvas confetti drop (birthday easter egg)
+│   │   ├── confetti.js        # Canvas confetti drop (birthday easter egg, DPR-scaled)
 │   │   └── meltKeyframes.js   # ARCHIVED melt keyframe generators (unused, kept for reuse)
 │   ├── assets/         # Images and static assets
 │   ├── main.jsx        # React app entry point
@@ -100,7 +102,7 @@ Binding: `CONTACT_SUBMISSIONS` (configured in wrangler.toml)
 Tailwind v4 CSS-first config in `src/index.css` using `@import "tailwindcss"` and `@theme` block:
 - **Colors**: `surface` (dark grays), `accent` (blue), `terminal` (green)
 - **Fonts**: Inter (sans), JetBrains Mono (mono), Ubuntu (display)
-- **Animations**: fade-in, slide-up, subtle-pulse
+- **Animations**: fade-in, fade-out, slide-up, subtle-pulse
 - **No `tailwind.config.js`** — all theme config lives in CSS via `@theme` block
 
 ### Custom CSS Utilities
@@ -116,11 +118,11 @@ Defined in `src/index.css` @layer components (and below @layer for specificity o
 - `.github-glow`: SVG drop-shadow green glow on GitHub icon hover (uses drop-shadow not box-shadow for Safari SVG compat)
 - `.prose`: GitHub-flavored markdown styles for README panels (headings, pre, code, blockquote, table, lists, hr, checkboxes)
 - `.ripple-container`: anchor for canvas-based ripple effect (`position: relative; overflow: hidden`)
-- `.glitch-text`: CSS glitch animation for the 404 page heading
+- `.glitch-text`: CSS glitch animation for the 404 page heading (`@keyframes glitch` at top level, not inside `@layer`)
 - `.about-hidden-text`: invisible easter egg text (color matches background, revealed on selection)
 
 ### Design Theme
-Dark terminal aesthetic with terminal-green (`#33ff33`) accents for interactive states. Default background is `surface` (#0a0a0a), with lighter surface tones for cards and borders. Blue `accent` used for primary actions and branding.
+Dark terminal aesthetic with terminal-green (`#33ff33`) accents for interactive states. Default background is `surface` (#0a0a0a), with lighter surface tones for cards and borders. Blue `accent` used for primary actions and branding. Custom utilities use `var(--color-*)` CSS variables rather than hardcoded hex values.
 
 ## Deployment
 
@@ -142,6 +144,7 @@ See [docs/CLOUDFLARE_SETUP.md](docs/CLOUDFLARE_SETUP.md) for complete deployment
 
 ### Security Headers
 Applied via `public/_headers` to all routes:
+- `Content-Security-Policy` - Single-line CSP (required by Cloudflare Pages — multi-line values are silently dropped)
 - `X-Frame-Options: DENY` - Prevents clickjacking
 - `X-Content-Type-Options: nosniff` - Prevents MIME sniffing
 - `Referrer-Policy: strict-origin-when-cross-origin`
@@ -180,6 +183,20 @@ The site contains several hidden interactions. All respect `prefers-reduced-moti
 - Controlled form inputs with useState
 - React hooks (useEffect, useRef) for side effects and DOM access
 - Destructured props in function signatures
+- `usePageTitle(title)` hook in every page component for `document.title` management
+
+### Accessibility Patterns
+- All motion/animation utilities (`spawnRipple`, `spawnConfetti`, `spawnImageExplosion`, CursorGlow noise) check `prefers-reduced-motion: reduce` and bail out early
+- `scroll-behavior: smooth` wrapped in `@media (prefers-reduced-motion: no-preference)` in CSS
+- Mobile menu uses `@headlessui/react` `FocusTrap` + Escape key handler + outside-click dismiss
+- Decorative images use `alt=""` (not descriptive alt text)
+- Form inputs have `autoComplete` attributes for name/email
+- Interactive elements have `aria-label` where visible text is insufficient
+
+### Build Configuration
+- `vite.config.js` uses function-style `defineConfig(({ command }) => ({...}))` — `basicSsl()` only in dev (`command === 'serve'`)
+- Manual chunk splitting separates `motion/react`, `marked`, and `@fingerprintjs/fingerprintjs` into vendor chunks
+- Pages are lazy-loaded via `React.lazy()` in `App.jsx`
 
 ### Commenting Style
 - **Summary comments** at top of functions/components describing purpose, parameters, return values
@@ -202,27 +219,28 @@ Contact form implements comprehensive validation and security:
 - **@testing-library/react** for component testing
 - **@testing-library/jest-dom** for DOM assertions
 
-### Test Suite (153 tests across 18 files)
+### Test Suite (184 tests across 19 files)
 See [docs/TESTING.md](docs/TESTING.md) for detailed documentation.
 
 - **tests/api/contact.test.js** (24) - API endpoint, rate limiting, CAPTCHA, CORS, validation, error handling
-- **tests/Projects.test.jsx** (18) - Project cards, links, tags, README fetch/display/error/toggle, markdown renderer, URL safety
-- **tests/Contact.test.jsx** (13) - Turnstile init, form validation, submission, error handling
-- **tests/utils/ripple.test.js** (13) - Canvas ripple creation, animation loop, color parsing, cleanup
+- **tests/Projects.test.jsx** (19) - Project cards, links, tags, README fetch/display/error/toggle, markdown renderer, URL safety, scroll-into-view
+- **tests/Footer.test.jsx** (14) - Copyright, GitHub link, hacker mode hold, year easter egg
+- **tests/Contact.test.jsx** (13) - Turnstile init/cleanup/polling-cap, form validation, submission, error handling
+- **tests/utils/ripple.test.js** (13) - Canvas ripple creation, animation loop, color parsing, cleanup, motion guard
 - **tests/ExplodingText.test.jsx** (12) - Idle render, click, reduced motion, state transitions
-- **tests/Home.test.jsx** (9) - Image carousel, wave button, error handling, deck reshuffle
-- **tests/utils/imageExplosion.test.js** (8) - Reduced motion, null guards, overlay lifecycle, rAF loop
-- **tests/CursorGlow.test.jsx** (8) - Canvas rendering, noise loop, cleanup, media query change handler
-- **tests/Navbar.test.jsx** (6) - Navigation, mobile menu, accessibility
+- **tests/Home.test.jsx** (11) - Image carousel, wave button, error handling, deck reshuffle, decorative alt text
+- **tests/About.test.jsx** (11) - Skills grid, easter egg link, typewriter reveal, hidden text
+- **tests/api/turnstile.test.js** (10) - Turnstile dummy key matrix: pass/fail/token-spent, key pairing, network failure, SKIP_CAPTCHA
+- **tests/utils/imageExplosion.test.js** (9) - Reduced motion, null guards, overlay lifecycle, rAF loop, off-screen optimization
+- **tests/CursorGlow.test.jsx** (8) - Canvas rendering, noise loop, cleanup, media query change handler, motion guard
+- **tests/Navbar.test.jsx** (8) - Navigation, mobile menu, focus trap, escape/outside-click, accessibility
+- **tests/utils/confetti.test.js** (7) - Motion guard, canvas lifecycle, safety timeout, custom options
 - **tests/Layout.test.jsx** (5) - Composition, skip-to-content
 - **tests/utils/validation.test.js** (5) - Email validation, rate limiting logic
 - **tests/AnimatedSection.test.jsx** (4) - Animation wrapper props
-- **tests/About.test.jsx** (4) - Skills grid, easter egg link
 - **tests/NotFound.test.jsx** (4) - 404 page, home link
 - **tests/App.test.jsx** (4) - Routing and navigation
-- **tests/api/turnstile.test.js** (10) - Turnstile dummy key matrix: pass/fail/token-spent, key pairing, network failure, SKIP_CAPTCHA
 - **tests/api/health.test.js** (3) - Health check endpoint
-- **tests/Footer.test.jsx** (3) - Copyright, GitHub link
 
 ### Running Tests
 ```bash
@@ -238,3 +256,5 @@ DEBUG_TESTS=1 npm run test:run  # Show suppressed console/stderr output
 - API tests mock Cloudflare context with KV and environment bindings
 - Global mocks in `tests/setup.js` for browser APIs (matchMedia, IntersectionObserver, Turnstile)
 - DOM utility tests create real elements for verifying manipulation
+- `matchMedia` mocks must be query-aware when testing motion guards (e.g., `matches: !query.includes('prefers-reduced-motion')`)
+- Canvas mock contexts need `scale: vi.fn()` for DPR-scaled utilities (confetti, CursorGlow)

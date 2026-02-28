@@ -1,11 +1,13 @@
 import { Link } from 'react-router';
 import AnimatedSection from '../components/AnimatedSection';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 function NotFound() {
+	usePageTitle('404');
 	return (
 		<div className="section-container min-h-[80vh] flex flex-col items-center justify-center text-center">
 			<AnimatedSection>
-				<h1 className="text-[8rem] md:text-[10rem] font-bold leading-none text-white select-none glitch-text">
+				<h1 className="text-[8rem] md:text-[10rem] font-bold leading-none text-white glitch-text">
 					404
 				</h1>
 			</AnimatedSection>

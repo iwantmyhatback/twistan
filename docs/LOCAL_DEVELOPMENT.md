@@ -218,11 +218,13 @@ twistan/
 │   │   └── NotFound.jsx    # 404 page
 │   ├── components/         # Reusable components
 │   │   ├── Layout.jsx      # Page wrapper with navbar/footer/idle detection
-│   │   ├── Navbar.jsx      # Top navigation + birthday easter egg
+│   │   ├── Navbar.jsx      # Top navigation + birthday easter egg + focus-trapped mobile menu
 │   │   ├── Footer.jsx      # Site footer + hacker mode + year easter egg
 │   │   ├── CursorGlow.jsx  # Film-grain noise overlay (desktop only)
 │   │   ├── AnimatedSection.jsx  # Motion scroll-entrance wrapper
 │   │   └── ExplodingText.jsx    # Click-to-shatter heading component
+│   ├── hooks/
+│   │   └── usePageTitle.js # Sets document.title per page
 │   ├── assets/             # Static files
 │   │   ├── avatar.png      # Profile image
 │   │   └── ImageUrls.js    # External image references
@@ -250,8 +252,10 @@ twistan/
 2. **Component template:**
    ```jsx
    import AnimatedSection from '../components/AnimatedSection';
+   import { usePageTitle } from '../hooks/usePageTitle';
 
    function NewPage() {
+       usePageTitle('New Page');
        return (
            <div className="section-container py-24">
                <AnimatedSection>
@@ -430,7 +434,8 @@ Serves the `dist/` folder with Wrangler Pages dev server (simulates production e
 **Code splitting:**
 - Pages are lazy-loaded (see `App.jsx`)
 - Each page is a separate chunk
-- Improves initial load time
+- Heavy vendor libraries split into separate chunks via `vite.config.js` `manualChunks`: `vendor-motion` (motion/react), `vendor-marked` (marked), `vendor-fingerprint` (@fingerprintjs/fingerprintjs)
+- Improves initial load time — only loads vendor chunks when the page that needs them is visited
 
 **Asset optimization:**
 - Images should be optimized before adding
@@ -679,6 +684,7 @@ npx wrangler pages deployment list --project-name=app  # List deployments
 
 - **Pages:** `src/pages/*.jsx`
 - **Components:** `src/components/*.jsx`
+- **Hooks:** `src/hooks/*.js`
 - **Styles:** `src/index.css`
 - **API:** `functions/api/*.js`
 - **Config:** `vite.config.js`, `eslint.config.js`, `wrangler.toml`

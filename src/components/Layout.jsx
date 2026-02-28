@@ -1,15 +1,17 @@
 import { Outlet } from 'react-router';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import CursorGlow from './CursorGlow';
 
 const IDLE_TIMEOUT_MS = 60_000;
-const IDLE_EVENTS = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart'];
+const IDLE_EVENTS = ['mousemove', 'mousedown', 'keydown', 'touchstart'];
+const SCROLL_THROTTLE_MS = 200;
 
 /**
  * Detects user inactivity. Returns true after `timeout` ms of no interaction.
  * Resets on any mouse, keyboard, scroll, or touch event.
+ * Scroll events are throttled to avoid excessive reset calls.
  *
  * @param {number} timeout - ms of inactivity before idle state triggers
  * @returns {boolean} isIdle
@@ -17,21 +19,31 @@ const IDLE_EVENTS = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart'
 function useIdleDetection(timeout) {
 	const [isIdle, setIsIdle] = useState(false);
 	const timerRef = useRef(null);
+	const scrollThrottleRef = useRef(0);
+
+	const reset = useCallback(() => {
+		setIsIdle(false);
+		clearTimeout(timerRef.current);
+		timerRef.current = setTimeout(() => setIsIdle(true), timeout);
+	}, [timeout]);
 
 	useEffect(() => {
-		function reset() {
-			setIsIdle(false);
-			clearTimeout(timerRef.current);
-			timerRef.current = setTimeout(() => setIsIdle(true), timeout);
-		}
+		const throttledScrollReset = () => {
+			const now = Date.now();
+			if (now - scrollThrottleRef.current < SCROLL_THROTTLE_MS) return;
+			scrollThrottleRef.current = now;
+			reset();
+		};
 
 		reset(); // start timer on mount
 		IDLE_EVENTS.forEach((e) => window.addEventListener(e, reset, { passive: true }));
+		window.addEventListener('scroll', throttledScrollReset, { passive: true });
 		return () => {
 			clearTimeout(timerRef.current);
 			IDLE_EVENTS.forEach((e) => window.removeEventListener(e, reset));
+			window.removeEventListener('scroll', throttledScrollReset);
 		};
-	}, [timeout]);
+	}, [reset]);
 
 	return isIdle;
 }
