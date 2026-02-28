@@ -49,11 +49,16 @@ describe('CursorGlow', () => {
 	});
 
 	it('starts animation loop when matchMedia returns true', () => {
-		window.matchMedia = vi.fn(() => ({
-			matches: true,
-			media: '',
+		window.matchMedia = vi.fn((query) => ({
+			matches: !query.includes('prefers-reduced-motion'),
+			media: query,
 			addEventListener: vi.fn(),
 			removeEventListener: vi.fn(),
+		}));
+
+		HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
+			createImageData: vi.fn(() => ({ data: new Uint8ClampedArray(16) })),
+			putImageData: vi.fn(),
 		}));
 
 		const rafSpy = vi.spyOn(window, 'requestAnimationFrame').mockReturnValue(1);
@@ -73,9 +78,9 @@ describe('CursorGlow', () => {
 		HTMLCanvasElement.prototype.getContext = vi.fn(() => mockCtx);
 
 		let changeHandler;
-		window.matchMedia = vi.fn(() => ({
-			matches: true,
-			media: '',
+		window.matchMedia = vi.fn((query) => ({
+			matches: !query.includes('prefers-reduced-motion'),
+			media: query,
 			addEventListener: vi.fn((event, handler) => {
 				if (event === 'change') changeHandler = handler;
 			}),
@@ -102,11 +107,16 @@ describe('CursorGlow', () => {
 	});
 
 	it('cleans up resize listener and animation on unmount', () => {
-		window.matchMedia = vi.fn(() => ({
-			matches: true,
-			media: '',
+		window.matchMedia = vi.fn((query) => ({
+			matches: !query.includes('prefers-reduced-motion'),
+			media: query,
 			addEventListener: vi.fn(),
 			removeEventListener: vi.fn(),
+		}));
+
+		HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
+			createImageData: vi.fn(() => ({ data: new Uint8ClampedArray(16) })),
+			putImageData: vi.fn(),
 		}));
 
 		const rafSpy = vi.spyOn(window, 'requestAnimationFrame').mockReturnValue(42);
@@ -123,9 +133,9 @@ describe('CursorGlow', () => {
 
 	it('cancels animation when media query changes to non-matching', () => {
 		let changeHandler;
-		window.matchMedia = vi.fn(() => ({
-			matches: true,
-			media: '',
+		window.matchMedia = vi.fn((query) => ({
+			matches: !query.includes('prefers-reduced-motion'),
+			media: query,
 			addEventListener: vi.fn((event, handler) => {
 				if (event === 'change') changeHandler = handler;
 			}),

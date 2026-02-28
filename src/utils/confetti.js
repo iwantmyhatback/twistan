@@ -11,14 +11,20 @@
 export function spawnConfetti({ batchSize = 25, spawnDuration = 4000, spawnInterval = 200 } = {}) {
 	if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
+	const dpr = window.devicePixelRatio || 1;
 	const canvas = document.createElement('canvas');
 	canvas.style.cssText =
 		'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9999';
-	canvas.width = window.innerWidth;
-	canvas.height = window.innerHeight;
+	canvas.width = window.innerWidth * dpr;
+	canvas.height = window.innerHeight * dpr;
 	document.body.appendChild(canvas);
 
 	const ctx = canvas.getContext('2d');
+	ctx.scale(dpr, dpr);
+
+	// Use CSS pixel dimensions for all particle math (context is scaled by DPR)
+	const viewW = window.innerWidth;
+	const viewH = window.innerHeight;
 
 	const COLORS = [
 		'#33ff33', // terminal green
@@ -34,7 +40,7 @@ export function spawnConfetti({ batchSize = 25, spawnDuration = 4000, spawnInter
 
 	function makeParticle() {
 		return {
-			x: Math.random() * canvas.width,
+			x: Math.random() * viewW,
 			y: -10 - Math.random() * 20,
 			vx: (Math.random() - 0.5) * 3,
 			vy: 1.5 + Math.random() * 2,
@@ -63,7 +69,7 @@ export function spawnConfetti({ batchSize = 25, spawnDuration = 4000, spawnInter
 	let rafId;
 
 	function draw() {
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.clearRect(0, 0, viewW, viewH);
 
 		let alive = false;
 		for (const p of particles) {
@@ -72,13 +78,13 @@ export function spawnConfetti({ batchSize = 25, spawnDuration = 4000, spawnInter
 			p.vy += 0.06; // gravity
 			p.rot += p.rotV;
 
-			if (p.y < canvas.height + 20) alive = true;
+			if (p.y < viewH + 20) alive = true;
 
 			ctx.save();
 			ctx.translate(p.x, p.y);
 			ctx.rotate(p.rot);
 			ctx.fillStyle = p.color;
-			ctx.globalAlpha = Math.max(0, 1 - p.y / (canvas.height * 1.1));
+			ctx.globalAlpha = Math.max(0, 1 - p.y / (viewH * 1.1));
 
 			if (p.shape === 'circle') {
 				ctx.beginPath();
@@ -100,11 +106,10 @@ export function spawnConfetti({ batchSize = 25, spawnDuration = 4000, spawnInter
 
 	rafId = requestAnimationFrame(draw);
 
-	// Safety cleanup: spawnDuration + enough time for last wave to fall off screen
-	const falloffMs = (canvas.height / 2) * (1000 / 60);
+	// Safety cleanup: spawnDuration + generous falloff for last wave to exit viewport
 	setTimeout(() => {
 		clearInterval(spawnTimer);
 		cancelAnimationFrame(rafId);
 		canvas.remove();
-	}, spawnDuration + falloffMs);
+	}, spawnDuration + 4000);
 }

@@ -199,8 +199,8 @@ export function spawnImageExplosion(imgElement) {
 
 		/**
 		 * Resolves AABB collision between a fragment and all obstacle rects.
-		 * Pushes the fragment out on the minimum-penetration axis, reflects and
-		 * amplifies the velocity (no damping), and adds a random horizontal kick
+		 * Pushes the fragment out on the minimum-penetration axis, reflects
+		 * velocity with BOUNCE_DAMPING, and adds a random lateral kick
 		 * to prevent fragments getting stuck or bouncing straight up/down.
 		 *
 		 * @param {object} frag
@@ -262,6 +262,12 @@ export function spawnImageExplosion(imgElement) {
 				frag.y        += frag.vy * dt;
 				frag.rotation += frag.rotVel * dt;
 
+				// Skip physics + rendering once fully off-screen (below viewport)
+				if (frag.y > viewH) {
+					frag.offScreen = true;
+					continue;
+				}
+
 				// Bounce off left/right viewport edges
 				if (frag.x < 0) {
 					frag.x = 0;
@@ -273,12 +279,6 @@ export function spawnImageExplosion(imgElement) {
 
 				// Bounce off DOM elements
 				resolveObstacles(frag);
-
-				// Skip rendering once fully off-screen (below viewport is enough — top/sides bounce)
-				if (frag.y > viewH) {
-					frag.offScreen = true;
-					continue;
-				}
 
 				anyVisible = true;
 

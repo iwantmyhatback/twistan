@@ -15,14 +15,18 @@ function CursorGlow() {
 		const mq = window.matchMedia('(min-width: 1024px)');
 		if (!mq.matches) return;
 
+		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
 		const ctx = canvas.getContext('2d');
 		let animId;
 		let lastFrame = 0;
 		const FPS_INTERVAL = 1000 / 8; // Low framerate for subtle effect
 
+		let imageData;
 		const resize = () => {
 			canvas.width = window.innerWidth;
 			canvas.height = window.innerHeight;
+			imageData = ctx.createImageData(canvas.width, canvas.height);
 		};
 		resize();
 		window.addEventListener('resize', resize);
@@ -32,9 +36,6 @@ function CursorGlow() {
 			if (timestamp - lastFrame < FPS_INTERVAL) return;
 			lastFrame = timestamp;
 
-			const w = canvas.width;
-			const h = canvas.height;
-			const imageData = ctx.createImageData(w, h);
 			const data = imageData.data;
 
 			for (let i = 0; i < data.length; i += 4) {

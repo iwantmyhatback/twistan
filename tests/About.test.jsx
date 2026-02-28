@@ -153,9 +153,9 @@ describe('About SkillsBottomEgg', () => {
 		const { container } = renderAbout();
 
 		act(() => {
-			// Second message 'i think hes asleep...' triggers at delay:12000.
+			// Second message 'i think hes asleep...' triggers at delay:15000.
 			// Add extra time for chars to start appearing.
-			vi.advanceTimersByTime(12000 + 500);
+			vi.advanceTimersByTime(15000 + 500);
 		});
 
 		// The displayed text should contain the beginning of the second message

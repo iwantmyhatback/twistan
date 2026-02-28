@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { usePageTitle } from '../hooks/usePageTitle';
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
 import {
 	FingerPrintIcon,
@@ -140,6 +141,7 @@ function formatValue(value) {
 }
 
 function AboutYou() {
+	usePageTitle('About You');
 	const [info, setInfo] = useState(null);
 
 	useEffect(() => {

@@ -11,6 +11,7 @@ function makeCtx() {
 		restore: vi.fn(),
 		translate: vi.fn(),
 		rotate: vi.fn(),
+		scale: vi.fn(),
 		beginPath: vi.fn(),
 		ellipse: vi.fn(),
 		fill: vi.fn(),

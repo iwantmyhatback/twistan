@@ -1,4 +1,35 @@
 /**
+ * Parses a CSS color string (rgb/rgba or hex) to an {r, g, b} object.
+ * Falls back to terminal green (#33ff33) if parsing fails.
+ *
+ * @param {string} s - CSS color string
+ * @returns {{ r: number, g: number, b: number }}
+ */
+function parseColorToRgb(s) {
+	if (!s) return { r: 51, g: 255, b: 51 };
+	s = s.trim();
+	if (s.startsWith('rgb')) {
+		const m = s.match(/rgba?\s*\(([^)]+)\)/i);
+		if (m) {
+			const parts = m[1].split(',').map(p => parseInt(p, 10));
+			return { r: parts[0] || 0, g: parts[1] || 0, b: parts[2] || 0 };
+		}
+	}
+	if (s.startsWith('#')) {
+		let h = s.slice(1);
+		if (h.length === 3) h = h.split('').map(c => c + c).join('');
+		if (h.length === 6) {
+			return {
+				r: parseInt(h.slice(0, 2), 16),
+				g: parseInt(h.slice(2, 4), 16),
+				b: parseInt(h.slice(4, 6), 16),
+			};
+		}
+	}
+	return { r: 51, g: 255, b: 51 };
+}
+
+/**
  * Spawns a realistic water-ripple effect at click position using canvas.
  * Renders concentric rings with fade, thickness variation, and highlight
  * to simulate a 3D liquid surface disturbance.
@@ -6,6 +37,8 @@
  * @param {React.MouseEvent} e
  */
 export function spawnRipple(e) {
+	if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
 	const el = e.currentTarget;
 	const rect = el.getBoundingClientRect();
 	const x = e.clientX - rect.left;
@@ -31,32 +64,6 @@ export function spawnRipple(e) {
 		return;
 	}
 	ctx.scale(dpr, dpr);
-
-	// Read CSS variable --color-ripple (falls back to --color-terminal and then hardcoded)
-	function parseColorToRgb(s) {
-		if (!s) return { r: 51, g: 255, b: 51 };
-		s = s.trim();
-		if (s.startsWith('rgb')) {
-			const m = s.match(/rgba?\s*\(([^)]+)\)/i);
-			if (m) {
-				const parts = m[1].split(',').map(p => parseInt(p, 10));
-				return { r: parts[0] || 0, g: parts[1] || 0, b: parts[2] || 0 };
-			}
-		}
-		if (s.startsWith('#')) {
-			let h = s.slice(1);
-			if (h.length === 3) h = h.split('').map(c => c + c).join('');
-			if (h.length === 6) {
-				return {
-					r: parseInt(h.slice(0, 2), 16),
-					g: parseInt(h.slice(2, 4), 16),
-					b: parseInt(h.slice(4, 6), 16),
-				};
-			}
-		}
-		// fallback
-		return { r: 51, g: 255, b: 51 };
-	}
 
 	const cssColor = (
 		getComputedStyle(document.documentElement).getPropertyValue('--color-ripple') ||

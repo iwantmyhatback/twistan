@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { motion, useInView } from 'motion/react';
 import {
 	CodeBracketIcon,
@@ -35,6 +36,7 @@ const skills = [
 ];
 
 const EASTER_FULL = 'Curious what I know about you? Find out here';
+const EASTER_LINK_START = EASTER_FULL.indexOf('Find out here');
 const CHAR_DELAY_MS = 100;
 
 /**
@@ -63,15 +65,13 @@ function EasterEggReveal() {
 		};
 	}, [isInView]);
 
-	const linkStart = EASTER_FULL.indexOf('Find out here');
-
 	return (
 		<p
 			ref={ref}
 			className="text-sm text-red-900 font-mono"
 			style={{ textShadow: '0 0 8px rgba(153, 27, 27, 0.8), 0 0 20px rgba(127, 29, 29, 0.5)' }}
 		>
-			{EASTER_FULL.slice(0, linkStart).split('').map((char, i) => (
+			{EASTER_FULL.slice(0, EASTER_LINK_START).split('').map((char, i) => (
 				<span key={i}>
 					{i === visibleCount && <span className="text-red-900" style={{ animation: 'subtle-pulse 0.6s step-end infinite' }} aria-hidden="true">&#9608;</span>}
 					<span style={{ visibility: i < visibleCount ? 'visible' : 'hidden' }}>{char}</span>
@@ -82,7 +82,7 @@ function EasterEggReveal() {
 				className="text-red-900 hover:text-red-600 transition-colors duration-200 underline underline-offset-4 font-bold"
 			>
 				{'Find out here'.split('').map((char, i) => {
-					const idx = linkStart + i;
+					const idx = EASTER_LINK_START + i;
 					return (
 						<span key={i}>
 							{idx === visibleCount && <span className="text-red-900" style={{ animation: 'subtle-pulse 0.6s step-end infinite' }} aria-hidden="true">&#9608;</span>}
@@ -111,13 +111,8 @@ const BOTTOM_MESSAGES = [
 ];
 
 /**
- * Fake "loading more skills" indicator shown when the user scrolls to the
- * bottom of the skills grid. Displays a spinner and typewriter messages
- * that never resolve — it's an easter egg, not real loading.
- */
-/**
  * Fake "loading more skills" shown when the user scrolls to the bottom
- * of the skills grid. CSS spinner + typewriter messages with 20s gaps.
+ * of the skills grid. CSS spinner + typewriter messages with escalating delays.
  */
 function SkillsBottomEgg() {
 	const ref = useRef(null);
@@ -176,6 +171,7 @@ function SkillsBottomEgg() {
 }
 
 function About() {
+	usePageTitle('About');
 	return (
 		<div className="section-container py-24">
 			{/* Intro */}
@@ -197,11 +193,8 @@ function About() {
 			</AnimatedSection>
 
 			{/* Easter egg link — typewriter reveal + dramatic thump */}
-			<AnimatedSection className="mt-16">
+			<AnimatedSection className="mt-16 mb-12">
 				<EasterEggReveal />
-				<br/>
-				<br/>
-				<br/>
 			</AnimatedSection>
 
 			{/* Skill grid */}

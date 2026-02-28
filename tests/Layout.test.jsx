@@ -35,7 +35,8 @@ describe('Layout', () => {
 
 	it('renders footer', () => {
 		renderLayout();
-		expect(screen.getByRole('link', { name: /github/i })).toBeInTheDocument();
+		const ghLinks = screen.getAllByRole('link', { name: /github/i });
+		expect(ghLinks.length).toBeGreaterThanOrEqual(1);
 	});
 
 	it('renders skip-to-content link for accessibility', () => {
