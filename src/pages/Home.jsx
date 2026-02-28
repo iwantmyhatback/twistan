@@ -28,49 +28,6 @@ const MAX_IMG = 420;
 const FIRST_IMAGE = ImageUrls[0];
 
 /**
- * Crack paths for the wave button — each appears at its threshold and grows
- * to full length over CRACK_GROW_RANGE of total progress. Jagged line segments
- * simulate stress fractures converging on the button center (48, 48 in a 96×96 viewBox).
- */
-const CRACKS = [
-	// Phase 1: first hairline from top edge
-	{ threshold: 0.08, d: 'M 43 8 L 45 16 L 41 22 L 44 30' },
-	{ threshold: 0.14, d: 'M 45 16 L 51 20' },
-
-	// Phase 2: crack from right edge
-	{ threshold: 0.22, d: 'M 88 42 L 78 44 L 72 40 L 66 44' },
-	{ threshold: 0.28, d: 'M 78 44 L 80 53' },
-
-	// Phase 3: crack from bottom-left
-	{ threshold: 0.34, d: 'M 16 80 L 22 72 L 28 74 L 33 64' },
-	{ threshold: 0.38, d: 'M 22 72 L 17 65' },
-
-	// Phase 4: top crack extends toward center
-	{ threshold: 0.44, d: 'M 44 30 L 42 36 L 46 42 L 48 48' },
-	{ threshold: 0.48, d: 'M 42 36 L 36 40' },
-
-	// Phase 5: crack from top-right
-	{ threshold: 0.54, d: 'M 72 10 L 67 20 L 70 28 L 64 34' },
-	{ threshold: 0.58, d: 'M 67 20 L 74 25' },
-
-	// Phase 6: crack from left edge
-	{ threshold: 0.64, d: 'M 6 50 L 16 48 L 22 52 L 30 48' },
-	{ threshold: 0.68, d: 'M 16 48 L 19 40' },
-
-	// Phase 7: center radiating cracks
-	{ threshold: 0.74, d: 'M 48 48 L 53 57 L 58 66 L 62 76' },
-	{ threshold: 0.78, d: 'M 48 48 L 40 56 L 34 64 L 28 74' },
-
-	// Phase 8: final connections — everything meets the center
-	{ threshold: 0.84, d: 'M 66 44 L 58 46 L 52 44 L 48 48' },
-	{ threshold: 0.88, d: 'M 30 48 L 37 50 L 43 46 L 48 48' },
-	{ threshold: 0.85, d: 'M 48 48 L 51 38 L 55 28 L 60 20' },
-	{ threshold: 0.85, d: 'M 33 64 L 38 58 L 44 53 L 48 48' },
-];
-/** Each crack draws from 0→1 over this fraction of total progress after its threshold. */
-const CRACK_GROW_RANGE = 0.15;
-
-/**
  * Home page — displays a shuffled carousel of wave GIFs inside an animated tile.
  * The first image is pinned; subsequent clicks cycle through a cryptographically shuffled deck.
  */
@@ -205,36 +162,6 @@ function Home() {
 					} : undefined}
 				>
 					<span className="text-sm font-medium font-display text-neutral-200 relative z-10">Wave Back!</span>
-
-					{/* Crack overlay — SVG paths drawn progressively, clipped to circle by ripple-container overflow:hidden */}
-					{glowProgress > 0 && !prefersReducedMotion && (
-						<svg
-							viewBox="0 0 96 96"
-							className="absolute inset-0 w-full h-full pointer-events-none"
-							style={{
-								filter: `drop-shadow(0 0 ${3 + glowProgress * 8}px rgba(59, 130, 246, ${0.4 + glowProgress * 0.6}))`,
-							}}
-						>
-							{CRACKS.map((crack, i) => {
-								const drawn = Math.min(1, Math.max(0, (glowProgress - crack.threshold) / CRACK_GROW_RANGE));
-								if (drawn <= 0) return null;
-								return (
-									<motion.path
-										key={i}
-										d={crack.d}
-										fill="none"
-										stroke={`rgba(59, 130, 246, ${0.4 + glowProgress * 0.6})`}
-										strokeWidth={1 + glowProgress * 1.2}
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										initial={{ pathLength: 0 }}
-										animate={{ pathLength: drawn }}
-										transition={{ duration: 0.4, ease: 'easeOut' }}
-									/>
-								);
-							})}
-						</svg>
-					)}
 				</motion.button>
 
 				{/* EMP shockwave ring — expands outward on deck exhaustion */}
